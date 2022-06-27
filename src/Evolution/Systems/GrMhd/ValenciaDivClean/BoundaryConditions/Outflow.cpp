@@ -3,11 +3,12 @@
 
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/BoundaryConditions/Outflow.hpp"
 
+#include <pup.h>
+
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <optional>
-#include <pup.h>
 #include <string>
 
 #include "DataStructures/DataVector.hpp"

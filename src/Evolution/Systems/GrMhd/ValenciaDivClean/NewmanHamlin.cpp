@@ -25,6 +25,7 @@ std::optional<PrimitiveRecoveryData> NewmanHamlin::apply(
     const double momentum_density_dot_magnetic_field,
     const double magnetic_field_squared,
     const double rest_mass_density_times_lorentz_factor,
+    const double electron_fraction,
     const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
         equation_of_state) {
   // constant in cubic equation  f(eps) = eps^3 - a eps^2 + d
@@ -110,20 +111,19 @@ std::optional<PrimitiveRecoveryData> NewmanHamlin::apply(
     if (converged) {
       return PrimitiveRecoveryData{current_rest_mass_density,
                                    current_lorentz_factor, current_pressure,
-                                   rho_h_w_squared};
+                                   rho_h_w_squared, electron_fraction};
     }
 
-    const double current_specific_enthalpy = [rho_h_w_squared,
-                                              current_rest_mass_density,
-                                              current_lorentz_factor]() {
-      const double specific_enthalpy =
-          rho_h_w_squared /
-          (current_rest_mass_density * square(current_lorentz_factor));
-      if (UNLIKELY(1.0 - 1.0e-12 > specific_enthalpy)) {
-        return specific_enthalpy;  // will fail returning std::nullopt
-      }
-      return std::max(1.0, specific_enthalpy);
-    }();
+    const double current_specific_enthalpy =
+        [rho_h_w_squared, current_rest_mass_density, current_lorentz_factor]() {
+          const double specific_enthalpy =
+              rho_h_w_squared /
+              (current_rest_mass_density * square(current_lorentz_factor));
+          if (UNLIKELY(1.0 - 1.0e-12 > specific_enthalpy)) {
+            return specific_enthalpy;  // will fail returning std::nullopt
+          }
+          return std::max(1.0, specific_enthalpy);
+        }();
     if (UNLIKELY(1.0 > current_specific_enthalpy)) {
       return std::nullopt;
     }
@@ -132,6 +132,12 @@ std::optional<PrimitiveRecoveryData> NewmanHamlin::apply(
       current_pressure = get(equation_of_state.pressure_from_density(
           Scalar<double>(current_rest_mass_density)));
     } else if constexpr (ThermodynamicDim == 2) {
+      current_pressure =
+          get(equation_of_state.pressure_from_density_and_enthalpy(
+              Scalar<double>(current_rest_mass_density),
+              Scalar<double>(current_specific_enthalpy)));
+    } else if constexpr (ThermodynamicDim == 3) {
+      // FIXME
       current_pressure =
           get(equation_of_state.pressure_from_density_and_enthalpy(
               Scalar<double>(current_rest_mass_density),
@@ -177,6 +183,7 @@ std::optional<PrimitiveRecoveryData> NewmanHamlin::apply(
       const double momentum_density_dot_magnetic_field,                       \
       const double magnetic_field_squared,                                    \
       const double rest_mass_density_times_lorentz_factor,                    \
+      const double electron_fraction,                                         \
       const EquationsOfState::EquationOfState<true, THERMODIM(data)>&         \
           equation_of_state);
 

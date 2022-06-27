@@ -24,7 +24,7 @@ class Variables;
 namespace grmhd::ValenciaDivClean::subcell {
 namespace detail {
 bool initial_data_tci_work(
-    const Scalar<DataVector>& dg_tilde_d,
+    const Scalar<DataVector>& dg_tilde_d, const Scalar<DataVector>& dg_tilde_ye,
     const Scalar<DataVector>& dg_tilde_tau,
     const Scalar<DataVector>& subcell_tilde_d,
     const Scalar<DataVector>& subcell_tilde_tau,
@@ -58,9 +58,10 @@ struct DgInitialDataTci {
 
   static bool apply(
       const Variables<tmpl::list<
-          ValenciaDivClean::Tags::TildeD, ValenciaDivClean::Tags::TildeTau,
-          ValenciaDivClean::Tags::TildeS<>, ValenciaDivClean::Tags::TildeB<>,
-          ValenciaDivClean::Tags::TildePhi>>& dg_vars,
+          ValenciaDivClean::Tags::TildeD, ValenciaDivClean::Tags::TildeYe,
+          ValenciaDivClean::Tags::TildeTau, ValenciaDivClean::Tags::TildeS<>,
+          ValenciaDivClean::Tags::TildeB<>, ValenciaDivClean::Tags::TildePhi>>&
+          dg_vars,
       const Variables<tmpl::list<Inactive<ValenciaDivClean::Tags::TildeD>,
                                  Inactive<ValenciaDivClean::Tags::TildeTau>,
                                  Inactive<ValenciaDivClean::Tags::TildeS<>>,

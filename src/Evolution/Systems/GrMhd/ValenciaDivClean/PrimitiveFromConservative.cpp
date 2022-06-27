@@ -40,6 +40,7 @@ template <size_t ThermodynamicDim>
 bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
                                ErrorOnFailure>::
     apply(const gsl::not_null<Scalar<DataVector>*> rest_mass_density,
+          const gsl::not_null<Scalar<DataVector>*> electron_fraction,
           const gsl::not_null<Scalar<DataVector>*> specific_internal_energy,
           const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
               spatial_velocity,
@@ -102,6 +103,10 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
   rest_mass_density_times_lorentz_factor =
       get(tilde_d) / get(sqrt_det_spatial_metric);
 
+  // FIXME: This may need bounds
+
+  get(*electron_fraction) = get(tilde_ye) / get(tilde_d);
+
   for (size_t s = 0; s < total_energy_density.size(); ++s) {
     std::optional<PrimitiveRecoverySchemes::PrimitiveRecoveryData>
         primitive_data = std::nullopt;
@@ -119,7 +124,7 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
                     get(momentum_density_dot_magnetic_field)[s],
                     get(magnetic_field_squared)[s],
                     rest_mass_density_times_lorentz_factor[s],
-                    equation_of_state);
+                    electron_fraction[s], equation_of_state);
           }
         });
 
@@ -173,6 +178,11 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
     *specific_internal_energy =
         equation_of_state.specific_internal_energy_from_density_and_pressure(
             *rest_mass_density, *pressure);
+  } else if constexpr (ThermodynamicDim == 3) {
+    // TODO FIXME
+    *specific_internal_energy =
+        equation_of_state.specific_internal_energy_from_density_and_pressure(
+            *rest_mass_density, *pressure);
   }
   *specific_enthalpy = hydro::relativistic_specific_enthalpy(
       *rest_mass_density, *specific_internal_energy, *pressure);
@@ -213,6 +223,7 @@ GENERATE_INSTANTIATIONS(
       RECOVERY(data), ERROR_ON_FAILURE(data)>::                               \
       apply<THERMODIM(data)>(                                                 \
           const gsl::not_null<Scalar<DataVector>*> rest_mass_density,         \
+          const gsl::not_null<Scalar<DataVector>*> electron_fraction,         \
           const gsl::not_null<Scalar<DataVector>*> specific_internal_energy,  \
           const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>       \
               spatial_velocity,                                               \
@@ -223,6 +234,7 @@ GENERATE_INSTANTIATIONS(
           const gsl::not_null<Scalar<DataVector>*> pressure,                  \
           const gsl::not_null<Scalar<DataVector>*> specific_enthalpy,         \
           const Scalar<DataVector>& tilde_d,                                  \
+          const Scalar<DataVector>& tilde_ye,                                 \
           const Scalar<DataVector>& tilde_tau,                                \
           const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,             \
           const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,             \

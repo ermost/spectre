@@ -21,6 +21,7 @@ namespace grmhd::ValenciaDivClean {
 namespace detail {
 void fluxes_impl(
     gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_d_flux,
+    gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_ye_flux,
     gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_tau_flux,
     gsl::not_null<tnsr::Ij<DataVector, 3, Frame::Inertial>*> tilde_s_flux,
     gsl::not_null<tnsr::IJ<DataVector, 3, Frame::Inertial>*> tilde_b_flux,
@@ -33,7 +34,8 @@ void fluxes_impl(
     const Scalar<DataVector>& pressure_star_lapse_sqrt_det_spatial_metric,
 
     // Extra args
-    const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_tau,
+    const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_ye,
+    const Scalar<DataVector>& tilde_tau,
     const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,
     const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,
     const Scalar<DataVector>& tilde_phi, const Scalar<DataVector>& lapse,
@@ -58,7 +60,8 @@ void sources_impl(
     const tnsr::I<DataVector, 3, Frame::Inertial>&
         trace_spatial_christoffel_second,
 
-    const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_tau,
+    const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_ye,
+    const Scalar<DataVector>& tilde_tau,
     const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,
     const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,
     const Scalar<DataVector>& tilde_phi, const Scalar<DataVector>& lapse,
@@ -72,6 +75,7 @@ void sources_impl(
     const tnsr::I<DataVector, 3, Frame::Inertial>& magnetic_field,
 
     const Scalar<DataVector>& rest_mass_density,
+    const Scalar<DataVector>& electron_fraction,
     const Scalar<DataVector>& specific_enthalpy,
     const tnsr::ii<DataVector, 3, Frame::Inertial>& extrinsic_curvature,
     double constraint_damping_parameter);
@@ -87,6 +91,7 @@ void TimeDerivativeTerms::apply(
     const gsl::not_null<Scalar<DataVector>*> non_flux_terms_dt_tilde_phi,
 
     const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_d_flux,
+    const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_ye_flux,
     const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
         tilde_tau_flux,
     const gsl::not_null<tnsr::Ij<DataVector, 3, Frame::Inertial>*> tilde_s_flux,
@@ -125,7 +130,8 @@ void TimeDerivativeTerms::apply(
     const gsl::not_null<tnsr::II<DataVector, 3, Frame::Inertial>*>
         temp_inverse_spatial_metric,
 
-    const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_tau,
+    const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_ye,
+    const Scalar<DataVector>& tilde_tau,
     const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,
     const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,
     const Scalar<DataVector>& tilde_phi, const Scalar<DataVector>& lapse,
@@ -142,6 +148,7 @@ void TimeDerivativeTerms::apply(
     const tnsr::I<DataVector, 3, Frame::Inertial>& magnetic_field,
 
     const Scalar<DataVector>& rest_mass_density,
+    const Scalar<DataVector>& electron_fraction,
     const Scalar<DataVector>& specific_enthalpy,
     const tnsr::ii<DataVector, 3, Frame::Inertial>& extrinsic_curvature,
     const double constraint_damping_parameter) {
@@ -173,14 +180,15 @@ void TimeDerivativeTerms::apply(
     lapse_b_over_w->get(i) *= get(lapse);
   }
 
-  detail::fluxes_impl(
-      tilde_d_flux, tilde_tau_flux, tilde_s_flux, tilde_b_flux, tilde_phi_flux,
-      // Temporaries
-      transport_velocity, *lapse_b_over_w, *magnetic_field_dot_spatial_velocity,
-      *pressure_star_lapse_sqrt_det_spatial_metric,
-      // Extra args
-      tilde_d, tilde_tau, tilde_s, tilde_b, tilde_phi, lapse, shift,
-      inv_spatial_metric, spatial_velocity);
+  detail::fluxes_impl(tilde_d_flux, tilde_ye_flux, tilde_tau_flux, tilde_s_flux,
+                      tilde_b_flux, tilde_phi_flux,
+                      // Temporaries
+                      transport_velocity, *lapse_b_over_w,
+                      *magnetic_field_dot_spatial_velocity,
+                      *pressure_star_lapse_sqrt_det_spatial_metric,
+                      // Extra args
+                      tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
+                      lapse, shift, inv_spatial_metric, spatial_velocity);
 
   // Compute source terms
   gr::christoffel_first_kind(spatial_christoffel_first_kind, d_spatial_metric);

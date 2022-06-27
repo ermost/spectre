@@ -3,11 +3,12 @@
 
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/FixConservatives.hpp"
 
+#include <pup.h>  // IWYU pragma: keep
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <ostream>
-#include <pup.h>  // IWYU pragma: keep
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tags/TempTensor.hpp"

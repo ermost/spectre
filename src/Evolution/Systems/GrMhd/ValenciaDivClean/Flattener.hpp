@@ -92,7 +92,8 @@ class Flattener {
       "the variable fixing procedure described in Foucart's thesis.\n"};
 
   Flattener(bool require_positive_mean_tilde_d,
-            bool require_physical_mean_tilde_tau, bool recover_primitives);
+            bool require_physical_mean_tilde_tau,
+            bool require_positive_mean_tilde_ye, bool recover_primitives);
 
   Flattener() = default;
   Flattener(const Flattener& /*rhs*/) = default;
@@ -105,7 +106,8 @@ class Flattener {
   void pup(PUP::er& p);
 
   using return_tags =
-      tmpl::list<Tags::TildeD, Tags::TildeTau, Tags::TildeS<Frame::Inertial>,
+      tmpl::list<Tags::TildeD, Tags::TildeYe, Tags::TildeTau,
+                 Tags::TildeS<Frame::Inertial>,
                  ::Tags::Variables<hydro::grmhd_tags<DataVector>>>;
   using argument_tags = tmpl::list<
       Tags::TildeB<>, Tags::TildePhi,
@@ -119,6 +121,7 @@ class Flattener {
   template <size_t ThermodynamicDim>
   void operator()(
       gsl::not_null<Scalar<DataVector>*> tilde_d,
+      gsl::not_null<Scalar<DataVector>*> tilde_ye,
       gsl::not_null<Scalar<DataVector>*> tilde_tau,
       gsl::not_null<tnsr::i<DataVector, 3>*> tilde_s,
       gsl::not_null<Variables<hydro::grmhd_tags<DataVector>>*> primitives,
@@ -140,6 +143,7 @@ class Flattener {
 
   bool require_positive_mean_tilde_d_ = false;
   bool require_physical_mean_tilde_tau_ = false;
+  bool require_positive_mean_tilde_ye_ = false;
   bool recover_primitives_ = false;
 };
 

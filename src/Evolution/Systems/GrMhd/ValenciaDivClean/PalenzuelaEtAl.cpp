@@ -28,6 +28,7 @@ class FunctionOfX {
               const double momentum_density_dot_magnetic_field,
               const double magnetic_field_squared,
               const double rest_mass_density_times_lorentz_factor,
+              const double electron_fraction,
               const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
                   equation_of_state)
       : q_(total_energy_density / rest_mass_density_times_lorentz_factor - 1.0),
@@ -75,6 +76,8 @@ class FunctionOfX {
           get(equation_of_state_.pressure_from_density_and_energy(
               Scalar<double>(current_rest_mass_density),
               Scalar<double>(current_specific_internal_energy)));
+    } else if constexpr (ThermodynamicDim == 3) {
+      // FIXME
     }
 
     return x - (1.0 + current_specific_internal_energy +
@@ -139,6 +142,8 @@ std::optional<PrimitiveRecoveryData> PalenzuelaEtAl::apply(
     pressure = get(equation_of_state.pressure_from_density_and_energy(
         Scalar<double>(rest_mass_density),
         Scalar<double>(specific_internal_energy)));
+  } else if constexpr (ThermodynamicDim == 3) {
+    // FIXME
   }
 
   return PrimitiveRecoveryData{rest_mass_density, lorentz_factor, pressure,

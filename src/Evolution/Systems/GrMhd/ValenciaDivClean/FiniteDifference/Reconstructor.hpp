@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <memory>
 #include <pup.h>
+
+#include <memory>
 
 #include "Parallel/CharmPupable.hpp"
 #include "Utilities/TMPL.hpp"

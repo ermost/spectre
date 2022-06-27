@@ -3,10 +3,11 @@
 
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Flattener.hpp"
 
+#include <pup.h>
+
 #include <array>
 #include <cstddef>
 #include <limits>
-#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/EagerMath/DotProduct.hpp"
@@ -29,15 +30,18 @@ namespace grmhd::ValenciaDivClean {
 template <typename RecoverySchemesList>
 Flattener<RecoverySchemesList>::Flattener(
     const bool require_positive_mean_tilde_d,
-    const bool require_physical_mean_tilde_tau, const bool recover_primitives)
+    const bool require_physical_mean_tilde_tau,
+    const bool require_physical_mean_tilde_ye, const bool recover_primitives)
     : require_positive_mean_tilde_d_(require_positive_mean_tilde_d),
       require_physical_mean_tilde_tau_(require_physical_mean_tilde_tau),
+      require_positive_mean_tilde_ye_(require_positive_mean_tilde_ye),
       recover_primitives_(recover_primitives) {}
 
 template <typename RecoverySchemesList>
 void Flattener<RecoverySchemesList>::pup(PUP::er& p) {
   p | require_positive_mean_tilde_d_;
   p | require_physical_mean_tilde_tau_;
+  p | require_positive_mean_tilde_ye_;
   p | recover_primitives_;
 }
 
@@ -45,6 +49,7 @@ template <typename RecoverySchemesList>
 template <size_t ThermodynamicDim>
 void Flattener<RecoverySchemesList>::operator()(
     const gsl::not_null<Scalar<DataVector>*> tilde_d,
+    const gsl::not_null<Scalar<DataVector>*> tilde_ye,
     const gsl::not_null<Scalar<DataVector>*> tilde_tau,
     const gsl::not_null<tnsr::i<DataVector, 3>*> tilde_s,
     const gsl::not_null<Variables<hydro::grmhd_tags<DataVector>>*> primitives,
@@ -68,10 +73,11 @@ void Flattener<RecoverySchemesList>::operator()(
   bool already_computed_means = false;
 
   const auto compute_means =
-      [&already_computed_means, &mean_tilde_d, &mean_tilde_tau, &mean_tilde_s,
-       &tilde_d, &tilde_tau, &tilde_s, &mesh, &det_logical_to_inertial_jacobian,
-       require_positive_mean_tilde_d =
-           require_positive_mean_tilde_d_]() {
+      [&already_computed_means, &mean_tilde_d, &mean_tilde_ye,
+    &mean_tilde_tau, &mean_tilde_s, &tilde_d, &tilde_tau, &tilde_s, &mesh,
+    &det_logical_to_inertial_jacobian, require_positive_mean_tilde_d =
+      require_positive_mean_tilde_d_, require_positive_mean_tilde_ye =
+      require_positive_mean_tilde_ye_, ]() {
         if (already_computed_means) {
           return;
         }
@@ -94,6 +100,7 @@ void Flattener<RecoverySchemesList>::operator()(
                      volume_of_cell;
             };
         mean_tilde_d = inertial_coord_mean(get(*tilde_d));
+        mean_tilde_ye = inertial_coord_mean(get(*tilde_ye));
         mean_tilde_tau = inertial_coord_mean(get(*tilde_tau));
         for (size_t i = 0; i < 3; ++i) {
           gsl::at(mean_tilde_s, i) = inertial_coord_mean(tilde_s->get(i));
@@ -103,10 +110,17 @@ void Flattener<RecoverySchemesList>::operator()(
           ERROR("We require TildeD to have positive mean, but got "
                 << *tilde_d << " with mean value " << mean_tilde_d);
         }
+
+        if (require_positive_mean_tilde_ye and mean_tilde_ye < 0.) {
+          ERROR("We require TildeYe to have positive mean, but got "
+                << *tilde_ye << " with mean value " << mean_tilde_ye);
+        }
       };
 
   // If min(tilde_d) is negative, then flatten.
-  if (const double min_tilde_d = min(get(*tilde_d)); min_tilde_d < 0.) {
+  if (const double min_tilde_d = min(get(*tilde_d)),
+      min_tilde_ye = min(get(*tilde_ye));
+      min_tilde_d < 0. || min_tilde_ye < 0.) {
     compute_means();
 
     // Note: the current algorithm flattens all fields by the same factor,
@@ -120,6 +134,7 @@ void Flattener<RecoverySchemesList>::operator()(
     const double factor = safety * mean_tilde_d / (mean_tilde_d - min_tilde_d);
 
     get(*tilde_d) = mean_tilde_d + factor * (get(*tilde_d) - mean_tilde_d);
+    get(*tilde_ye) = mean_tilde_ye + factor * (get(*tilde_ye) - mean_tilde_ye);
     get(*tilde_tau) =
         mean_tilde_tau + factor * (get(*tilde_tau) - mean_tilde_tau);
     for (size_t i = 0; i < 3; ++i) {
@@ -180,6 +195,8 @@ void Flattener<RecoverySchemesList>::operator()(
               make_not_null(
                   &get<hydro::Tags::RestMassDensity<DataVector>>(temp_prims)),
               make_not_null(
+                  &get<hydro::Tags::ElectronFraction<DataVector>>(temp_prims)),
+              make_not_null(
                   &get<hydro::Tags::SpecificInternalEnergy<DataVector>>(
                       temp_prims)),
               make_not_null(&get<hydro::Tags::SpatialVelocity<DataVector, 3>>(
@@ -195,12 +212,13 @@ void Flattener<RecoverySchemesList>::operator()(
                   &get<hydro::Tags::Pressure<DataVector>>(temp_prims)),
               make_not_null(
                   &get<hydro::Tags::SpecificEnthalpy<DataVector>>(temp_prims)),
-              *tilde_d, *tilde_tau, *tilde_s, tilde_b, tilde_phi,
+              *tilde_d, *tilde_ye, *tilde_tau, *tilde_s, tilde_b, tilde_phi,
               spatial_metric, inv_spatial_metric, sqrt_det_spatial_metric,
               eos)) {
     compute_means();
 
     get(*tilde_d) = mean_tilde_d;
+    get(*tilde_ye) = mean_tilde_ye;
     get(*tilde_tau) = mean_tilde_tau;
     for (size_t i = 0; i < 3; ++i) {
       tilde_s->get(i) = gsl::at(mean_tilde_s, i);
@@ -212,6 +230,8 @@ void Flattener<RecoverySchemesList>::operator()(
               make_not_null(
                   &get<hydro::Tags::RestMassDensity<DataVector>>(temp_prims)),
               make_not_null(
+                  &get<hydro::Tags::ElectronFraction<DataVector>>(temp_prims)),
+              make_not_null(
                   &get<hydro::Tags::SpecificInternalEnergy<DataVector>>(
                       temp_prims)),
               make_not_null(&get<hydro::Tags::SpatialVelocity<DataVector, 3>>(
@@ -227,7 +247,7 @@ void Flattener<RecoverySchemesList>::operator()(
                   &get<hydro::Tags::Pressure<DataVector>>(temp_prims)),
               make_not_null(
                   &get<hydro::Tags::SpecificEnthalpy<DataVector>>(temp_prims)),
-              *tilde_d, *tilde_tau, *tilde_s, tilde_b, tilde_phi,
+              *tilde_d, *tilde_ye, *tilde_tau, *tilde_s, tilde_b, tilde_phi,
               spatial_metric, inv_spatial_metric, sqrt_det_spatial_metric, eos);
     }
   }
@@ -242,6 +262,8 @@ bool operator==(const Flattener<RecoverySchemesList>& lhs,
                 const Flattener<RecoverySchemesList>& rhs) {
   return lhs.require_positive_mean_tilde_d_ ==
              rhs.require_positive_mean_tilde_d_ and
+         lhs.require_physical_mean_tilde_ye_ ==
+             rhs.require_physical_mean_tilde_ye_ and
          lhs.require_physical_mean_tilde_tau_ ==
              rhs.require_physical_mean_tilde_tau_ and
          lhs.recover_primitives_ == rhs.recover_primitives_;
@@ -281,6 +303,7 @@ GENERATE_INSTANTIATIONS(INSTANTIATION, ORDERED_RECOVERY_LIST)
 #define INSTANTIATION(r, data)                                              \
   template void Flattener<RECOVERY(data)>::operator()<THERMO_DIM(data)>(    \
       gsl::not_null<Scalar<DataVector>*> tilde_d,                           \
+      gsl::not_null<Scalar<DataVector>*> tilde_ye,                          \
       gsl::not_null<Scalar<DataVector>*> tilde_tau,                         \
       gsl::not_null<tnsr::i<DataVector, 3>*> tilde_s,                       \
       gsl::not_null<Variables<hydro::grmhd_tags<DataVector>>*> primitives,  \

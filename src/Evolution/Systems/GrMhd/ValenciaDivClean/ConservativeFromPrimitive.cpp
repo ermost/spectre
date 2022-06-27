@@ -24,11 +24,13 @@ namespace grmhd::ValenciaDivClean {
 
 void ConservativeFromPrimitive::apply(
     const gsl::not_null<Scalar<DataVector>*> tilde_d,
+    const gsl::not_null<Scalar<DataVector>*> tilde_ye,
     const gsl::not_null<Scalar<DataVector>*> tilde_tau,
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> tilde_s,
     const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_b,
     const gsl::not_null<Scalar<DataVector>*> tilde_phi,
     const Scalar<DataVector>& rest_mass_density,
+    const Scalar<DataVector>& electron_fraction,
     const Scalar<DataVector>& specific_internal_energy,
     const Scalar<DataVector>& specific_enthalpy,
     const Scalar<DataVector>& pressure,
@@ -70,16 +72,19 @@ void ConservativeFromPrimitive::apply(
   get(*tilde_d) = get(sqrt_det_spatial_metric) * get(rest_mass_density) *
                   get(lorentz_factor);
 
-  get(*tilde_tau) = get(sqrt_det_spatial_metric) *
-                      (square(get(lorentz_factor)) *
-                        (get(rest_mass_density) *
-                          (get(specific_internal_energy) +
-                           get(spatial_velocity_squared) * get(lorentz_factor) /
-                              (get(lorentz_factor) + 1.)) +
-                         get(pressure) * get(spatial_velocity_squared)) +
-                       0.5 * get(magnetic_field_squared) *
-                        (1.0 + get(spatial_velocity_squared)) -
-                       0.5 * square(get(magnetic_field_dot_spatial_velocity)));
+  get(*tilde_ye) = get(*tilde_d) * get(electron_fraction);
+
+  get(*tilde_tau) =
+      get(sqrt_det_spatial_metric) *
+      (square(get(lorentz_factor)) *
+           (get(rest_mass_density) *
+                (get(specific_internal_energy) +
+                 get(spatial_velocity_squared) * get(lorentz_factor) /
+                     (get(lorentz_factor) + 1.)) +
+            get(pressure) * get(spatial_velocity_squared)) +
+       0.5 * get(magnetic_field_squared) *
+           (1.0 + get(spatial_velocity_squared)) -
+       0.5 * square(get(magnetic_field_dot_spatial_velocity)));
 
   // Reuse allocation
   Scalar<DataVector>& common_factor =

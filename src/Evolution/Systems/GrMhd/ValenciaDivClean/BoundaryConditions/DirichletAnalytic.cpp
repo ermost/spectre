@@ -3,9 +3,10 @@
 
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/BoundaryConditions/DirichletAnalytic.hpp"
 
+#include <pup.h>
+
 #include <cstddef>
 #include <memory>
-#include <pup.h>
 
 #include "Utilities/GenerateInstantiations.hpp"
 
