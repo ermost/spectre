@@ -103,6 +103,7 @@ struct TimeDerivativeTerms {
 
   static void apply(
       gsl::not_null<Scalar<DataVector>*> /*non_flux_terms_dt_tilde_d*/,
+      gsl::not_null<Scalar<DataVector>*> /*non_flux_terms_dt_tilde_ye*/,
       gsl::not_null<Scalar<DataVector>*> non_flux_terms_dt_tilde_tau,
       gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
           non_flux_terms_dt_tilde_s,
@@ -147,7 +148,7 @@ struct TimeDerivativeTerms {
           temp_inverse_spatial_metric,
 
       const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_tau,
-      const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_ye,
+      const Scalar<DataVector>& tilde_ye,
       const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,
       const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,
       const Scalar<DataVector>& tilde_phi, const Scalar<DataVector>& lapse,

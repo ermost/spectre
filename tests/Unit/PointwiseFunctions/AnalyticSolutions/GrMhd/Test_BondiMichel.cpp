@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -17,6 +15,7 @@
 #include "Framework/SetupLocalPythonEnvironment.hpp"
 #include "Framework/TestCreation.hpp"
 #include "Framework/TestHelpers.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "Helpers/PointwiseFunctions/AnalyticSolutions/GrMhd/VerifyGrMhdSolution.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
@@ -41,6 +40,7 @@ struct BondiMichelProxy : grmhd::Solutions::BondiMichel {
   template <typename DataType>
   using hydro_variables_tags =
       tmpl::list<hydro::Tags::RestMassDensity<DataType>,
+                 hydro::Tags::ElectronFraction<DataType>,
                  hydro::Tags::SpatialVelocity<DataType, 3>,
                  hydro::Tags::SpecificInternalEnergy<DataType>,
                  hydro::Tags::Pressure<DataType>,

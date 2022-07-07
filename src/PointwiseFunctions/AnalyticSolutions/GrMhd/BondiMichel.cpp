@@ -105,6 +105,7 @@ BondiMichel::IntermediateVars<DataType>::IntermediateVars(
     const gr::Solutions::KerrSchild& background_spacetime)
     : radius((magnitude(x)).get()),
       rest_mass_density(make_with_value<DataType>(x, 0.0)),
+      electron_fraction(make_with_value<DataType>(x, 0.0)),
       mass_accretion_rate_over_four_pi(in_mass_accretion_rate_over_four_pi),
       mass(in_mass),
       polytropic_constant(in_polytropic_constant),
@@ -135,6 +136,7 @@ BondiMichel::IntermediateVars<DataType>::IntermediateVars(
                                           : sonic_bound,
             current_radius < sonic_radius ? sonic_bound : sonic_density, 1.e-15,
             1.e-15);
+    get_element(electron_fraction, i) = 0.4; // FIXME
   }
   if (need_spacetime) {
     kerr_schild_soln = background_spacetime.variables(
@@ -175,6 +177,15 @@ BondiMichel::variables(
     tmpl::list<hydro::Tags::RestMassDensity<DataType>> /*meta*/,
     const IntermediateVars<DataType>& vars) const {
   return {Scalar<DataType>{DataType{vars.rest_mass_density}}};
+}
+
+template <typename DataType>
+tuples::TaggedTuple<hydro::Tags::ElectronFraction<DataType>>
+BondiMichel::variables(
+    const tnsr::I<DataType, 3>& /*x*/,
+    tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/,
+    const IntermediateVars<DataType>& vars) const {
+  return {Scalar<DataType>{DataType{vars.electron_fraction}}};
 }
 
 template <typename DataType>

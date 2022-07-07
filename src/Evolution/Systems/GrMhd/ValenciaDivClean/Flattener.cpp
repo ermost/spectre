@@ -31,7 +31,7 @@ template <typename RecoverySchemesList>
 Flattener<RecoverySchemesList>::Flattener(
     const bool require_positive_mean_tilde_d,
     const bool require_physical_mean_tilde_tau,
-    const bool require_physical_mean_tilde_ye, const bool recover_primitives)
+    const bool require_positive_mean_tilde_ye, const bool recover_primitives)
     : require_positive_mean_tilde_d_(require_positive_mean_tilde_d),
       require_physical_mean_tilde_tau_(require_physical_mean_tilde_tau),
       require_positive_mean_tilde_ye_(require_positive_mean_tilde_ye),
@@ -65,6 +65,7 @@ void Flattener<RecoverySchemesList>::operator()(
   // Create a temporary variable for each field's cell average.
   // These temporaries live on the stack and should have minimal cost.
   double mean_tilde_d = std::numeric_limits<double>::signaling_NaN();
+  double mean_tilde_ye = std::numeric_limits<double>::signaling_NaN();
   double mean_tilde_tau = std::numeric_limits<double>::signaling_NaN();
   auto mean_tilde_s =
       make_array<3>(std::numeric_limits<double>::signaling_NaN());
@@ -73,11 +74,11 @@ void Flattener<RecoverySchemesList>::operator()(
   bool already_computed_means = false;
 
   const auto compute_means =
-      [&already_computed_means, &mean_tilde_d, &mean_tilde_ye,
-    &mean_tilde_tau, &mean_tilde_s, &tilde_d, &tilde_tau, &tilde_s, &mesh,
-    &det_logical_to_inertial_jacobian, require_positive_mean_tilde_d =
-      require_positive_mean_tilde_d_, require_positive_mean_tilde_ye =
-      require_positive_mean_tilde_ye_, ]() {
+      [&already_computed_means, &mean_tilde_d, &mean_tilde_ye, &mean_tilde_tau,
+       &mean_tilde_s, &tilde_d, &tilde_ye, &tilde_tau, &tilde_s, &mesh,
+       &det_logical_to_inertial_jacobian,
+       require_positive_mean_tilde_d = require_positive_mean_tilde_d_,
+       require_positive_mean_tilde_ye = require_positive_mean_tilde_ye_]() {
         if (already_computed_means) {
           return;
         }
@@ -262,8 +263,8 @@ bool operator==(const Flattener<RecoverySchemesList>& lhs,
                 const Flattener<RecoverySchemesList>& rhs) {
   return lhs.require_positive_mean_tilde_d_ ==
              rhs.require_positive_mean_tilde_d_ and
-         lhs.require_physical_mean_tilde_ye_ ==
-             rhs.require_physical_mean_tilde_ye_ and
+         lhs.require_positive_mean_tilde_ye_ ==
+             rhs.require_positive_mean_tilde_ye_ and
          lhs.require_physical_mean_tilde_tau_ ==
              rhs.require_physical_mean_tilde_tau_ and
          lhs.recover_primitives_ == rhs.recover_primitives_;

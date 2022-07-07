@@ -152,8 +152,8 @@ struct TimeDerivative {
             &recons,
             [&box, &package_data_argvars_lower_face,
              &package_data_argvars_upper_face](const auto& reconstructor) {
-              db::apply<typename std::decay_t<
-                  decltype(*reconstructor)>::reconstruction_argument_tags>(
+              db::apply<typename std::decay_t<decltype(
+                  *reconstructor)>::reconstruction_argument_tags>(
                   [&package_data_argvars_lower_face,
                    &package_data_argvars_upper_face,
                    &reconstructor](const auto&... args) {

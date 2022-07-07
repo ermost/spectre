@@ -22,6 +22,7 @@ class DataVector;
 // IWYU pragma: no_forward_declare EquationsOfState::EquationOfState
 // IWYU pragma: no_forward_declare Tensor
 // IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeD
+// IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeYe
 // IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeTau
 // IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeS
 // IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeB
@@ -149,6 +150,7 @@ class FixConservatives {
   void pup(PUP::er& p);
 
   using return_tags = tmpl::list<grmhd::ValenciaDivClean::Tags::TildeD,
+                                 grmhd::ValenciaDivClean::Tags::TildeYe,
                                  grmhd::ValenciaDivClean::Tags::TildeTau,
                                  grmhd::ValenciaDivClean::Tags::TildeS<>>;
   using argument_tags =
@@ -159,6 +161,7 @@ class FixConservatives {
   /// Returns `true` if any variables were fixed.
   bool operator()(
       gsl::not_null<Scalar<DataVector>*> tilde_d,
+      gsl::not_null<Scalar<DataVector>*> tilde_ye,
       gsl::not_null<Scalar<DataVector>*> tilde_tau,
       gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> tilde_s,
       const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,

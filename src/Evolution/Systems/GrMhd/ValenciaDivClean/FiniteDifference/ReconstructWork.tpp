@@ -35,8 +35,7 @@ namespace grmhd::ValenciaDivClean::fd {
 template <typename TagsList, size_t ThermodynamicDim>
 void compute_conservatives_for_reconstruction(
     const gsl::not_null<Variables<TagsList>*> vars_on_face,
-    const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
-        eos) {
+    const EquationsOfState::EquationOfState<true, ThermodynamicDim>& eos) {
   // Computes:
   // 1. W v^i
   // 2. Lorentz factor as sqrt(1 + Wv^i Wv^j\gamma_{ij})
@@ -71,6 +70,8 @@ void compute_conservatives_for_reconstruction(
   }
   const auto& rest_mass_density =
       get<hydro::Tags::RestMassDensity<DataVector>>(*vars_on_face);
+  const auto& electron_fraction =
+      get<hydro::Tags::ElectronFraction<DataVector>>(*vars_on_face);
   const auto& pressure = get<hydro::Tags::Pressure<DataVector>>(*vars_on_face);
   auto& specific_internal_energy =
       get<hydro::Tags::SpecificInternalEnergy<DataVector>>(*vars_on_face);
@@ -89,14 +90,15 @@ void compute_conservatives_for_reconstruction(
                                         specific_internal_energy, pressure);
   ConservativeFromPrimitive::apply(
       make_not_null(&get<ValenciaDivClean::Tags::TildeD>(*vars_on_face)),
+      make_not_null(&get<ValenciaDivClean::Tags::TildeYe>(*vars_on_face)),
       make_not_null(&get<ValenciaDivClean::Tags::TildeTau>(*vars_on_face)),
       make_not_null(
           &get<ValenciaDivClean::Tags::TildeS<Frame::Inertial>>(*vars_on_face)),
       make_not_null(
           &get<ValenciaDivClean::Tags::TildeB<Frame::Inertial>>(*vars_on_face)),
       make_not_null(&get<ValenciaDivClean::Tags::TildePhi>(*vars_on_face)),
-      rest_mass_density, specific_internal_energy, specific_enthalpy, pressure,
-      spatial_velocity, lorentz_factor,
+      rest_mass_density, electron_fraction, specific_internal_energy,
+      specific_enthalpy, pressure, spatial_velocity, lorentz_factor,
       get<hydro::Tags::MagneticField<DataVector, 3, Frame::Inertial>>(
           *vars_on_face),
       get<gr::Tags::SqrtDetSpatialMetric<DataVector>>(*vars_on_face),
@@ -141,8 +143,7 @@ void reconstruct_prims_work(
                                                 &vars_in_neighbor_count,
                                                 &vars_on_lower_face,
                                                 &vars_on_upper_face,
-                                                &subcell_mesh](
-                                                   auto tag_v) {
+                                                &subcell_mesh](auto tag_v) {
     using tag = tmpl::type_from<decltype(tag_v)>;
     const typename tag::type* volume_tensor_ptr = nullptr;
     Variables<tmpl::list<

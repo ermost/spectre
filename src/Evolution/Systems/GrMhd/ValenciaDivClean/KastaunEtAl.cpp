@@ -338,7 +338,8 @@ std::optional<PrimitiveRecoveryData> KastaunEtAl::apply(
   return PrimitiveRecoveryData{
       rest_mass_density, lorentz_factor, pressure,
       rest_mass_density_times_lorentz_factor /
-          one_over_specific_enthalpy_times_lorentz_factor};
+          one_over_specific_enthalpy_times_lorentz_factor,
+      electron_fraction};
 }
 }  // namespace grmhd::ValenciaDivClean::PrimitiveRecoverySchemes
 

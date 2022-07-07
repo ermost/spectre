@@ -141,6 +141,7 @@ void FixConservatives::pup(PUP::er& p) {
 // \gamma_{mn}       g_{mn}
 bool FixConservatives::operator()(
     const gsl::not_null<Scalar<DataVector>*> tilde_d,
+    const gsl::not_null<Scalar<DataVector>*> tilde_ye,
     const gsl::not_null<Scalar<DataVector>*> tilde_tau,
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> tilde_s,
     const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,

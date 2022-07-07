@@ -124,6 +124,12 @@ struct RestMassDensity : db::SimpleTag {
   using type = Scalar<DataType>;
 };
 
+/// The electron fraction \f$Y_e\f$.
+template <typename DataType>
+struct ElectronFraction : db::SimpleTag {
+  using type = Scalar<DataType>;
+};
+
 /// The sound speed squared \f$c_s^2\f$.
 template <typename DataType>
 struct SoundSpeedSquared : db::SimpleTag {

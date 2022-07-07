@@ -50,7 +50,7 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
           const gsl::not_null<Scalar<DataVector>*> lorentz_factor,
           const gsl::not_null<Scalar<DataVector>*> pressure,
           const gsl::not_null<Scalar<DataVector>*> specific_enthalpy,
-          const Scalar<DataVector>& tilde_d,
+          const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_ye,
           const Scalar<DataVector>& tilde_tau,
           const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,
           const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,
@@ -114,7 +114,7 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
         [&pressure, &primitive_data, &total_energy_density,
          &momentum_density_squared, &momentum_density_dot_magnetic_field,
          &magnetic_field_squared, &rest_mass_density_times_lorentz_factor,
-         &equation_of_state, &s](auto scheme) {
+         &equation_of_state, &s, &electron_fraction](auto scheme) {
           using primitive_recovery_scheme = tmpl::type_from<decltype(scheme)>;
           if (not primitive_data.has_value()) {
             primitive_data =
@@ -124,7 +124,7 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
                     get(momentum_density_dot_magnetic_field)[s],
                     get(magnetic_field_squared)[s],
                     rest_mass_density_times_lorentz_factor[s],
-                    electron_fraction[s], equation_of_state);
+                    get(*electron_fraction)[s], equation_of_state);
           }
         });
 
