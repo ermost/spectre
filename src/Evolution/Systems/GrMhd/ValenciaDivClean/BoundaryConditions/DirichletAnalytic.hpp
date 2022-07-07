@@ -77,6 +77,7 @@ class DirichletAnalytic final : public BoundaryCondition {
   template <typename AnalyticSolutionOrData>
   std::optional<std::string> dg_ghost(
       const gsl::not_null<Scalar<DataVector>*> tilde_d,
+      const gsl::not_null<Scalar<DataVector>*> tilde_ye,
       const gsl::not_null<Scalar<DataVector>*> tilde_tau,
       const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> tilde_s,
       const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> tilde_b,
@@ -84,6 +85,8 @@ class DirichletAnalytic final : public BoundaryCondition {
 
       const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
           tilde_d_flux,
+      const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
+          tilde_ye_flux,
       const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
           tilde_tau_flux,
       const gsl::not_null<tnsr::Ij<DataVector, 3, Frame::Inertial>*>
@@ -110,6 +113,7 @@ class DirichletAnalytic final : public BoundaryCondition {
             coords, time,
             tmpl::list<
                 hydro::Tags::RestMassDensity<DataVector>,
+                hydro::Tags::ElectronFraction<DataVector>,
                 hydro::Tags::SpecificInternalEnergy<DataVector>,
                 hydro::Tags::SpecificEnthalpy<DataVector>,
                 hydro::Tags::Pressure<DataVector>,
@@ -129,6 +133,7 @@ class DirichletAnalytic final : public BoundaryCondition {
             coords,
             tmpl::list<
                 hydro::Tags::RestMassDensity<DataVector>,
+                hydro::Tags::ElectronFraction<DataVector>,
                 hydro::Tags::SpecificInternalEnergy<DataVector>,
                 hydro::Tags::SpecificEnthalpy<DataVector>,
                 hydro::Tags::Pressure<DataVector>,
@@ -152,8 +157,9 @@ class DirichletAnalytic final : public BoundaryCondition {
             boundary_values);
 
     ConservativeFromPrimitive::apply(
-        tilde_d, tilde_tau, tilde_s, tilde_b, tilde_phi,
+        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
         get<hydro::Tags::RestMassDensity<DataVector>>(boundary_values),
+        get<hydro::Tags::ElectronFraction<DataVector>>(boundary_values),
         get<hydro::Tags::SpecificInternalEnergy<DataVector>>(boundary_values),
         get<hydro::Tags::SpecificEnthalpy<DataVector>>(boundary_values),
         get<hydro::Tags::Pressure<DataVector>>(boundary_values),
@@ -166,9 +172,9 @@ class DirichletAnalytic final : public BoundaryCondition {
         get<hydro::Tags::DivergenceCleaningField<DataVector>>(boundary_values));
 
     ComputeFluxes::apply(
-        tilde_d_flux, tilde_tau_flux, tilde_s_flux, tilde_b_flux,
-        tilde_phi_flux, *tilde_d, *tilde_tau, *tilde_s, *tilde_b, *tilde_phi,
-        *lapse, *shift,
+        tilde_d_flux, tilde_ye_flux, tilde_tau_flux, tilde_s_flux, tilde_b_flux,
+        tilde_phi_flux, *tilde_d, *tilde_ye, *tilde_tau, *tilde_s, *tilde_b,
+        *tilde_phi, *lapse, *shift,
         get<gr::Tags::SqrtDetSpatialMetric<DataVector>>(boundary_values),
         get<gr::Tags::SpatialMetric<3, Frame::Inertial, DataVector>>(
             boundary_values),

@@ -152,7 +152,8 @@ std::optional<PrimitiveRecoveryData> PalenzuelaEtAl::apply(
 
   return PrimitiveRecoveryData{rest_mass_density, lorentz_factor, pressure,
                                specific_enthalpy_times_lorentz_factor *
-                                   rest_mass_density_times_lorentz_factor};
+                                   rest_mass_density_times_lorentz_factor,
+                               electron_fraction};
 }
 }  // namespace grmhd::ValenciaDivClean::PrimitiveRecoverySchemes
 

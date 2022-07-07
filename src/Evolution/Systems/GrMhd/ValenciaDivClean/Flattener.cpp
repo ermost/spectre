@@ -30,18 +30,18 @@ namespace grmhd::ValenciaDivClean {
 template <typename RecoverySchemesList>
 Flattener<RecoverySchemesList>::Flattener(
     const bool require_positive_mean_tilde_d,
-    const bool require_physical_mean_tilde_tau,
-    const bool require_positive_mean_tilde_ye, const bool recover_primitives)
+    const bool require_positive_mean_tilde_ye,
+    const bool require_physical_mean_tilde_tau, const bool recover_primitives)
     : require_positive_mean_tilde_d_(require_positive_mean_tilde_d),
-      require_physical_mean_tilde_tau_(require_physical_mean_tilde_tau),
       require_positive_mean_tilde_ye_(require_positive_mean_tilde_ye),
+      require_physical_mean_tilde_tau_(require_physical_mean_tilde_tau),
       recover_primitives_(recover_primitives) {}
 
 template <typename RecoverySchemesList>
 void Flattener<RecoverySchemesList>::pup(PUP::er& p) {
   p | require_positive_mean_tilde_d_;
-  p | require_physical_mean_tilde_tau_;
   p | require_positive_mean_tilde_ye_;
+  p | require_physical_mean_tilde_tau_;
   p | recover_primitives_;
 }
 

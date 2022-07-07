@@ -106,6 +106,15 @@ BlastWave::variables(
 }
 
 template <typename DataType>
+tuples::TaggedTuple<hydro::Tags::ElectronFraction<DataType>>
+BlastWave::variables(
+    const tnsr::I<DataType, 3>& x,
+    tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
+  return compute_piecewise(x, inner_radius_, outer_radius_, 0.1,
+                           0.4, geometry_);
+}
+
+template <typename DataType>
 tuples::TaggedTuple<hydro::Tags::SpatialVelocity<DataType, 3>>
 BlastWave::variables(
     const tnsr::I<DataType, 3>& x,
@@ -201,7 +210,8 @@ bool operator!=(const BlastWave& lhs, const BlastWave& rhs) {
 
 GENERATE_INSTANTIATIONS(
     INSTANTIATE_SCALARS, (double, DataVector),
-    (hydro::Tags::RestMassDensity, hydro::Tags::SpecificInternalEnergy,
+    (hydro::Tags::RestMassDensity, hydro::Tags::ElectronFraction,
+     hydro::Tags::SpecificInternalEnergy,
      hydro::Tags::Pressure, hydro::Tags::DivergenceCleaningField,
      hydro::Tags::LorentzFactor, hydro::Tags::SpecificEnthalpy))
 
