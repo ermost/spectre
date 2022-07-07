@@ -1,12 +1,11 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <string>
 
 #include "DataStructures/Tensor/IndexType.hpp"  // IWYU pragma: keep
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "Helpers/DataStructures/DataBox/TestHelpers.hpp"
 
 SPECTRE_TEST_CASE("Unit.Evolution.Systems.GrMhd.ValenciaDivClean.Tags",
@@ -16,6 +15,8 @@ SPECTRE_TEST_CASE("Unit.Evolution.Systems.GrMhd.ValenciaDivClean.Tags",
       "CharacteristicSpeeds");
   TestHelpers::db::test_simple_tag<grmhd::ValenciaDivClean::Tags::TildeD>(
       "TildeD");
+  TestHelpers::db::test_simple_tag<grmhd::ValenciaDivClean::Tags::TildeYe>(
+      "TildeYe");
   TestHelpers::db::test_simple_tag<grmhd::ValenciaDivClean::Tags::TildeTau>(
       "TildeTau");
   TestHelpers::db::test_simple_tag<

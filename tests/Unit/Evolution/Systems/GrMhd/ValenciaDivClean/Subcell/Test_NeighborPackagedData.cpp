@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <array>
 #include <cstddef>
 #include <memory>
@@ -45,6 +43,7 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/NeighborPackagedData.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GrMhd/BondiMichel.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/EquationOfState.hpp"
@@ -125,6 +124,7 @@ double test(const size_t num_dg_pts) {
       neighbor_data{};
   using prims_to_reconstruct_tags =
       tmpl::list<hydro::Tags::RestMassDensity<DataVector>,
+                 hydro::Tags::ElectronFraction<DataVector>,
                  hydro::Tags::Pressure<DataVector>,
                  hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>,
                  hydro::Tags::MagneticField<DataVector, 3>,
@@ -141,6 +141,8 @@ double test(const size_t num_dg_pts) {
         subcell_mesh.number_of_grid_points()};
     get<hydro::Tags::RestMassDensity<DataVector>>(prims_to_reconstruct) =
         get<hydro::Tags::RestMassDensity<DataVector>>(neighbor_prims);
+    get<hydro::Tags::ElectronFraction<DataVector>>(prims_to_reconstruct) =
+        get<hydro::Tags::ElectronFraction<DataVector>>(neighbor_prims);
     get<hydro::Tags::Pressure<DataVector>>(prims_to_reconstruct) =
         get<hydro::Tags::Pressure<DataVector>>(neighbor_prims);
     get<hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>>(
@@ -253,7 +255,7 @@ double test(const size_t num_dg_pts) {
 
   std::vector<std::pair<Direction<3>, ElementId<3>>>
       mortars_to_reconstruct_to{};
-  for (const auto& [direction, neighbors] : element.neighbors()) {
+  for (const auto & [ direction, neighbors ] : element.neighbors()) {
     mortars_to_reconstruct_to.emplace_back(direction, *neighbors.begin());
   }
 
@@ -268,7 +270,7 @@ double test(const size_t num_dg_pts) {
                boost::hash<std::pair<Direction<3>, ElementId<3>>>>
       evolved_vars_errors{};
   double max_abs_error = 0.0;
-  for (const auto& [direction_and_id, data] : all_packaged_data) {
+  for (const auto & [ direction_and_id, data ] : all_packaged_data) {
     const auto& direction = direction_and_id.first;
     using dg_package_field_tags = typename grmhd::ValenciaDivClean::
         BoundaryCorrections::Hll::dg_package_field_tags;

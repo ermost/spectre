@@ -1,11 +1,10 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include "DataStructures/DataBox/DataBox.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/SetVariablesNeededFixingToFalse.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
+#include "Framework/TestingFramework.hpp"
 
 SPECTRE_TEST_CASE(
     "Unit.Evolution.Systems.ValenciaDivClean.SetVariablesNeededFixingToFalse",

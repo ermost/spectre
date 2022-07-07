@@ -70,7 +70,7 @@ Scalar<DataType> ricci_scalar(
                inverse_metric);
   return ricci_scalar_result;
 }
-} // namespace gr
+}  // namespace gr
 
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
 #define DTYPE(data) BOOST_PP_TUPLE_ELEM(1, data)

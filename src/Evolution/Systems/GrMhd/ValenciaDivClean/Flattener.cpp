@@ -29,14 +29,17 @@ namespace grmhd::ValenciaDivClean {
 template <typename RecoverySchemesList>
 Flattener<RecoverySchemesList>::Flattener(
     const bool require_positive_mean_tilde_d,
+    const bool require_positive_mean_tilde_ye,
     const bool require_physical_mean_tilde_tau, const bool recover_primitives)
     : require_positive_mean_tilde_d_(require_positive_mean_tilde_d),
+      require_positive_mean_tilde_ye_(require_positive_mean_tilde_ye),
       require_physical_mean_tilde_tau_(require_physical_mean_tilde_tau),
       recover_primitives_(recover_primitives) {}
 
 template <typename RecoverySchemesList>
 void Flattener<RecoverySchemesList>::pup(PUP::er& p) {
   p | require_positive_mean_tilde_d_;
+  p | require_positive_mean_tilde_ye_;
   p | require_physical_mean_tilde_tau_;
   p | recover_primitives_;
 }
@@ -45,6 +48,7 @@ template <typename RecoverySchemesList>
 template <size_t ThermodynamicDim>
 void Flattener<RecoverySchemesList>::operator()(
     const gsl::not_null<Scalar<DataVector>*> tilde_d,
+    const gsl::not_null<Scalar<DataVector>*> tilde_ye,
     const gsl::not_null<Scalar<DataVector>*> tilde_tau,
     const gsl::not_null<tnsr::i<DataVector, 3>*> tilde_s,
     const gsl::not_null<Variables<hydro::grmhd_tags<DataVector>>*> primitives,
@@ -60,6 +64,7 @@ void Flattener<RecoverySchemesList>::operator()(
   // Create a temporary variable for each field's cell average.
   // These temporaries live on the stack and should have minimal cost.
   double mean_tilde_d = std::numeric_limits<double>::signaling_NaN();
+  double mean_tilde_ye = std::numeric_limits<double>::signaling_NaN();
   double mean_tilde_tau = std::numeric_limits<double>::signaling_NaN();
   auto mean_tilde_s =
       make_array<3>(std::numeric_limits<double>::signaling_NaN());
@@ -67,46 +72,55 @@ void Flattener<RecoverySchemesList>::operator()(
       DataVector{get(det_logical_to_inertial_inv_jacobian)}};
   bool already_computed_means = false;
 
-  const auto compute_means =
-      [&already_computed_means, &mean_tilde_d, &mean_tilde_tau, &mean_tilde_s,
-       &tilde_d, &tilde_tau, &tilde_s, &mesh, &det_logical_to_inertial_jacobian,
-       require_positive_mean_tilde_d =
-           require_positive_mean_tilde_d_]() {
-        if (already_computed_means) {
-          return;
-        }
-        already_computed_means = true;
-        // Compute the means w.r.t. the inertial coords
-        // (Note that several other parts of the limiter code take means w.r.t.
-        // the logical coords, and therefore might not be conservative on curved
-        // grids)
-        const double volume_of_cell =
-            definite_integral(get(det_logical_to_inertial_jacobian), mesh);
-        const auto inertial_coord_mean =
-            [&mesh, &det_logical_to_inertial_jacobian,
-             &volume_of_cell](const DataVector& u) {
-              // Note that the term `det_jac * u` below results in an
-              // allocation. If this function needs to be optimized, a buffer
-              // for the product could be allocated outside the lambda, and
-              // updated in the lambda.
-              return definite_integral(
-                         get(det_logical_to_inertial_jacobian) * u, mesh) /
-                     volume_of_cell;
-            };
-        mean_tilde_d = inertial_coord_mean(get(*tilde_d));
-        mean_tilde_tau = inertial_coord_mean(get(*tilde_tau));
-        for (size_t i = 0; i < 3; ++i) {
-          gsl::at(mean_tilde_s, i) = inertial_coord_mean(tilde_s->get(i));
-        }
+  const auto compute_means = [
+    &already_computed_means, &mean_tilde_d, &mean_tilde_ye, &mean_tilde_tau,
+    &mean_tilde_s, &tilde_d, &tilde_ye, &tilde_tau, &tilde_s, &mesh,
+    &det_logical_to_inertial_jacobian,
+    require_positive_mean_tilde_d = require_positive_mean_tilde_d_,
+    require_positive_mean_tilde_ye = require_positive_mean_tilde_ye_
+  ]() {
+    if (already_computed_means) {
+      return;
+    }
+    already_computed_means = true;
+    // Compute the means w.r.t. the inertial coords
+    // (Note that several other parts of the limiter code take means w.r.t.
+    // the logical coords, and therefore might not be conservative on curved
+    // grids)
+    const double volume_of_cell =
+        definite_integral(get(det_logical_to_inertial_jacobian), mesh);
+    const auto inertial_coord_mean = [&mesh, &det_logical_to_inertial_jacobian,
+                                      &volume_of_cell](const DataVector& u) {
+      // Note that the term `det_jac * u` below results in an
+      // allocation. If this function needs to be optimized, a buffer
+      // for the product could be allocated outside the lambda, and
+      // updated in the lambda.
+      return definite_integral(get(det_logical_to_inertial_jacobian) * u,
+                               mesh) /
+             volume_of_cell;
+    };
+    mean_tilde_d = inertial_coord_mean(get(*tilde_d));
+    mean_tilde_ye = inertial_coord_mean(get(*tilde_ye));
+    mean_tilde_tau = inertial_coord_mean(get(*tilde_tau));
+    for (size_t i = 0; i < 3; ++i) {
+      gsl::at(mean_tilde_s, i) = inertial_coord_mean(tilde_s->get(i));
+    }
 
-        if (require_positive_mean_tilde_d and mean_tilde_d < 0.) {
-          ERROR("We require TildeD to have positive mean, but got "
-                << *tilde_d << " with mean value " << mean_tilde_d);
-        }
-      };
+    if (require_positive_mean_tilde_d and mean_tilde_d < 0.) {
+      ERROR("We require TildeD to have positive mean, but got "
+            << *tilde_d << " with mean value " << mean_tilde_d);
+    }
+
+    if (require_positive_mean_tilde_ye and mean_tilde_ye < 0.) {
+      ERROR("We require TildeYe to have positive mean, but got "
+            << *tilde_ye << " with mean value " << mean_tilde_ye);
+    }
+  };
 
   // If min(tilde_d) is negative, then flatten.
-  if (const double min_tilde_d = min(get(*tilde_d)); min_tilde_d < 0.) {
+  if (const double min_tilde_d = min(get(*tilde_d)),
+      min_tilde_ye = min(get(*tilde_ye));
+      min_tilde_d < 0. or min_tilde_ye < 0.) {
     compute_means();
 
     // Note: the current algorithm flattens all fields by the same factor,
@@ -242,6 +256,8 @@ bool operator==(const Flattener<RecoverySchemesList>& lhs,
                 const Flattener<RecoverySchemesList>& rhs) {
   return lhs.require_positive_mean_tilde_d_ ==
              rhs.require_positive_mean_tilde_d_ and
+         lhs.require_positive_mean_tilde_ye_ ==
+             rhs.require_positive_mean_tilde_ye_ and
          lhs.require_physical_mean_tilde_tau_ ==
              rhs.require_physical_mean_tilde_tau_ and
          lhs.recover_primitives_ == rhs.recover_primitives_;

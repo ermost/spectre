@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <cstddef>
 
 #include "DataStructures/DataVector.hpp"
@@ -14,6 +12,7 @@
 #include "Evolution/Systems/GrMhd/GhValenciaDivClean/Subcell/InitialDataTci.hpp"
 #include "Evolution/Systems/GrMhd/GhValenciaDivClean/System.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 
@@ -31,7 +30,7 @@ SPECTRE_TEST_CASE(
   const double epsilon = 1.0e-3;
   const double exponent = 4.0;
   const grmhd::ValenciaDivClean::subcell::TciOptions tci_options{
-      1.0e-20, 1.0e-40, 1.1e-12, 1.0e-12, std::optional<double>{1.0e-2}};
+      1.0e-20, 0.001, 1.0e-40, 1.1e-12, 1.0e-12, std::optional<double>{1.0e-2}};
 
   const auto compute_expected_rdmp_tci_data = [&dg_vars, &dg_mesh,
                                                &subcell_mesh]() {
@@ -40,6 +39,8 @@ SPECTRE_TEST_CASE(
     using std::min;
     const auto& dg_tilde_d =
         get<grmhd::ValenciaDivClean::Tags::TildeD>(dg_vars);
+    const auto& dg_tilde_ye =
+        get<grmhd::ValenciaDivClean::Tags::TildeYe>(dg_vars);
     const auto& dg_tilde_tau =
         get<grmhd::ValenciaDivClean::Tags::TildeTau>(dg_vars);
     const auto dg_tilde_b_magnitude =
@@ -48,6 +49,8 @@ SPECTRE_TEST_CASE(
         dg_vars, dg_mesh, subcell_mesh.extents());
     const auto& subcell_tilde_d =
         get<grmhd::ValenciaDivClean::Tags::TildeD>(subcell_vars);
+    const auto& subcell_tilde_ye =
+        get<grmhd::ValenciaDivClean::Tags::TildeYe>(subcell_vars);
     const auto& subcell_tilde_tau =
         get<grmhd::ValenciaDivClean::Tags::TildeTau>(subcell_vars);
     const auto subcell_tilde_b_magnitude =

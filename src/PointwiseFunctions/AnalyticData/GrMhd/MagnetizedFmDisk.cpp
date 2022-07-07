@@ -146,17 +146,16 @@ tnsr::I<DataType, 3> MagnetizedFmDisk::unnormalized_magnetic_field(
       fm_disk::potential(square(inner_edge_radius_), 1.0);
 
   // A_phi \propto rho - rho_threshold. Normalization comes later.
-  const auto mag_potential = [this, &threshold_rest_mass_density,
-                              &inner_edge_potential](
-                                 const double r,
-                                 const double sin_theta_squared) {
-    // enthalpy = exp(Win - W(r,theta)), as in the Fishbone-Moncrief disk
-    return get(equation_of_state_.rest_mass_density_from_enthalpy(
-               Scalar<double>{
-                   exp(inner_edge_potential -
+  const auto mag_potential =
+      [this, &threshold_rest_mass_density, &inner_edge_potential](
+          const double r, const double sin_theta_squared) {
+        // enthalpy = exp(Win - W(r,theta)), as in the Fishbone-Moncrief disk
+        return get(equation_of_state_.rest_mass_density_from_enthalpy(
+                   Scalar<double>{exp(
+                       inner_edge_potential -
                        fm_disk::potential(square(r), sin_theta_squared))})) -
-           threshold_rest_mass_density;
-  };
+               threshold_rest_mass_density;
+      };
 
   // The magnetic field is present only within the disk, where the
   // rest mass density is greater than the threshold rest mass density.

@@ -70,6 +70,8 @@ void ConservativeFromPrimitive::apply(
   get(*tilde_d) = get(sqrt_det_spatial_metric) * get(rest_mass_density) *
                   get(lorentz_factor);
 
+  get(*tilde_ye) = get(*tilde_d) * get(electron_fraction);
+
   get(*tilde_tau) = get(sqrt_det_spatial_metric) *
                       (square(get(lorentz_factor)) *
                         (get(rest_mass_density) *

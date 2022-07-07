@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <cstddef>
 #include <memory>
 #include <random>
@@ -30,6 +28,7 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
 #include "Framework/TestHelpers.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "Helpers/DataStructures/MakeWithRandomValues.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
@@ -109,6 +108,7 @@ void test(const gsl::not_null<std::mt19937*> gen,
     cons_vars.initialize(prims.number_of_grid_points());
     ValenciaDivClean::ConservativeFromPrimitive::apply(
         make_not_null(&get<ValenciaDivClean::Tags::TildeD>(cons_vars)),
+        make_not_null(&get<ValenciaDivClean::Tags::TildeYe>(cons_vars)),
         make_not_null(&get<ValenciaDivClean::Tags::TildeTau>(cons_vars)),
         make_not_null(
             &get<ValenciaDivClean::Tags::TildeS<Frame::Inertial>>(cons_vars)),
@@ -116,6 +116,7 @@ void test(const gsl::not_null<std::mt19937*> gen,
             &get<ValenciaDivClean::Tags::TildeB<Frame::Inertial>>(cons_vars)),
         make_not_null(&get<ValenciaDivClean::Tags::TildePhi>(cons_vars)),
         get<hydro::Tags::RestMassDensity<DataVector>>(prims),
+        get<hydro::Tags::ElectronFraction<DataVector>>(prims),
         get<hydro::Tags::SpecificInternalEnergy<DataVector>>(prims),
         get<hydro::Tags::SpecificEnthalpy<DataVector>>(prims),
         get<hydro::Tags::Pressure<DataVector>>(prims),
@@ -158,6 +159,8 @@ void test(const gsl::not_null<std::mt19937*> gen,
         make_not_null(
             &get<hydro::Tags::RestMassDensity<DataVector>>(prim_vars)),
         make_not_null(
+            &get<hydro::Tags::ElectronFraction<DataVector>>(prim_vars)),
+        make_not_null(
             &get<hydro::Tags::SpecificInternalEnergy<DataVector>>(prim_vars)),
         make_not_null(
             &get<hydro::Tags::SpatialVelocity<DataVector, 3>>(prim_vars)),
@@ -170,6 +173,7 @@ void test(const gsl::not_null<std::mt19937*> gen,
         make_not_null(
             &get<hydro::Tags::SpecificEnthalpy<DataVector>>(prim_vars)),
         get<grmhd::ValenciaDivClean::Tags::TildeD>(cons_vars),
+        get<grmhd::ValenciaDivClean::Tags::TildeYe>(cons_vars),
         get<grmhd::ValenciaDivClean::Tags::TildeTau>(cons_vars),
         get<grmhd::ValenciaDivClean::Tags::TildeS<Frame::Inertial>>(cons_vars),
         get<grmhd::ValenciaDivClean::Tags::TildeB<Frame::Inertial>>(cons_vars),

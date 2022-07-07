@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <cstddef>
 #include <limits>
 #include <random>
@@ -18,6 +16,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/Systems/GrMhd/GhValenciaDivClean/Subcell/PrimitiveGhostData.hpp"
 #include "Framework/TestHelpers.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "Helpers/DataStructures/MakeWithRandomValues.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
@@ -29,6 +28,7 @@
 namespace {
 using tags_for_reconstruction =
     tmpl::list<hydro::Tags::RestMassDensity<DataVector>,
+               hydro::Tags::ElectronFraction<DataVector>,
                hydro::Tags::Pressure<DataVector>,
                hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>,
                hydro::Tags::MagneticField<DataVector, 3>,
@@ -37,6 +37,7 @@ using tags_for_reconstruction =
                GeneralizedHarmonic::Tags::Pi<3>>;
 using copied_tags =
     tmpl::list<hydro::Tags::RestMassDensity<DataVector>,
+               hydro::Tags::ElectronFraction<DataVector>,
                hydro::Tags::Pressure<DataVector>,
                hydro::Tags::MagneticField<DataVector, 3>,
                hydro::Tags::DivergenceCleaningField<DataVector>>;

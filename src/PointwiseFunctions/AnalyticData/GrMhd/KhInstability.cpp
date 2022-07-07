@@ -93,6 +93,16 @@ KhInstability::variables(
 }
 
 template <typename DataType>
+tuples::TaggedTuple<hydro::Tags::ElectronFraction<DataType>>
+KhInstability::variables(
+    const tnsr::I<DataType, 3>& x,
+    tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
+  // FIXME Add proper EoS call to get Ye
+
+  return {0.1};
+}
+
+template <typename DataType>
 tuples::TaggedTuple<hydro::Tags::SpecificInternalEnergy<DataType>>
 KhInstability::variables(
     const tnsr::I<DataType, 3, Frame::Inertial>& x,
@@ -211,10 +221,10 @@ bool operator!=(const KhInstability& lhs, const KhInstability& rhs) {
 #define TAG(data) BOOST_PP_TUPLE_ELEM(1, data)
 
 #define INSTANTIATE_SCALARS(_, data)                         \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data)> >    \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data)>>     \
       KhInstability::variables(                              \
           const tnsr::I<DTYPE(data), 3, Frame::Inertial>& x, \
-          tmpl::list<TAG(data) < DTYPE(data)> >) const;
+          tmpl::list<TAG(data) < DTYPE(data)>>) const;
 
 GENERATE_INSTANTIATIONS(
     INSTANTIATE_SCALARS, (double, DataVector),
@@ -222,11 +232,11 @@ GENERATE_INSTANTIATIONS(
      hydro::Tags::Pressure, hydro::Tags::DivergenceCleaningField,
      hydro::Tags::SpecificEnthalpy, hydro::Tags::LorentzFactor))
 
-#define INSTANTIATE_VECTORS(_, data)                                          \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3, Frame::Inertial> > \
-      KhInstability::variables(                                               \
-          const tnsr::I<DTYPE(data), 3, Frame::Inertial>& x,                  \
-          tmpl::list<TAG(data) < DTYPE(data), 3, Frame::Inertial> >) const;
+#define INSTANTIATE_VECTORS(_, data)                                         \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3, Frame::Inertial>> \
+      KhInstability::variables(                                              \
+          const tnsr::I<DTYPE(data), 3, Frame::Inertial>& x,                 \
+          tmpl::list<TAG(data) < DTYPE(data), 3, Frame::Inertial>>) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (double, DataVector),
                         (hydro::Tags::SpatialVelocity,

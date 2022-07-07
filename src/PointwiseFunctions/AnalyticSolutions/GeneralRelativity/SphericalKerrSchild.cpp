@@ -115,7 +115,7 @@ void SphericalKerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     internal_tags::rho<DataType> /*meta*/) const {
   const auto& r_squared =
       get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
-  const auto [spin_a, a_squared] = spin_a_and_squared(solution_);
+  const auto[spin_a, a_squared] = spin_a_and_squared(solution_);
 
   get(*rho) = sqrt(r_squared + a_squared);
 }
@@ -125,7 +125,7 @@ void SphericalKerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::Ij<DataType, 3, Frame>*> helper_matrix_F,
     const gsl::not_null<CachedBuffer*> cache,
     internal_tags::helper_matrix_F<DataType, Frame> /*meta*/) const {
-  const auto [spin_a, a_squared] = spin_a_and_squared(solution_);
+  const auto[spin_a, a_squared] = spin_a_and_squared(solution_);
   const auto& rho = get(cache->get_var(*this, internal_tags::rho<DataType>{}));
   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
 
@@ -190,7 +190,7 @@ void SphericalKerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::Ij<DataType, 3, Frame>*> helper_matrix_D,
     const gsl::not_null<CachedBuffer*> cache,
     internal_tags::helper_matrix_D<DataType, Frame> /*meta*/) const {
-  const auto [spin_a, a_squared] = spin_a_and_squared(solution_);
+  const auto[spin_a, a_squared] = spin_a_and_squared(solution_);
   const auto& rho = get(cache->get_var(*this, internal_tags::rho<DataType>{}));
   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
 
@@ -284,7 +284,7 @@ void SphericalKerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::Ij<DataType, 3, Frame>*> helper_matrix_G1,
     const gsl::not_null<CachedBuffer*> cache,
     internal_tags::helper_matrix_G1<DataType, Frame> /*meta*/) const {
-  const auto [spin_a, a_squared] = spin_a_and_squared(solution_);
+  const auto[spin_a, a_squared] = spin_a_and_squared(solution_);
   const auto& rho = get(cache->get_var(*this, internal_tags::rho<DataType>{}));
   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
 
@@ -412,7 +412,7 @@ void SphericalKerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   const auto& rho = get(cache->get_var(*this, internal_tags::rho<DataType>{}));
   const auto& r_squared =
       get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
-  const auto [spin_a, a_squared] = spin_a_and_squared(solution_);
+  const auto[spin_a, a_squared] = spin_a_and_squared(solution_);
 
   for (size_t i = 0; i < 3; ++i) {
     for (size_t m = 0; m < 3; ++m) {
@@ -434,7 +434,7 @@ void SphericalKerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<CachedBuffer*> cache,
     internal_tags::helper_matrix_E2<DataType, Frame> /*meta*/) const {
   const auto& rho = get(cache->get_var(*this, internal_tags::rho<DataType>{}));
-  const auto [spin_a, a_squared] = spin_a_and_squared(solution_);
+  const auto[spin_a, a_squared] = spin_a_and_squared(solution_);
   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
   const auto& a_dot_x =
       get(cache->get_var(*this, internal_tags::a_dot_x<DataType>{}));

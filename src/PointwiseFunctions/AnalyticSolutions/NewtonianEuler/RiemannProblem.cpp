@@ -500,10 +500,10 @@ bool operator!=(const RiemannProblem<Dim>& lhs,
 GENERATE_INSTANTIATIONS(INSTANTIATE_CLASS, (1, 2, 3))
 
 #define INSTANTIATE_SCALARS(_, data)                                         \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data)> >                    \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data)>>                     \
       RiemannProblem<DIM(data)>::variables(                                  \
           const tnsr::I<DTYPE(data), DIM(data), Frame::Inertial>& x_shifted, \
-          const double t, tmpl::list<TAG(data) < DTYPE(data)> >,             \
+          const double t, tmpl::list<TAG(data) < DTYPE(data)>>,              \
           const Wave& left, const Wave& right) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (1, 2, 3), (double, DataVector),
@@ -511,10 +511,10 @@ GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (1, 2, 3), (double, DataVector),
                          Tags::SpecificInternalEnergy))
 
 #define INSTANTIATE_VELOCITY(_, data)                                        \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data), DIM(data)> >         \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data), DIM(data)>>          \
       RiemannProblem<DIM(data)>::variables(                                  \
           const tnsr::I<DTYPE(data), DIM(data), Frame::Inertial>& x_shifted, \
-          const double t, tmpl::list<TAG(data) < DTYPE(data), DIM(data)> >,  \
+          const double t, tmpl::list<TAG(data) < DTYPE(data), DIM(data)>>,   \
           const Wave& left, const Wave& right) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VELOCITY, (1, 2, 3), (double, DataVector),

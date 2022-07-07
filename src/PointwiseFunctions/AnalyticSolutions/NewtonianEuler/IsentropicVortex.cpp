@@ -185,20 +185,20 @@ GENERATE_INSTANTIATIONS(INSTANTIATE_CLASS, (2, 3))
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_MEMBERS, (2, 3), (double, DataVector))
 
-#define INSTANTIATE_SCALARS(_, data)                      \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data)> > \
-      IsentropicVortex<DIM(data)>::variables(             \
-          tmpl::list<TAG(data) < DTYPE(data)> >,          \
+#define INSTANTIATE_SCALARS(_, data)                     \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data)>> \
+      IsentropicVortex<DIM(data)>::variables(            \
+          tmpl::list<TAG(data) < DTYPE(data)>>,          \
           const IntermediateVariables<DTYPE(data)>&) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (2, 3), (double, DataVector),
                         (Tags::MassDensity, Tags::SpecificInternalEnergy,
                          Tags::Pressure))
 
-#define INSTANTIATE_VELOCITY(_, data)                                \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data), DIM(data)> > \
-      IsentropicVortex<DIM(data)>::variables(                        \
-          tmpl::list<TAG(data) < DTYPE(data), DIM(data)> >,          \
+#define INSTANTIATE_VELOCITY(_, data)                               \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data), DIM(data)>> \
+      IsentropicVortex<DIM(data)>::variables(                       \
+          tmpl::list<TAG(data) < DTYPE(data), DIM(data)>>,          \
           const IntermediateVariables<DTYPE(data)>&) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VELOCITY, (2, 3), (double, DataVector),

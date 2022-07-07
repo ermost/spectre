@@ -79,6 +79,7 @@ void sources_impl(
 
 void TimeDerivativeTerms::apply(
     const gsl::not_null<Scalar<DataVector>*> /*non_flux_terms_dt_tilde_d*/,
+    const gsl::not_null<Scalar<DataVector>*> /*non_flux_terms_dt_tilde_ye*/,
     const gsl::not_null<Scalar<DataVector>*> non_flux_terms_dt_tilde_tau,
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
         non_flux_terms_dt_tilde_s,
@@ -199,11 +200,11 @@ void TimeDerivativeTerms::apply(
       *magnetic_field_dot_spatial_velocity, *magnetic_field_squared,
       *one_over_w_squared, *pressure_star, *trace_spatial_christoffel_second,
 
-      tilde_d, tilde_tau, tilde_s, tilde_b, tilde_phi, lapse,
+      tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, lapse,
       sqrt_det_spatial_metric, inv_spatial_metric, d_lapse, d_shift,
       d_spatial_metric, spatial_velocity, lorentz_factor, magnetic_field,
 
-      rest_mass_density, specific_enthalpy, extrinsic_curvature,
-      constraint_damping_parameter);
+      rest_mass_density, electron_fraction, specific_enthalpy,
+      extrinsic_curvature, constraint_damping_parameter);
 }
 }  // namespace grmhd::ValenciaDivClean
