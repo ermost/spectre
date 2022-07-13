@@ -58,7 +58,9 @@ void PrimsAfterRollback<OrderedListOfRecoverySchemes>::apply(
     // term, but that likely requires more refactoring anyway.
     Variables<tmpl::list<gr::Tags::SpatialMetric<3>,
                          gr::Tags::InverseSpatialMetric<3>,
-                         gr::Tags::SqrtDetSpatialMetric<>>>
+                         gr::Tags::SqrtDetSpatialMetric<>>,
+              grmhd::ValenciaDivClean::Tags::ElectronFraction<>,
+              grmhd::ValenciaDivClean::Tags::Tags::TildeYe<>>  // FIXME
         temp_buffer{num_grid_points};
     auto& spatial_metric = get<gr::Tags::SpatialMetric<3>>(temp_buffer);
     gr::spatial_metric(make_not_null(&spatial_metric), spacetime_metric);
@@ -70,11 +72,15 @@ void PrimsAfterRollback<OrderedListOfRecoverySchemes>::apply(
                             make_not_null(&inverse_spatial_metric),
                             spatial_metric);
     get(sqrt_det_spatial_metric) = sqrt(get(sqrt_det_spatial_metric));
+    auto& electron_fraction =
+        get<grmhd::ValenciaDivClean::Tags::ElectronFraction>(temp_buffer);
+    auto& tilde_ye = get<grmhd::ValenciaDivClean::Tags::TildeYe>(temp_buffer);
 
     grmhd::ValenciaDivClean::
         PrimitiveFromConservative<OrderedListOfRecoverySchemes, true>::apply(
             make_not_null(
                 &get<hydro::Tags::RestMassDensity<DataVector>>(*prim_vars)),
+            make_not_null(electron_fraction),
             make_not_null(&get<hydro::Tags::SpecificInternalEnergy<DataVector>>(
                 *prim_vars)),
             make_not_null(
@@ -89,8 +95,9 @@ void PrimsAfterRollback<OrderedListOfRecoverySchemes>::apply(
             make_not_null(&get<hydro::Tags::Pressure<DataVector>>(*prim_vars)),
             make_not_null(
                 &get<hydro::Tags::SpecificEnthalpy<DataVector>>(*prim_vars)),
-            tilde_d, tilde_tau, tilde_s, tilde_b, tilde_phi, spatial_metric,
-            inverse_spatial_metric, sqrt_det_spatial_metric, eos);
+            tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
+            spatial_metric, inverse_spatial_metric, sqrt_det_spatial_metric,
+            eos);
   }
 }
 

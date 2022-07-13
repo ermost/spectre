@@ -192,7 +192,7 @@ template <typename InitialData, typename... InterpolationTargetTags>
 struct EvolutionMetavars {
   // The use_dg_subcell flag controls whether to use "standard" limiting (false)
   // or a DG-FD hybrid scheme (true).
-  static constexpr bool use_dg_subcell = false;
+  static constexpr bool use_dg_subcell = true;
   static constexpr size_t volume_dim = 3;
   static constexpr dg::Formulation dg_formulation =
       dg::Formulation::StrongInertial;

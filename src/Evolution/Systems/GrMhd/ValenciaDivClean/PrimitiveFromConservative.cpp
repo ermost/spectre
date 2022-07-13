@@ -105,9 +105,12 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
 
   // FIXME: This may need bounds
 
-  get(*electron_fraction) = get(tilde_ye) / get(tilde_d);
+  // FIXME limit Ye
 
   for (size_t s = 0; s < total_energy_density.size(); ++s) {
+    get(*electron_fraction)[s] =
+        std::min(0.5, std::max(get(tilde_ye)[s] / get(tilde_d)[s], 0.));
+
     std::optional<PrimitiveRecoverySchemes::PrimitiveRecoveryData>
         primitive_data = std::nullopt;
     tmpl::for_each<OrderedListOfPrimitiveRecoverySchemes>(
