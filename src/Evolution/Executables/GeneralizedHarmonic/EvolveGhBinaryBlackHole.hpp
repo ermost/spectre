@@ -82,7 +82,6 @@
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
 #include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
-#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
@@ -101,6 +100,7 @@
 #include "ParallelAlgorithms/Interpolation/Actions/TryToInterpolate.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/FindApparentHorizon.hpp"
+#include "ParallelAlgorithms/Interpolation/Callbacks/IgnoreFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveSurfaceData.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveTimeSeriesOnSurface.hpp"
 #include "ParallelAlgorithms/Interpolation/Events/Interpolate.hpp"
@@ -169,7 +169,7 @@ struct EvolutionMetavars {
   static constexpr dg::Formulation dg_formulation =
       dg::Formulation::StrongInertial;
   using temporal_id = Tags::TimeStepId;
-  static constexpr bool local_time_stepping = false;
+  static constexpr bool local_time_stepping = true;
   // Set override_functions_of_time to true to override the
   // 2nd or 3rd order piecewise polynomial functions of time using
   // `read_spec_piecewise_polynomial()`
@@ -200,7 +200,7 @@ struct EvolutionMetavars {
     using post_interpolation_callback =
         intrp::callbacks::FindApparentHorizon<AhA, ::Frame::Grid>;
     using horizon_find_failure_callback =
-        intrp::callbacks::ErrorOnFailedApparentHorizon;
+        intrp::callbacks::IgnoreFailedApparentHorizon;
     using post_horizon_find_callbacks = tmpl::list<
         intrp::callbacks::ObserveTimeSeriesOnSurface<tags_to_observe, AhA>,
         intrp::callbacks::ObserveSurfaceData<surface_tags_to_observe, AhA>,
@@ -221,7 +221,7 @@ struct EvolutionMetavars {
     using post_interpolation_callback =
         intrp::callbacks::FindApparentHorizon<AhB, ::Frame::Grid>;
     using horizon_find_failure_callback =
-        intrp::callbacks::ErrorOnFailedApparentHorizon;
+        intrp::callbacks::IgnoreFailedApparentHorizon;
     using post_horizon_find_callbacks = tmpl::list<
         intrp::callbacks::ObserveTimeSeriesOnSurface<tags_to_observe, AhB>,
         intrp::callbacks::ObserveSurfaceData<surface_tags_to_observe, AhB>,
@@ -390,7 +390,6 @@ struct EvolutionMetavars {
                                  volume_dim, Frame::Inertial>>>>>>;
 
   using initialization_actions = tmpl::list<
-      Actions::SetupDataBox,
       Initialization::Actions::TimeAndTimeStep<EvolutionMetavars>,
       evolution::dg::Initialization::Domain<
           volume_dim, override_functions_of_time, use_control_systems>,

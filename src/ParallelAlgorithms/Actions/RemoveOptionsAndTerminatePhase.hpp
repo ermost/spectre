@@ -12,13 +12,18 @@
 #include "Utilities/TaggedTuple.hpp"
 
 namespace Initialization {
+namespace detail {
+template <typename... TagsToRemove, typename BoxTags>
+constexpr void remove(const gsl::not_null<db::DataBox<BoxTags>*> box,
+                      tmpl::list<TagsToRemove...> /*meta*/) {
+  EXPAND_PACK_LEFT_TO_RIGHT(db::remove<TagsToRemove>(box));
+}
+}  // namespace detail
 
 /// \ingroup InitializationGroup
-/// Available actions to be used in the initialization.
-///
-/// The action list for initialization must end with the
-/// `Initialization::Actions::RemoveOptionsAndTerminatePhase` action. For
-/// example,
+/// Removes an item from the DataBox by resetting its value to that given
+/// by default initialization.  In debug builds, using a removed item throws an
+/// exception.
 ///
 /// \snippet Test_RemoveOptionsAndTerminatePhase.cpp actions
 ///
@@ -41,20 +46,10 @@ struct RemoveOptionsAndTerminatePhase {
         initialization_tags,
         tmpl::bind<tmpl::list_contains, tmpl::pin<initialization_tags_to_keep>,
                    tmpl::_1>>;
-    // Retrieve the `initialization_tags` that are still in the DataBox
-    // and remove them.
-    using tags_to_remove_this_time = tmpl::filter<
-        tags_to_remove,
-        tmpl::bind<
-            tmpl::list_contains,
-            tmpl::pin<typename db::DataBox<DbTagsList>::mutable_item_tags>,
-            tmpl::_1>>;
-    static_assert(std::is_same<tmpl::back<ActionList>,
-                               RemoveOptionsAndTerminatePhase>::value,
-                  "The last action in the initialization phase must be "
-                  "Initialization::Actions::RemoveOptionsAndTerminatePhase.");
-    return std::make_tuple(
-        db::create_from<tags_to_remove_this_time>(std::move(box)), true);
+    if constexpr (tmpl::size<tags_to_remove>::value > 0) {
+      detail::remove(make_not_null(&box), tags_to_remove{});
+    }
+    return std::make_tuple(std::move(box), true);
   }
 };
 }  // namespace Actions
