@@ -71,7 +71,7 @@ TciOnDgGrid<RecoveryScheme>::apply(
   Scalar<DataVector> subcell_tilde_ye{};
   assign_data(make_not_null(&subcell_tilde_ye), num_subcell_pts);
   evolution::dg::subcell::fd::project(make_not_null(&get(subcell_tilde_ye)),
-                                      get(tilde_d), dg_mesh,
+                                      get(tilde_ye), dg_mesh,
                                       subcell_mesh.extents());
 
   Scalar<DataVector> subcell_tilde_tau{};
