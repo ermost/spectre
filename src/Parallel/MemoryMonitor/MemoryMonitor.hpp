@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Algorithms/AlgorithmSingletonDeclarations.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/MemoryMonitor/Tags.hpp"
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddSimpleTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -55,7 +55,7 @@ struct MemoryMonitor {
       Parallel::get_initialization_actions_list<phase_dependent_action_list>>;
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<MemoryMonitor<Metavariables>>(local_cache)

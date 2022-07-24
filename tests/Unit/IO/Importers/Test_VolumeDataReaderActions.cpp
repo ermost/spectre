@@ -28,9 +28,9 @@
 #include "IO/Importers/Tags.hpp"
 #include "IO/Observer/ArrayComponentId.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/ArrayIndex.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/FileSystem.hpp"
 #include "Utilities/MakeString.hpp"
 #include "Utilities/TaggedTuple.hpp"
@@ -89,7 +89,6 @@ struct MockVolumeDataReader {
 struct Metavariables {
   using component_list = tmpl::list<MockElementArray<Metavariables>,
                                     MockVolumeDataReader<Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 }  // namespace
@@ -200,8 +199,7 @@ void test_actions(const std::variant<double, importers::ObservationSelector>&
     volume_data.write_volume_data(0, 0., all_element_data[i]);
   }
 
-  ActionTesting::set_phase(make_not_null(&runner),
-                           Metavariables::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   bool first_invocation = true;
   for (const auto& id : element_ids) {

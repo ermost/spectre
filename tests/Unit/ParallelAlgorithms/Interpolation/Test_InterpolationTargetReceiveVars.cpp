@@ -24,9 +24,9 @@
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/Tags.hpp"
 #include "Framework/ActionTesting.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"  // IWYU pragma: keep
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolator.hpp"  // IWYU pragma: keep
 #include "ParallelAlgorithms/Interpolation/Actions/InterpolationTargetReceiveVars.hpp"
@@ -300,7 +300,6 @@ struct MockMetavariables {
   using component_list = tmpl::list<
       mock_interpolation_target<MockMetavariables, InterpolationTargetA>,
       mock_interpolator<MockMetavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 template <typename MockCallbackType, typename IsTimeDependent,
@@ -381,7 +380,7 @@ void test_interpolation_target_receive_vars() {
        // Default-constructed Variables cause problems, so below
        // we construct the Variables with a single point.
        vars_type{1}});
-  ActionTesting::set_phase(make_not_null(&runner), metavars::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Now set up the vars.
   std::vector<typename ::Variables<

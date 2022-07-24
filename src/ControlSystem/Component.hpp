@@ -8,14 +8,14 @@
 #include "ControlSystem/Actions/Initialization.hpp"
 #include "ControlSystem/Protocols/ControlSystem.hpp"
 #include "DataStructures/DataBox/DataBox.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -49,7 +49,7 @@ struct ControlComponent {
       Parallel::get_initialization_actions_list<phase_dependent_action_list>>;
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<

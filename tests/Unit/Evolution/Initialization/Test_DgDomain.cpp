@@ -29,13 +29,17 @@
 #include "Domain/TagsTimeDependent.hpp"
 #include "Evolution/Initialization/DgDomain.hpp"
 #include "Framework/ActionTesting.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/CloneUniquePtrs.hpp"
 #include "Utilities/ConstantExpressions.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/Literals.hpp"
 #include "Utilities/TMPL.hpp"
+
+namespace control_system::Tags {
+struct FunctionsOfTimeInitialize;
+}  // namespace control_system::Tags
 
 namespace {
 template <size_t MeshDim>
@@ -150,7 +154,6 @@ struct Metavariables {
   using component_list = tmpl::list<Component<Metavariables>>;
   static constexpr size_t dim = Dim;
 
-  using Phase = Parallel::Phase;
 };
 
 template <size_t Dim, bool TimeDependent>
@@ -160,6 +163,15 @@ void test(const Spectral::Quadrature quadrature) {
   CAPTURE(quadrature);
   using metavars = Metavariables<Dim>;
   using component = Component<metavars>;
+
+  static_assert(
+      std::is_same_v<typename evolution::dg::Initialization::Domain<
+                         Dim>::mutable_global_cache_tags,
+                     tmpl::list<::domain::Tags::FunctionsOfTimeInitialize>>);
+  static_assert(std::is_same_v<
+                typename evolution::dg::Initialization::Domain<
+                    Dim, false, true>::mutable_global_cache_tags,
+                tmpl::list<control_system::Tags::FunctionsOfTimeInitialize>>);
 
   PUPable_reg(SINGLE_ARG(
       TimeIndependentMap<Dim, Frame::BlockLogical, Frame::Inertial>));
@@ -213,7 +225,7 @@ void test(const Spectral::Quadrature quadrature) {
   ActionTesting::emplace_component_and_initialize<component>(
       &runner, self_id,
       {initial_extents, initial_refinement, quadrature, initial_time});
-  runner.set_phase(metavars::Phase::Testing);
+  runner.set_phase(Parallel::Phase::Testing);
   CHECK(ActionTesting::get_next_action_index<component>(runner, self_id) == 0);
   for (size_t i = 0; i < 2; ++i) {
     ActionTesting::next_action<component>(make_not_null(&runner), self_id);

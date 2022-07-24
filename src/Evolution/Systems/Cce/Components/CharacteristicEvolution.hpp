@@ -26,14 +26,15 @@
 #include "Evolution/Systems/Cce/SwshDerivatives.hpp"
 #include "Evolution/Systems/Cce/System.hpp"
 #include "IO/Observer/ObserverComponent.hpp"
-#include "Parallel/Actions/Goto.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/Phase.hpp"
+#include "Parallel/Tags/ResourceInfo.hpp"
+#include "ParallelAlgorithms/Actions/Goto.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeStepSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -113,8 +114,9 @@ struct CharacteristicEvolution {
           typename Metavariables::cce_boundary_component>,
       Initialization::Actions::RemoveOptionsAndTerminatePhase>;
 
-  using initialization_tags =
-      Parallel::get_initialization_tags<initialize_action_list>;
+  using initialization_tags = tmpl::push_back<
+      Parallel::get_initialization_tags<initialize_action_list>,
+      Parallel::Tags::SingletonInfo<CharacteristicEvolution<Metavariables>>>;
 
   // the list of actions that occur for each of the hypersurface-integrated
   // Bondi tags
@@ -231,7 +233,7 @@ struct CharacteristicEvolution {
       Parallel::CProxy_GlobalCache<Metavariables>& /*global_cache*/) {}
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       const Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<CharacteristicEvolution<Metavariables>>(

@@ -34,8 +34,6 @@
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Phase.hpp"
@@ -43,6 +41,9 @@
 #include "Parallel/Reduction.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/ObserveVolumeIntegrals.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
@@ -50,8 +51,6 @@
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Event.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Trigger.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddComputeTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "ParallelAlgorithms/LinearSolver/Actions/MakeIdentityIfSkipped.hpp"
 #include "ParallelAlgorithms/LinearSolver/Gmres/Gmres.hpp"
 #include "ParallelAlgorithms/LinearSolver/Multigrid/ElementsAllocator.hpp"
@@ -220,9 +219,6 @@ struct Metavariables {
           tmpl::at<typename factory_creation::factory_classes, Event>,
           linear_solver, multigrid, schwarz_smoother>>>;
 
-  // Specify all global synchronization points.
-  using Phase = Parallel::Phase;
-
   using initialization_actions = tmpl::list<
       Actions::SetupDataBox,
       elliptic::dg::Actions::InitializeDomain<volume_dim>,
@@ -275,11 +271,11 @@ struct Metavariables {
 
   using dg_element_array = elliptic::DgElementArray<
       Metavariables,
-      tmpl::list<Parallel::PhaseActions<Parallel::Phase::Initialization,
-                                        initialization_actions>,
-                 Parallel::PhaseActions<Parallel::Phase::RegisterWithObserver,
-                                        register_actions>,
-                 Parallel::PhaseActions<Parallel::Phase::Solve, solve_actions>>,
+      tmpl::list<
+          Parallel::PhaseActions<Parallel::Phase::Initialization,
+                                 initialization_actions>,
+          Parallel::PhaseActions<Parallel::Phase::Register, register_actions>,
+          Parallel::PhaseActions<Parallel::Phase::Solve, solve_actions>>,
       LinearSolver::multigrid::ElementsAllocator<
           volume_dim, typename multigrid::options_group>>;
 
@@ -291,30 +287,9 @@ struct Metavariables {
                  observers::Observer<Metavariables>,
                  observers::ObserverWriter<Metavariables>>>;
 
-  // Specify the transitions between phases.
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<
-          tuples::TaggedTuple<Tags...>*> /*phase_change_decision_data*/,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<Metavariables>& /*cache_proxy*/) {
-    switch (current_phase) {
-      case Phase::Initialization:
-        return Phase::RegisterWithObserver;
-      case Phase::RegisterWithObserver:
-        return Phase::Solve;
-      case Phase::Solve:
-        return Phase::Exit;
-      case Phase::Exit:
-        ERROR(
-            "Should never call determine_next_phase with the current phase "
-            "being 'Exit'");
-      default:
-        ERROR(
-            "Unknown type of phase. Did you static_cast<Phase> an integral "
-            "value?");
-    }
-  }
+  static constexpr std::array<Parallel::Phase, 4> default_phase_order{
+      {Parallel::Phase::Initialization, Parallel::Phase::Register,
+       Parallel::Phase::Solve, Parallel::Phase::Exit}};
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}

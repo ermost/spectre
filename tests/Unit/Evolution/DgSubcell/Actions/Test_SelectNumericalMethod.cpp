@@ -10,8 +10,8 @@
 #include "Evolution/DgSubcell/ActiveGrid.hpp"
 #include "Evolution/DgSubcell/Tags/ActiveGrid.hpp"
 #include "Framework/ActionTesting.hpp"
-#include "Parallel/Actions/Goto.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/Goto.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace {
@@ -43,7 +43,6 @@ struct component {
 
 struct Metavariables {
   using component_list = tmpl::list<component<Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 void test(const evolution::dg::subcell::ActiveGrid active_grid) {

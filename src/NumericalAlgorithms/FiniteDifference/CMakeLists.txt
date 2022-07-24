@@ -9,11 +9,11 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   AoWeno.cpp
+  FallbackReconstructorType.cpp
   Minmod.cpp
   MonotonisedCentral.cpp
   Unlimited.cpp
   Wcns5z.cpp
-  Wcns5zMc.cpp
   )
 
 spectre_target_headers(
@@ -21,6 +21,7 @@ spectre_target_headers(
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
   AoWeno.hpp
+  FallbackReconstructorType.hpp
   FiniteDifference.hpp
   Minmod.hpp
   MonotonisedCentral.hpp
@@ -28,7 +29,6 @@ spectre_target_headers(
   Reconstruct.tpp
   Unlimited.hpp
   Wcns5z.hpp
-  Wcns5zMc.hpp
   )
 
 target_link_libraries(

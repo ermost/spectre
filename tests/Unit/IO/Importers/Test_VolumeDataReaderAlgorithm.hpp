@@ -29,7 +29,6 @@
 #include "IO/Importers/ElementDataReader.hpp"
 #include "IO/Importers/Tags.hpp"
 #include "Options/Options.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmArray.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/GlobalCache.hpp"
@@ -39,6 +38,7 @@
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
 #include "ParallelAlgorithms/Actions/SetData.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Initialization/MergeIntoDataBox.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/ErrorHandling/FloatingPointExceptions.hpp"
@@ -267,7 +267,7 @@ struct TestDataWriter {
       Parallel::CProxy_GlobalCache<Metavariables>& /*global_cache*/) {}
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_component = Parallel::get_parallel_component<TestDataWriter>(
         *Parallel::local_branch(global_cache));
@@ -376,7 +376,7 @@ struct ElementArray {
   }
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<ElementArray>(local_cache)
@@ -396,25 +396,10 @@ struct Metavariables {
   static constexpr const char* const help{"Test the volume data reader"};
   static constexpr bool ignore_unrecognized_command_line_options = false;
 
-  using Phase = Parallel::Phase;
-
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<
-          tuples::TaggedTuple<Tags...>*> /*phase_change_decision_data*/,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<Metavariables>& /*cache_proxy*/) {
-    switch (current_phase) {
-      case Phase::Initialization:
-        return Phase::Register;
-      case Phase::Register:
-        return Phase::ImportInitialData;
-      case Phase::ImportInitialData:
-        return Phase::Testing;
-      default:
-        return Phase::Exit;
-    }
-  }
+  static constexpr std::array<Parallel::Phase, 5> default_phase_order{
+      {Parallel::Phase::Initialization, Parallel::Phase::Register,
+       Parallel::Phase::ImportInitialData, Parallel::Phase::Testing,
+       Parallel::Phase::Exit}};
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}

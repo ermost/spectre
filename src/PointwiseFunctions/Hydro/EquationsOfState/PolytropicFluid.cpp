@@ -26,8 +26,8 @@ EQUATION_OF_STATE_MEMBER_DEFINITIONS(template <bool IsRelativistic>,
                                      DataVector, 1)
 
 template <bool IsRelativistic>
-PolytropicFluid<IsRelativistic>::PolytropicFluid(CkMigrateMessage* /*unused*/) {
-}
+PolytropicFluid<IsRelativistic>::PolytropicFluid(CkMigrateMessage* msg)
+    : EquationOfState<IsRelativistic, 1>(msg) {}
 
 template <bool IsRelativistic>
 void PolytropicFluid<IsRelativistic>::pup(PUP::er& p) {
@@ -62,26 +62,6 @@ Scalar<DataType> PolytropicFluid<false>::rest_mass_density_from_enthalpy_impl(
                                (polytropic_constant_ * polytropic_exponent_)) *
                                   get(specific_enthalpy),
                               1.0 / (polytropic_exponent_ - 1.0))};
-}
-
-template <>
-template <class DataType>
-Scalar<DataType> PolytropicFluid<true>::specific_enthalpy_from_density_impl(
-    const Scalar<DataType>& rest_mass_density) const {
-  return Scalar<DataType>{
-      1.0 + polytropic_exponent_ / (polytropic_exponent_ - 1.0) *
-                polytropic_constant_ *
-                pow(get(rest_mass_density), polytropic_exponent_ - 1.0)};
-}
-
-template <>
-template <class DataType>
-Scalar<DataType> PolytropicFluid<false>::specific_enthalpy_from_density_impl(
-    const Scalar<DataType>& rest_mass_density) const {
-  return Scalar<DataType>{
-      polytropic_exponent_ / (polytropic_exponent_ - 1.0) *
-      polytropic_constant_ *
-      pow(get(rest_mass_density), polytropic_exponent_ - 1.0)};
 }
 
 template <bool IsRelativistic>

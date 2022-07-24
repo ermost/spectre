@@ -6,14 +6,14 @@
 #include "IO/Observer/ArrayComponentId.hpp"
 #include "IO/Observer/Initialize.hpp"
 #include "IO/Observer/Tags.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Algorithms/AlgorithmGroup.hpp"
 #include "Parallel/Algorithms/AlgorithmNodegroup.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace observers {
@@ -38,7 +38,7 @@ struct Observer {
       Parallel::get_initialization_actions_list<phase_dependent_action_list>>;
 
   static void execute_next_phase(
-      const typename Metavariables::Phase /*next_phase*/,
+      const Parallel::Phase /*next_phase*/,
       Parallel::CProxy_GlobalCache<Metavariables>& /*global_cache*/) {}
 };
 
@@ -62,7 +62,7 @@ struct ObserverWriter {
       Parallel::get_initialization_actions_list<phase_dependent_action_list>>;
 
   static void execute_next_phase(
-      const typename Metavariables::Phase /*next_phase*/,
+      const Parallel::Phase /*next_phase*/,
       Parallel::CProxy_GlobalCache<Metavariables>& /*global_cache*/) {}
 };
 }  // namespace observers

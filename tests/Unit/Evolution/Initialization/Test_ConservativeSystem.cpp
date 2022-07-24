@@ -17,8 +17,8 @@
 #include "Framework/ActionTesting.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "PointwiseFunctions/AnalyticData/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/AnalyticSolution.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
@@ -77,7 +77,6 @@ struct Metavariables {
   using system = System<Dim, HasPrimitives>;
   using const_global_cache_tags =
       tmpl::list<Tags::AnalyticSolution<SystemAnalyticSolution>>;
-  using Phase = Parallel::Phase;
 
   struct equation_of_state_tag : db::SimpleTag {
     using type = int;

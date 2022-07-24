@@ -31,8 +31,8 @@
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Projection.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Time/Slab.hpp"
 #include "Time/Time.hpp"
 #include "Time/TimeStepId.hpp"
@@ -88,7 +88,6 @@ struct Metavariables {
   };
 
   using component_list = tmpl::list<component<Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 template <size_t Dim, typename MappedType>
@@ -118,7 +117,7 @@ void test_impl(
            initial_extents, element.id(), quadrature, {}),
        quadrature});
 
-  ActionTesting::set_phase(make_not_null(&runner), metavars::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Run the SetupDataBox action
   ActionTesting::next_action<component<metavars>>(make_not_null(&runner),

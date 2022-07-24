@@ -90,8 +90,8 @@ struct TciOptions {
   };
 
   using options =
-      tmpl::list<MinimumValueOfD, MinimumValueOfTildeTau, AtmosphereDensity,
-                 SafetyFactorForB, MagneticFieldCutoff>;
+      tmpl::list<MinimumValueOfD, MinimumValueOfYe, MinimumValueOfTildeTau,
+                 AtmosphereDensity, SafetyFactorForB, MagneticFieldCutoff>;
   static constexpr Options::String help = {
       "Options for the troubled-cell indicator."};
 

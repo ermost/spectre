@@ -13,10 +13,10 @@
 #include "IO/Observer/ObserverComponent.hpp"  // IWYU pragma: keep
 #include "IO/Observer/Tags.hpp"
 #include "IO/Observer/TypeOfObservation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/ArrayIndex.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "Utilities/Functional.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -50,7 +50,7 @@ struct element_component {
   using array_index = ElementIdType;
 
   using phase_dependent_action_list =
-      tmpl::list<Parallel::PhaseActions<Parallel::Phase::RegisterWithObserver,
+      tmpl::list<Parallel::PhaseActions<Parallel::Phase::Register,
                                         RegistrationActionsList>>;
 };
 
@@ -129,6 +129,5 @@ struct Metavariables {
                  reduction_data_from_ds_and_vs>>;
   /// [make_reduction_data_tags]
 
-  using Phase = Parallel::Phase;
 };
 }  // namespace TestObservers_detail

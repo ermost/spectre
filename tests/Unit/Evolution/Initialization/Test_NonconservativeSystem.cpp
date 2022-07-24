@@ -14,8 +14,8 @@
 #include "Framework/ActionTesting.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -54,7 +54,6 @@ struct Metavariables {
   using component_list = tmpl::list<component<Dim, Metavariables>>;
   using system = System<Dim>;
   using const_global_cache_tag_list = tmpl::list<>;
-  using Phase = Parallel::Phase;
 };
 
 template <size_t Dim>

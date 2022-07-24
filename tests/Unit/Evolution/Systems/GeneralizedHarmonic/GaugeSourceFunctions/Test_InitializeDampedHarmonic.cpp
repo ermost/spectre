@@ -42,9 +42,9 @@
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 #include "Options/Options.hpp"
 #include "Options/ParseOptions.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "PointwiseFunctions/GeneralRelativity/SpacetimeMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Time/Tags.hpp"
@@ -110,7 +110,6 @@ struct Metavariables {
   using variables_tag = Tags::Variables<evolved_vars>;
   static constexpr size_t volume_dim = Dim;
   using component_list = tmpl::list<component<Dim, Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 template <size_t Dim, bool UseRollon>

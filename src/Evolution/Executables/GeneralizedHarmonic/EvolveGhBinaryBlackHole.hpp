@@ -12,6 +12,12 @@
 #include "ApparentHorizons/HorizonAliases.hpp"
 #include "ApparentHorizons/ObserveCenters.hpp"
 #include "ApparentHorizons/Tags.hpp"
+#include "ControlSystem/Actions/InitializeMeasurements.hpp"
+#include "ControlSystem/Component.hpp"
+#include "ControlSystem/Event.hpp"
+#include "ControlSystem/Systems/Expansion.hpp"
+#include "ControlSystem/Systems/Rotation.hpp"
+#include "ControlSystem/Trigger.hpp"
 #include "DataStructures/DataBox/PrefixHelpers.hpp"
 #include "DataStructures/DataBox/Tag.hpp"
 #include "Domain/Creators/Factory1D.hpp"
@@ -19,6 +25,7 @@
 #include "Domain/Creators/Factory3D.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
+#include "Domain/FunctionsOfTime/FunctionsOfTimeAreReady.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/Protocols/Metavariables.hpp"
 #include "Domain/Tags.hpp"
@@ -61,8 +68,6 @@
 #include "NumericalAlgorithms/LinearOperators/FilterAction.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Local.hpp"
@@ -74,7 +79,11 @@
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/Reduction.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Actions/RunEventsAndTriggers.hpp"
@@ -83,8 +92,6 @@
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/LogicalTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Trigger.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddComputeTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InterpolationTargetReceiveVars.hpp"
@@ -168,20 +175,6 @@ struct EvolutionMetavars {
   // `read_spec_piecewise_polynomial()`
   static constexpr bool override_functions_of_time = true;
 
-  using Phase = Parallel::Phase;
-
-  static std::string phase_name(Phase phase) {
-    if (phase == Phase::LoadBalancing) {
-      return "LoadBalancing";
-    } else if (phase == Phase::WriteCheckpoint) {
-      return "WriteCheckpoint";
-    }
-    ERROR(
-        "Passed phase that should not be used in input file. Integer "
-        "corresponding to phase is: "
-        << static_cast<int>(phase));
-  }
-
   using initialize_initial_data_dependent_quantities_actions =
       tmpl::list<GeneralizedHarmonic::gauges::Actions::InitializeDampedHarmonic<
                      volume_dim, use_damped_harmonic_rollon>,
@@ -235,7 +228,15 @@ struct EvolutionMetavars {
         ah::callbacks::ObserveCenters<AhB>>;
   };
 
-  using interpolation_target_tags = tmpl::list<AhA, AhB>;
+  using control_systems = tmpl::list<control_system::Systems::Rotation<3>,
+                                     control_system::Systems::Expansion<2>>;
+
+  static constexpr bool use_control_systems =
+      tmpl::size<control_systems>::value > 0;
+
+  using interpolation_target_tags = tmpl::push_back<
+      control_system::metafunctions::interpolation_target_tags<control_systems>,
+      AhA, AhB>;
   using interpolator_source_vars = ::ah::source_vars<volume_dim>;
 
   using observe_fields = tmpl::append<
@@ -295,7 +296,10 @@ struct EvolutionMetavars {
   struct factory_creation
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
     using factory_classes = tmpl::map<
-        tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
+        tmpl::pair<DenseTrigger,
+                   tmpl::flatten<tmpl::list<
+                       control_system::control_system_triggers<control_systems>,
+                       DenseTriggers::standard_dense_triggers>>>,
         tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
         tmpl::pair<
             Event,
@@ -306,6 +310,7 @@ struct EvolutionMetavars {
                 dg::Events::field_observations<volume_dim, Tags::Time,
                                                observe_fields,
                                                non_tensor_compute_tags>,
+                control_system::control_system_events<control_systems>,
                 Events::time_events<system>>>>,
         tmpl::pair<GeneralizedHarmonic::BoundaryConditions::BoundaryCondition<
                        volume_dim>,
@@ -316,12 +321,12 @@ struct EvolutionMetavars {
                               GeneralizedHarmonic::BoundaryConditions::Outflow<
                                   volume_dim>>>,
         tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
-        tmpl::pair<PhaseChange,
-                   tmpl::list<PhaseControl::VisitAndReturn<
-                                  EvolutionMetavars, Phase::LoadBalancing>,
-                              PhaseControl::VisitAndReturn<
-                                  EvolutionMetavars, Phase::WriteCheckpoint>,
-                              PhaseControl::CheckpointAndExitAfterWallclock>>,
+        tmpl::pair<
+            PhaseChange,
+            tmpl::list<
+                PhaseControl::VisitAndReturn<Parallel::Phase::LoadBalancing>,
+                PhaseControl::VisitAndReturn<Parallel::Phase::WriteCheckpoint>,
+                PhaseControl::CheckpointAndExitAfterWallclock>>,
         tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
                    StepChoosers::standard_step_choosers<system>>,
         tmpl::pair<
@@ -354,43 +359,13 @@ struct EvolutionMetavars {
       tmpl::list<observers::Actions::RegisterEventsWithObservers,
                  intrp::Actions::RegisterElementWithInterpolator>;
 
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<tuples::TaggedTuple<Tags...>*>
-          phase_change_decision_data,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<EvolutionMetavars>& cache_proxy) {
-    const auto next_phase = PhaseControl::arbitrate_phase_change(
-        phase_change_decision_data, current_phase,
-        *Parallel::local_branch(cache_proxy));
-    if (next_phase.has_value()) {
-      return next_phase.value();
-    }
-    switch (current_phase) {
-      case Phase::Initialization:
-        return Phase::RegisterWithElementDataReader;
-      case Phase::RegisterWithElementDataReader:
-        return Phase::ImportInitialData;
-      case Phase::ImportInitialData:
-        return Phase::InitializeInitialDataDependentQuantities;
-      case Phase::InitializeInitialDataDependentQuantities:
-        return Phase::InitializeTimeStepperHistory;
-      case Phase::InitializeTimeStepperHistory:
-        return Phase::Register;
-      case Phase::Register:
-        return Phase::Evolve;
-      case Phase::Evolve:
-        return Phase::Exit;
-      case Phase::Exit:
-        ERROR(
-            "Should never call determine_next_phase with the current phase "
-            "being 'Exit'");
-      default:
-        ERROR(
-            "Unknown type of phase. Did you static_cast<Phase> an integral "
-            "value?");
-    }
-  }
+  static constexpr std::array<Parallel::Phase, 8> default_phase_order{
+      {Parallel::Phase::Initialization,
+       Parallel::Phase::RegisterWithElementDataReader,
+       Parallel::Phase::ImportInitialData,
+       Parallel::Phase::InitializeInitialDataDependentQuantities,
+       Parallel::Phase::Register, Parallel::Phase::InitializeTimeStepperHistory,
+       Parallel::Phase::Evolve, Parallel::Phase::Exit}};
 
   using step_actions = tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<EvolutionMetavars>,
@@ -417,8 +392,8 @@ struct EvolutionMetavars {
   using initialization_actions = tmpl::list<
       Actions::SetupDataBox,
       Initialization::Actions::TimeAndTimeStep<EvolutionMetavars>,
-      evolution::dg::Initialization::Domain<volume_dim,
-                                            override_functions_of_time>,
+      evolution::dg::Initialization::Domain<
+          volume_dim, override_functions_of_time, use_control_systems>,
       Initialization::Actions::NonconservativeSystem<system>,
       Initialization::Actions::AddComputeTags<::Tags::DerivCompute<
           typename system::variables_tag,
@@ -431,6 +406,7 @@ struct EvolutionMetavars {
           StepChoosers::step_chooser_compute_tags<EvolutionMetavars>>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       evolution::Actions::InitializeRunEventsAndDenseTriggers,
+      control_system::Actions::InitializeMeasurements<control_systems>,
       Initialization::Actions::RemoveOptionsAndTerminatePhase>;
 
   using gh_dg_element_array = DgElementArray<
@@ -452,15 +428,16 @@ struct EvolutionMetavars {
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
-          Parallel::PhaseActions<
-              Parallel::Phase::InitializeTimeStepperHistory,
-              SelfStart::self_start_procedure<step_actions, system>>,
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
                                             Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
+              Parallel::Phase::InitializeTimeStepperHistory,
+              SelfStart::self_start_procedure<step_actions, system>>,
+          Parallel::PhaseActions<
               Parallel::Phase::Evolve,
-              tmpl::list<Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
+              tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
+                         Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
                          step_actions, Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
@@ -477,8 +454,11 @@ struct EvolutionMetavars {
       importers::ElementDataReader<EvolutionMetavars>,
       mem_monitor::MemoryMonitor<EvolutionMetavars>,
       intrp::Interpolator<EvolutionMetavars>,
-      intrp::InterpolationTarget<EvolutionMetavars, AhA>,
-      intrp::InterpolationTarget<EvolutionMetavars, AhB>, gh_dg_element_array>>;
+      tmpl::transform<interpolation_target_tags,
+                      tmpl::bind<intrp::InterpolationTarget,
+                                 tmpl::pin<EvolutionMetavars>, tmpl::_1>>,
+      control_system::control_components<EvolutionMetavars, control_systems>,
+      gh_dg_element_array>>;
 
   static constexpr Options::String help{
       "Evolve a binary black hole using the Generalized Harmonic "

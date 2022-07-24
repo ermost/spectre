@@ -9,7 +9,7 @@ set(LIBRARY_SOURCES
   Test_KerrHorizon.cpp
   Test_KerrSchild.cpp
   Test_Minkowski.cpp
-  Test_Tov.cpp
+  Test_SphericalKerrSchild.cpp
   Test_WrappedGr.cpp
   )
 
@@ -34,5 +34,3 @@ target_link_libraries(
   Spectral
   Utilities
   )
-
-add_subdirectory(Python)

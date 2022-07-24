@@ -27,9 +27,9 @@
 #include "NumericalAlgorithms/Spectral/SwshCollocation.hpp"
 #include "NumericalAlgorithms/Spectral/SwshTags.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/StepChoosers/Factory.hpp"
@@ -142,7 +142,6 @@ struct metavariables {
 
   using component_list =
       tmpl::list<mock_characteristic_evolution<metavariables>>;
-  using Phase = Parallel::Phase;
 };
 }  // namespace
 
@@ -187,7 +186,7 @@ SPECTRE_TEST_CASE(
       {start_time, l_max, number_of_radial_points}};
 
   ActionTesting::set_phase(make_not_null(&runner),
-                           metavariables::Phase::Initialization);
+                           Parallel::Phase::Initialization);
   ActionTesting::emplace_component<component>(
       &runner, 0, target_step_size * 0.75, false,
       static_cast<std::unique_ptr<LtsTimeStepper>>(
@@ -201,8 +200,7 @@ SPECTRE_TEST_CASE(
   for (size_t i = 0; i < 6; ++i) {
     ActionTesting::next_action<component>(make_not_null(&runner), 0);
   }
-  ActionTesting::set_phase(make_not_null(&runner),
-                           metavariables::Phase::Evolve);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Evolve);
 
   // the tags inserted in the `EvolutionTags` step
   const auto& time_step_id =

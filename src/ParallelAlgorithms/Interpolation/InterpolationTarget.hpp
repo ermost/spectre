@@ -6,8 +6,6 @@
 #include <memory>
 
 #include "DataStructures/DataBox/DataBox.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
@@ -15,6 +13,8 @@
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/Tags/ResourceInfo.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InterpolationTargetSendPoints.hpp"
 #include "ParallelAlgorithms/Interpolation/Protocols/InterpolationTargetTag.hpp"
 #include "Utilities/PrettyType.hpp"
@@ -300,7 +300,7 @@ struct InterpolationTarget {
                        Metavariables, InterpolationTargetTag>>>>;
 
   static void execute_next_phase(
-      typename metavariables::Phase next_phase,
+      Parallel::Phase next_phase,
       Parallel::CProxy_GlobalCache<metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<

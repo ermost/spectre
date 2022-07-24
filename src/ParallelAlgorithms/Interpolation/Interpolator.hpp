@@ -4,14 +4,14 @@
 #pragma once
 
 #include "DataStructures/DataBox/DataBox.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmGroup.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolator.hpp"
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TypeTraits/IsA.hpp"
@@ -56,7 +56,7 @@ struct Interpolator {
   using initialization_tags = Parallel::get_initialization_tags<
       Parallel::get_initialization_actions_list<phase_dependent_action_list>>;
   static void execute_next_phase(
-      typename Metavariables::Phase next_phase,
+      Parallel::Phase next_phase,
       const Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<Interpolator>(local_cache)

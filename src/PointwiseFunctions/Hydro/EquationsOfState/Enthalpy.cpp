@@ -12,6 +12,7 @@
 #include "NumericalAlgorithms/RootFinding/NewtonRaphson.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/EquationOfState.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/Spectral.hpp"
+#include "PointwiseFunctions/Hydro/SpecificEnthalpy.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/MakeWithValue.hpp"
 
@@ -212,7 +213,9 @@ EQUATION_OF_STATE_MEMBER_DEFINITIONS(template <typename LowDensityEoS>,
                                      Enthalpy<LowDensityEoS>, DataVector, 1)
 
 template <typename LowDensityEoS>
-Enthalpy<LowDensityEoS>::Enthalpy(CkMigrateMessage* /*unused*/) {}
+Enthalpy<LowDensityEoS>::Enthalpy(CkMigrateMessage* msg)
+    : EquationOfState<true, 1>(msg) {}
+
 
 template <typename LowDensityEoS>
 void Enthalpy<LowDensityEoS>::pup(PUP::er& p) {
@@ -310,23 +313,6 @@ Scalar<DataType> Enthalpy<LowDensityEoS>::rest_mass_density_from_enthalpy_impl(
 
 template <typename LowDensityEoS>
 template <class DataType>
-Scalar<DataType> Enthalpy<LowDensityEoS>::specific_enthalpy_from_density_impl(
-    const Scalar<DataType>& rest_mass_density) const {
-  if constexpr (std::is_same_v<DataType, double>) {
-    return Scalar<double>{
-        specific_enthalpy_from_density(get(rest_mass_density))};
-  } else if constexpr (std::is_same_v<DataType, DataVector>) {
-    auto result = make_with_value<Scalar<DataVector>>(rest_mass_density, 0.0);
-    for (size_t i = 0; i < get(result).size(); ++i) {
-      get(result)[i] =
-          specific_enthalpy_from_density(get(rest_mass_density)[i]);
-    }
-    return result;
-  }
-}
-
-template <typename LowDensityEoS>
-template <class DataType>
 Scalar<DataType>
 Enthalpy<LowDensityEoS>::specific_internal_energy_from_density_impl(
     const Scalar<DataType>& rest_mass_density) const {
@@ -394,8 +380,12 @@ template <typename LowDensityEoS>
 double Enthalpy<LowDensityEoS>::specific_enthalpy_from_density(
     const double rest_mass_density) const {
   if (Enthalpy::in_low_density_domain(rest_mass_density)) {
-    return get(low_density_eos_.specific_enthalpy_from_density(
-        Scalar<double>(rest_mass_density)));
+    return get(hydro::relativistic_specific_enthalpy(
+        Scalar<double>(rest_mass_density),
+        low_density_eos_.specific_internal_energy_from_density(
+            Scalar<double>(rest_mass_density)),
+        low_density_eos_.pressure_from_density(
+            Scalar<double>(rest_mass_density))));
   } else {
     return evaluate_coefficients(coefficients_,
                                  x_from_density(rest_mass_density));

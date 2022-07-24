@@ -41,11 +41,19 @@ template <bool IsRelativistic, class... MemberArgs, class T>
 void check_impl(
     const std::unique_ptr<
         ::EquationsOfState::EquationOfState<IsRelativistic, 1>>& in_eos,
+    const std::string& python_file_name,
     const std::string& python_function_prefix, const T& used_for_size,
     const MemberArgs&... member_args) {
   // Bounds for: density
   const std::array<std::pair<double, double>, 1> random_value_bounds{
       {{1.0e-4, 4.0}}};
+  MAKE_GENERATOR(generator, std::random_device{}());
+  std::uniform_real_distribution<> distribution(random_value_bounds[0].first,
+                                                random_value_bounds[0].second);
+  const auto rest_mass_density = make_with_random_values<Scalar<T>>(
+      make_not_null(&generator), make_not_null(&distribution), used_for_size);
+  const auto specific_internal_energy = make_with_random_values<Scalar<T>>(
+      make_not_null(&generator), make_not_null(&distribution), used_for_size);
   using EoS = ::EquationsOfState::EquationOfState<IsRelativistic, 1>;
   using Function = typename CreateMemberFunctionPointer<1>::template f<T, EoS>;
   INFO("Testing "s + (IsRelativistic ? "relativistic"s : "Newtonian"s) +
@@ -56,53 +64,41 @@ void check_impl(
     Function func{&EoS::pressure_from_density};
     INFO("Testing pressure_from_density...")
     pypp::check_with_random_values<1>(
-        func, *eos, "TestFunctions",
+        func, *eos, python_file_name,
         python_function_prefix + "_pressure_from_density", random_value_bounds,
         member_args_tuple, used_for_size);
     INFO("Done\nTesting rest_mass_density_from_enthalpy...")
     pypp::check_with_random_values<1>(
-        func = &EoS::rest_mass_density_from_enthalpy, *eos, "TestFunctions",
+        func = &EoS::rest_mass_density_from_enthalpy, *eos, python_file_name,
         IsRelativistic ? std::string(python_function_prefix +
                                      "_rel_rest_mass_density_from_enthalpy")
                        : std::string(python_function_prefix +
                                      "_newt_rest_mass_density_from_enthalpy"),
         {{{1, 1.0e4}}}, member_args_tuple, used_for_size);
-    INFO("Done\nTesting specific_enthalpy_from_density...")
-    pypp::check_with_random_values<1>(
-        func = &EoS::specific_enthalpy_from_density, *eos, "TestFunctions",
-        IsRelativistic ? std::string(python_function_prefix +
-                                     "_rel_specific_enthalpy_from_density")
-                       : std::string(python_function_prefix +
-                                     "_newt_specific_enthalpy_from_density"),
-        random_value_bounds, member_args_tuple, used_for_size);
     INFO("Done\nTesting specific_internal_energy_from_density...")
     pypp::check_with_random_values<1>(
         func = &EoS::specific_internal_energy_from_density, *eos,
-        "TestFunctions",
+        python_file_name,
         python_function_prefix + "_specific_internal_energy_from_density",
         random_value_bounds, member_args_tuple, used_for_size);
+    INFO("Done\nTesting temperature_from_density...")
+    CHECK(make_with_value<Scalar<T>>(used_for_size, 0.0) ==
+          eos->temperature_from_density(rest_mass_density));
+    INFO("Done\nTesting temperature_from_specific_internal_energy...")
+    CHECK(make_with_value<Scalar<T>>(used_for_size, 0.0) ==
+          eos->temperature_from_specific_internal_energy(
+              specific_internal_energy));
     INFO("Done\nTesting chi_from_density...")
     pypp::check_with_random_values<1>(
-        func = &EoS::chi_from_density, *eos, "TestFunctions",
+        func = &EoS::chi_from_density, *eos, python_file_name,
         python_function_prefix + "_chi_from_density", random_value_bounds,
         member_args_tuple, used_for_size);
     INFO("Done\nTesting kappa_times_p_over_rho_squared_from_density...")
     pypp::check_with_random_values<1>(
         func = &EoS::kappa_times_p_over_rho_squared_from_density, *eos,
-        "TestFunctions",
+        python_file_name,
         python_function_prefix + "_kappa_times_p_over_rho_squared_from_density",
         random_value_bounds, member_args_tuple, used_for_size);
-    INFO(
-        "Done\nTesting that rest_mass_density_from_enthalpy and "
-        "specific_enthalpy_from_density are inverses of each other...")
-    MAKE_GENERATOR(generator);
-    std::uniform_real_distribution<> distribution(1.0, 1.0e+04);
-    const auto specific_enthalpy = make_with_random_values<Scalar<T>>(
-        make_not_null(&generator), make_not_null(&distribution), used_for_size);
-    CHECK_ITERABLE_APPROX(
-        specific_enthalpy,
-        eos->specific_enthalpy_from_density(
-            eos->rest_mass_density_from_enthalpy(specific_enthalpy)));
     INFO("Done\n\n")
   };
   helper(in_eos);
@@ -113,11 +109,19 @@ template <bool IsRelativistic, class... MemberArgs, class T>
 void check_impl(
     const std::unique_ptr<
         ::EquationsOfState::EquationOfState<IsRelativistic, 2>>& in_eos,
+    const std::string& python_file_name,
     const std::string& python_function_prefix, const T& used_for_size,
     const MemberArgs&... member_args) {
   // Bounds for: density, specific internal energy
   const std::array<std::pair<double, double>, 2> random_value_bounds{
       {{1.0e-4, 4.0}, {0.0, 1.0e4}}};
+  MAKE_GENERATOR(generator, std::random_device{}());
+  std::uniform_real_distribution<> distribution(random_value_bounds[0].first,
+                                                random_value_bounds[0].second);
+  const auto rest_mass_density = make_with_random_values<Scalar<T>>(
+      make_not_null(&generator), make_not_null(&distribution), used_for_size);
+  const auto specific_internal_energy = make_with_random_values<Scalar<T>>(
+      make_not_null(&generator), make_not_null(&distribution), used_for_size);
   using EoS = ::EquationsOfState::EquationOfState<IsRelativistic, 2>;
   using Function = typename CreateMemberFunctionPointer<2>::template f<T, EoS>;
   INFO("Testing "s + (IsRelativistic ? "relativistic"s : "Newtonian"s) +
@@ -128,38 +132,43 @@ void check_impl(
     Function func{&EoS::pressure_from_density_and_energy};
     INFO("Testing pressure_from_density_and_energy...")
     pypp::check_with_random_values<2>(
-        func, *eos, "TestFunctions",
+        func, *eos, python_file_name,
         python_function_prefix + "_pressure_from_density_and_energy",
         random_value_bounds, member_args_tuple, used_for_size);
     INFO("Done\nTesting pressure_from_density_and_enthalpy...")
     pypp::check_with_random_values<2>(
-        func = &EoS::pressure_from_density_and_enthalpy, *eos, "TestFunctions",
+        func = &EoS::pressure_from_density_and_enthalpy, *eos, python_file_name,
         IsRelativistic
             ? std::string(python_function_prefix +
                           "_rel_pressure_from_density_and_enthalpy")
             : std::string(python_function_prefix +
                           "_newt_pressure_from_density_and_enthalpy"),
         {{{1.0e-4, 4.0}, {1.0, 1.0e4}}}, member_args_tuple, used_for_size);
-    INFO("Done\nTesting specific_enthalpy_from_density_and_energy...")
-    pypp::check_with_random_values<2>(
-        func = &EoS::specific_enthalpy_from_density_and_energy, *eos,
-        "TestFunctions",
-        IsRelativistic
-            ? std::string(python_function_prefix +
-                          "_rel_specific_enthalpy_from_density_and_energy")
-            : std::string(python_function_prefix +
-                          "_newt_specific_enthalpy_from_density_and_energy"),
-        random_value_bounds, member_args_tuple, used_for_size);
     INFO("Done\nTesting specific_internal_energy_from_density_and_pressure...")
     pypp::check_with_random_values<2>(
         func = &EoS::specific_internal_energy_from_density_and_pressure, *eos,
-        "TestFunctions",
+        python_file_name,
         python_function_prefix +
             "_specific_internal_energy_from_density_and_pressure",
         random_value_bounds, member_args_tuple, used_for_size);
+    INFO("Done\nTesting temperature_from_density_and_specific_int_energy...")
+    pypp::check_with_random_values<2>(
+        func = &EoS::temperature_from_density_and_energy, *eos,
+        python_file_name,
+        python_function_prefix + "_temperature_from_density_and_energy",
+        random_value_bounds, member_args_tuple, used_for_size);
+    INFO("Done\nTesting specific_int_energy_from_density_and_temperature...");
+    Approx custom_approx = Approx::custom().epsilon(1.e-9);
+    CHECK_ITERABLE_CUSTOM_APPROX(
+        specific_internal_energy,
+        eos->specific_internal_energy_from_density_and_temperature(
+            rest_mass_density,
+            eos->temperature_from_density_and_energy(rest_mass_density,
+                                                     specific_internal_energy)),
+        custom_approx);
     INFO("Done\nTesting chi_from_density_and_energy...")
     pypp::check_with_random_values<2>(
-        func = &EoS::chi_from_density_and_energy, *eos, "TestFunctions",
+        func = &EoS::chi_from_density_and_energy, *eos, python_file_name,
         python_function_prefix + "_chi_from_density_and_energy",
         random_value_bounds, member_args_tuple, used_for_size);
     INFO(
@@ -167,7 +176,7 @@ void check_impl(
         "kappa_times_p_over_rho_squared_from_density_and_energy...")
     pypp::check_with_random_values<2>(
         func = &EoS::kappa_times_p_over_rho_squared_from_density_and_energy,
-        *eos, "TestFunctions",
+        *eos, python_file_name,
         python_function_prefix +
             "_kappa_times_p_over_rho_squared_from_density_and_energy",
         random_value_bounds, member_args_tuple, used_for_size);
@@ -196,22 +205,25 @@ void check_impl(
  * arguments as the trailing arguments.
  */
 template <class EosType, class T, class... MemberArgs>
-void check(std::unique_ptr<EosType> in_eos,
+void check(std::unique_ptr<EosType> in_eos, const std::string& python_file_name,
            const std::string& python_function_prefix, const T& used_for_size,
            const MemberArgs&... member_args) {
   detail::check_impl(std::unique_ptr<::EquationsOfState::EquationOfState<
                          EosType::is_relativistic, EosType::thermodynamic_dim>>(
                          std::move(in_eos)),
-                     python_function_prefix, used_for_size, member_args...);
+                     python_file_name, python_function_prefix, used_for_size,
+                     member_args...);
 }
 
 template <class EosType, class T, class... MemberArgs>
-void check(EosType in_eos, const std::string& python_function_prefix,
-           const T& used_for_size, const MemberArgs&... member_args) {
+void check(EosType in_eos, const std::string& python_file_name,
+           const std::string& python_function_prefix, const T& used_for_size,
+           const MemberArgs&... member_args) {
   detail::check_impl(std::unique_ptr<::EquationsOfState::EquationOfState<
                          EosType::is_relativistic, EosType::thermodynamic_dim>>(
                          std::make_unique<EosType>(std::move(in_eos))),
-                     python_function_prefix, used_for_size, member_args...);
+                     python_file_name, python_function_prefix, used_for_size,
+                     member_args...);
 }
 /// @}
 }  // namespace EquationsOfState

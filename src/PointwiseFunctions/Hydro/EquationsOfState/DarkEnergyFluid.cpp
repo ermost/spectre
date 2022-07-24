@@ -26,8 +26,8 @@ EQUATION_OF_STATE_MEMBER_DEFINITIONS(template <bool IsRelativistic>,
                                      DataVector, 2)
 
 template <bool IsRelativistic>
-DarkEnergyFluid<IsRelativistic>::DarkEnergyFluid(CkMigrateMessage* /*unused*/) {
-}
+DarkEnergyFluid<IsRelativistic>::DarkEnergyFluid(CkMigrateMessage* msg)
+    : EquationOfState<IsRelativistic, 2>(msg) {}
 
 template <bool IsRelativistic>
 void DarkEnergyFluid<IsRelativistic>::pup(PUP::er& p) {
@@ -55,16 +55,6 @@ DarkEnergyFluid<IsRelativistic>::pressure_from_density_and_enthalpy_impl(
                           get(rest_mass_density) * get(specific_enthalpy)};
 }
 
-template <>
-template <class DataType>
-Scalar<DataType>
-DarkEnergyFluid<true>::specific_enthalpy_from_density_and_energy_impl(
-    const Scalar<DataType>& /*rest_mass_density*/,
-    const Scalar<DataType>& specific_internal_energy) const {
-  return Scalar<DataType>{(1.0 + parameter_w_) *
-                          (1.0 + get(specific_internal_energy))};
-}
-
 template <bool IsRelativistic>
 template <class DataType>
 Scalar<DataType> DarkEnergyFluid<IsRelativistic>::
@@ -73,6 +63,24 @@ Scalar<DataType> DarkEnergyFluid<IsRelativistic>::
         const Scalar<DataType>& pressure) const {
   return Scalar<DataType>{
       get(pressure) / (parameter_w_ * get(rest_mass_density)) - 1.0};
+}
+
+template <bool IsRelativistic>
+template <class DataType>
+Scalar<DataType>
+DarkEnergyFluid<IsRelativistic>::temperature_from_density_and_energy_impl(
+    const Scalar<DataType>& /*rest_mass_density*/,
+    const Scalar<DataType>& specific_internal_energy) const {
+  return Scalar<DataType>{parameter_w_ * get(specific_internal_energy)};
+}
+
+template <bool IsRelativistic>
+template <class DataType>
+Scalar<DataType> DarkEnergyFluid<IsRelativistic>::
+    specific_internal_energy_from_density_and_temperature_impl(
+        const Scalar<DataType>& /*rest_mass_density*/,
+        const Scalar<DataType>& temperature) const {
+  return Scalar<DataType>{get(temperature) / parameter_w_};
 }
 
 template <bool IsRelativistic>

@@ -14,12 +14,12 @@
 #include "Helpers/ParallelAlgorithms/LinearSolver/Multigrid/Helpers.hpp"
 #include "IO/Observer/ObserverComponent.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/Goto.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Main.hpp"
 #include "Parallel/Phase.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/Goto.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/LinearSolver/Multigrid/ElementsAllocator.hpp"
 #include "ParallelAlgorithms/LinearSolver/Multigrid/Multigrid.hpp"
 #include "ParallelAlgorithms/LinearSolver/Multigrid/Tags.hpp"
@@ -76,7 +76,7 @@ struct Metavariables {
         tmpl::pair<DomainCreator<1>, tmpl::list<domain::creators::Interval>>>;
   };
 
-  using Phase = helpers::Phase;
+  static constexpr auto default_phase_order = helpers::default_phase_order;
 
   using initialization_actions =
       tmpl::list<::Actions::SetupDataBox, helpers_mg::InitializeElement,
@@ -117,7 +117,7 @@ struct Metavariables {
           tmpl::list<
               Parallel::PhaseActions<Parallel::Phase::Initialization,
                                      initialization_actions>,
-              Parallel::PhaseActions<Parallel::Phase::RegisterWithObserver,
+              Parallel::PhaseActions<Parallel::Phase::Register,
                                      register_actions>,
               Parallel::PhaseActions<Parallel::Phase::Solve, solve_actions>,
               Parallel::PhaseActions<Parallel::Phase::Testing, test_actions>>,
@@ -128,15 +128,6 @@ struct Metavariables {
   using observed_reduction_data_tags =
       observers::collect_reduction_data_tags<tmpl::list<multigrid, smoother>>;
   static constexpr bool ignore_unrecognized_command_line_options = false;
-
-  template <typename Metavariables, typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<
-          tuples::TaggedTuple<Tags...>*> /*phase_change_decision_data*/,
-      const helpers::Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<Metavariables>& /*cache_proxy*/) {
-    return helpers::determine_next_phase(current_phase);
-  }
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}

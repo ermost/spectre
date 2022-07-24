@@ -11,9 +11,9 @@
 #include "IO/Observer/ArrayComponentId.hpp"  // IWYU pragma: keep
 #include "IO/Observer/Initialize.hpp"
 #include "IO/Observer/Tags.hpp"                   // IWYU pragma: keep
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"  // IWYU pragma: keep
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -41,7 +41,6 @@ struct Metavariables {
   using component_list = tmpl::list<observer_component<Metavariables>>;
   using observed_reduction_data_tags = tmpl::list<>;
 
-  using Phase = Parallel::Phase;
 };
 
 SPECTRE_TEST_CASE("Unit.IO.Observers.Initialize", "[Unit][Observers]") {

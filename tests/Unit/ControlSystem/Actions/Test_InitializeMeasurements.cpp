@@ -32,10 +32,10 @@
 #include "Framework/MockRuntimeSystemFreeFunctions.hpp"
 #include "Helpers/ControlSystem/TestStructs.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Event.hpp"
 #include "Time/Tags.hpp"
 #include "Utilities/GetOutput.hpp"
@@ -171,7 +171,6 @@ struct Metavariables {
                    control_system::control_system_triggers<control_systems>>>;
   };
 
-  using Phase = Parallel::Phase;
 };
 
 SPECTRE_TEST_CASE("Unit.ControlSystem.InitializeMeasurements",

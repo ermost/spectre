@@ -12,9 +12,9 @@
 #include "DataStructures/DynamicVector.hpp"
 #include "Framework/ActionTesting.hpp"
 #include "NumericalAlgorithms/Convergence/Tags.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/LinearSolver/Actions/MakeIdentityIfSkipped.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/Literals.hpp"
@@ -81,7 +81,6 @@ template <typename TestActions>
 struct Metavariables {
   using element_array = ElementArray<Metavariables, TestActions>;
   using component_list = tmpl::list<element_array>;
-  using Phase = Parallel::Phase;
 };
 
 template <typename TestActions>
@@ -96,8 +95,7 @@ void test_make_identity_if_skipped(const bool skipped,
       make_not_null(&runner), 0,
       {has_converged, blaze::DynamicVector<double>{3, 1.},
        blaze::DynamicVector<double>{3, 2.}, false});
-  ActionTesting::set_phase(make_not_null(&runner),
-                           metavariables::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
   while (not ActionTesting::get_terminate<element_array>(runner, 0)) {
     ActionTesting::next_action<element_array>(make_not_null(&runner), 0);
   }

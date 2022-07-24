@@ -10,16 +10,18 @@
 #include <boost/preprocessor/tuple/enum.hpp>
 #include <boost/preprocessor/tuple/to_list.hpp>
 
-#include "DataStructures/Tensor/TypeAliases.hpp"
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "Parallel/CharmPupable.hpp"
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TypeTraits.hpp"
 
 /// \cond
-class DataVector;
 namespace EquationsOfState {
 template <bool IsRelativistic>
 class DarkEnergyFluid;
+template <typename ColdEquationOfState>
+class HybridEos;
 template <bool IsRelativistic>
 class IdealFluid;
 template <bool IsRelativistic>
@@ -49,12 +51,13 @@ struct DerivedClasses<false, 1> {
 
 template <>
 struct DerivedClasses<true, 2> {
-  using type = tmpl::list<DarkEnergyFluid<true>, IdealFluid<true>>;
+  using type = tmpl::list<DarkEnergyFluid<true>, IdealFluid<true>,
+                          HybridEos<PolytropicFluid<true>>>;
 };
 
 template <>
 struct DerivedClasses<false, 2> {
-  using type = tmpl::list<IdealFluid<false>>;
+  using type = tmpl::list<IdealFluid<false>, HybridEos<PolytropicFluid<false>>>;
 };
 
 }  // namespace detail
@@ -94,6 +97,8 @@ class EquationOfState<IsRelativistic, 1> : public PUP::able {
   EquationOfState& operator=(EquationOfState&&) = default;
   ~EquationOfState() override = default;
 
+  explicit EquationOfState(CkMigrateMessage* msg) : PUP::able(msg) {}
+
   WRAPPED_PUPable_abstract(EquationOfState);  // NOLINT
 
   /// @{
@@ -119,17 +124,6 @@ class EquationOfState<IsRelativistic, 1> : public PUP::able {
 
   /// @{
   /*!
-   * Computes the specific enthalpy \f$h\f$ from the rest mass density
-   * \f$\rho\f$.
-   */
-  virtual Scalar<double> specific_enthalpy_from_density(
-      const Scalar<double>& /*rest_mass_density*/) const = 0;
-  virtual Scalar<DataVector> specific_enthalpy_from_density(
-      const Scalar<DataVector>& /*rest_mass_density*/) const = 0;
-  /// @}
-
-  /// @{
-  /*!
    * Computes the specific internal energy \f$\epsilon\f$ from the rest mass
    * density \f$\rho\f$.
    */
@@ -137,6 +131,37 @@ class EquationOfState<IsRelativistic, 1> : public PUP::able {
       const Scalar<double>& /*rest_mass_density*/) const = 0;
   virtual Scalar<DataVector> specific_internal_energy_from_density(
       const Scalar<DataVector>& /*rest_mass_density*/) const = 0;
+  /// @}
+
+  /// @{
+  /*!
+   * Computes the temperature \f$T\f$ from the rest mass
+   * density \f$\rho\f$.
+   */
+  virtual Scalar<double> temperature_from_density(
+      const Scalar<double>& /*rest_mass_density*/) const {
+    return Scalar<double>{0.0};
+  }
+  virtual Scalar<DataVector> temperature_from_density(
+      const Scalar<DataVector>& rest_mass_density) const {
+    return Scalar<DataVector>{DataVector{get(rest_mass_density).size(), 0.0}};
+  }
+  /// @}
+
+  /// @{
+  /*!
+   * Computes the temperature \f$\T\f$ from the specific internal energy
+   * \f$\epsilon\f$.
+   */
+  virtual Scalar<double> temperature_from_specific_internal_energy(
+      const Scalar<double>& /*specific_internal_energy*/) const {
+    return Scalar<double>{0.0};
+  }
+  virtual Scalar<DataVector> temperature_from_specific_internal_energy(
+      const Scalar<DataVector>& specific_internal_energy) const {
+    return Scalar<DataVector>{
+        DataVector{get(specific_internal_energy).size(), 0.0}};
+  }
   /// @}
 
   /// @{
@@ -209,6 +234,8 @@ class EquationOfState<IsRelativistic, 2> : public PUP::able {
   EquationOfState& operator=(EquationOfState&&) = default;
   ~EquationOfState() override = default;
 
+  explicit EquationOfState(CkMigrateMessage* msg) : PUP::able(msg) {}
+
   WRAPPED_PUPable_abstract(EquationOfState);  // NOLINT
 
   /// @{
@@ -239,19 +266,6 @@ class EquationOfState<IsRelativistic, 2> : public PUP::able {
 
   /// @{
   /*!
-   * Computes the specific enthalpy \f$h\f$ from the rest mass density
-   * \f$\rho\f$ and the specific internal energy \f$\epsilon\f$.
-   */
-  virtual Scalar<double> specific_enthalpy_from_density_and_energy(
-      const Scalar<double>& /*rest_mass_density*/,
-      const Scalar<double>& /*specific_internal_energy*/) const = 0;
-  virtual Scalar<DataVector> specific_enthalpy_from_density_and_energy(
-      const Scalar<DataVector>& /*rest_mass_density*/,
-      const Scalar<DataVector>& /*specific_internal_energy*/) const = 0;
-  /// @}
-
-  /// @{
-  /*!
    * Computes the specific internal energy \f$\epsilon\f$ from the rest mass
    * density \f$\rho\f$ and the pressure \f$p\f$.
    */
@@ -261,6 +275,33 @@ class EquationOfState<IsRelativistic, 2> : public PUP::able {
   virtual Scalar<DataVector> specific_internal_energy_from_density_and_pressure(
       const Scalar<DataVector>& /*rest_mass_density*/,
       const Scalar<DataVector>& /*pressure*/) const = 0;
+  /// @}
+
+  /// @{
+  /*!
+   * Computes the temperature \f$T\f$ from the rest mass
+   * density \f$\rho\f$ and the specific internal energy \f$\epsilon\f$.
+   */
+  virtual Scalar<double> temperature_from_density_and_energy(
+      const Scalar<double>& /*rest_mass_density*/,
+      const Scalar<double>& /*specific_internal_energy*/) const = 0;
+  virtual Scalar<DataVector> temperature_from_density_and_energy(
+      const Scalar<DataVector>& /*rest_mass_density*/,
+      const Scalar<DataVector>& /*specific_internal_energy*/) const = 0;
+  /// @}
+
+  /// @{
+  /*!
+   * Computes the specific internal energy \f$\epsilon\f$ from the rest mass
+   * density \f$\rho\f$ and the temperature \f$T\f$.
+   */
+  virtual Scalar<double> specific_internal_energy_from_density_and_temperature(
+      const Scalar<double>& /*rest_mass_density*/,
+      const Scalar<double>& /*temperature*/) const = 0;
+  virtual Scalar<DataVector>
+  specific_internal_energy_from_density_and_temperature(
+      const Scalar<DataVector>& /*rest_mass_density*/,
+      const Scalar<DataVector>& /*temperature*/) const = 0;
   /// @}
 
   /// @{
@@ -320,15 +361,16 @@ class EquationOfState<IsRelativistic, 2> : public PUP::able {
 }  // namespace EquationsOfState
 
 /// \cond
-#define EQUATION_OF_STATE_FUNCTIONS_1D                                    \
-  (pressure_from_density, rest_mass_density_from_enthalpy,                \
-   specific_enthalpy_from_density, specific_internal_energy_from_density, \
-   chi_from_density, kappa_times_p_over_rho_squared_from_density)
+#define EQUATION_OF_STATE_FUNCTIONS_1D                      \
+  (pressure_from_density, rest_mass_density_from_enthalpy,  \
+   specific_internal_energy_from_density, chi_from_density, \
+   kappa_times_p_over_rho_squared_from_density)
 
 #define EQUATION_OF_STATE_FUNCTIONS_2D                                   \
   (pressure_from_density_and_energy, pressure_from_density_and_enthalpy, \
-   specific_enthalpy_from_density_and_energy,                            \
    specific_internal_energy_from_density_and_pressure,                   \
+   temperature_from_density_and_energy,                                  \
+   specific_internal_energy_from_density_and_temperature,                \
    chi_from_density_and_energy,                                          \
    kappa_times_p_over_rho_squared_from_density_and_energy)
 
@@ -359,7 +401,7 @@ class EquationOfState<IsRelativistic, 2> : public PUP::able {
   /* clang-tidy: do not use non-const references */                           \
   void pup(PUP::er& p) override; /* NOLINT */                                 \
                                                                               \
-  explicit DERIVED(CkMigrateMessage* /*unused*/);
+  explicit DERIVED(CkMigrateMessage* msg);
 
 /// \cond
 #define EQUATION_OF_STATE_FORWARD_ARGUMENTS(z, n, unused) \

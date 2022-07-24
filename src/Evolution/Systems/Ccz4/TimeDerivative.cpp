@@ -63,7 +63,9 @@ void TimeDerivative<Dim>::apply(
     const gsl::not_null<tnsr::ijk<DataVector, Dim>*> field_b_times_field_d,
     const gsl::not_null<tnsr::i<DataVector, Dim>*> field_d_up_times_a_tilde,
     const gsl::not_null<tnsr::I<DataVector, Dim>*>
-        contracted_field_d_up,  // buffer for eq 18 -20
+        contracted_field_d_up,  // temp for eq 18 -20
+    const gsl::not_null<Scalar<DataVector>*>
+        half_conformal_factor_squared,  // temp for eq 25
     const gsl::not_null<tnsr::ij<DataVector, Dim>*>
         conformal_metric_times_field_b,
     const gsl::not_null<tnsr::ijk<DataVector, Dim>*>
@@ -77,9 +79,9 @@ void TimeDerivative<Dim>::apply(
     const gsl::not_null<tnsr::iJ<DataVector, Dim>*>
         d_gamma_hat_minus_contracted_conformal_christoffel,
     const gsl::not_null<tnsr::i<DataVector, Dim>*>
-        contracted_christoffel_second_kind,  // buffer for eq 18 -20
+        contracted_christoffel_second_kind,  // temp for eq 18 -20
     const gsl::not_null<tnsr::ij<DataVector, Dim>*>
-        contracted_d_conformal_christoffel_difference,  // buffer for eq 18 -20
+        contracted_d_conformal_christoffel_difference,  // temp for eq 18 -20
     const gsl::not_null<Scalar<DataVector>*> k_minus_2_theta_c,
     const gsl::not_null<Scalar<DataVector>*> k_minus_k0_minus_2_theta_c,
     const gsl::not_null<tnsr::ii<DataVector, Dim>*> lapse_times_a_tilde,
@@ -112,8 +114,6 @@ void TimeDerivative<Dim>::apply(
         d_contracted_conformal_christoffel_second_kind,  // eq 24
     const gsl::not_null<tnsr::i<DataVector, Dim>*>
         spatial_z4_constraint,  // eq 25
-    const gsl::not_null<Scalar<DataVector>*>
-        upper_spatial_z4_constraint_buffer,  // buffer for eq 25
     const gsl::not_null<tnsr::I<DataVector, Dim>*>
         upper_spatial_z4_constraint,  // eq 25
     const gsl::not_null<tnsr::ij<DataVector, Dim>*>
@@ -277,10 +277,13 @@ void TimeDerivative<Dim>::apply(
       spatial_z4_constraint, conformal_spatial_metric,
       *gamma_hat_minus_contracted_conformal_christoffel);
 
+  // temp for eq 25
+  ::tenex::evaluate(half_conformal_factor_squared,
+                    0.5 * (*conformal_factor_squared)());
+
   // eq 25
   ::Ccz4::upper_spatial_z4_constraint(
-      upper_spatial_z4_constraint, upper_spatial_z4_constraint_buffer,
-      *conformal_factor_squared,
+      upper_spatial_z4_constraint, *half_conformal_factor_squared,
       *gamma_hat_minus_contracted_conformal_christoffel);
 
   // temp for eq 26
@@ -310,12 +313,8 @@ void TimeDerivative<Dim>::apply(
       symmetrized_d_field_b,
       0.5 * (d_field_b(ti::k, ti::j, ti::I) + d_field_b(ti::j, ti::k, ti::I)));
 
-  for (size_t k = 0; k < Dim; k++) {
-    contracted_symmetrized_d_field_b->get(k) = d_field_b.get(k, 0, 0);
-    for (size_t i = 1; i < Dim; i++) {
-      contracted_symmetrized_d_field_b->get(k) += d_field_b.get(k, i, i);
-    }
-  }
+  ::tenex::evaluate<ti::k>(contracted_symmetrized_d_field_b,
+                           (*symmetrized_d_field_b)(ti::k, ti::i, ti::I));
 
   ::tenex::evaluate<ti::i, ti::j, ti::k>(
       field_b_times_field_d,
@@ -494,7 +493,7 @@ void TimeDerivative<Dim>::apply(
                    (*spatial_z4_constraint)(ti::j)));
   // now, if s == 1, also add terms with s
   if (static_cast<bool>(evolve_shift)) {
-    ::tenex::evaluate<ti::I>(
+    ::tenex::update<ti::I>(
         dt_gamma_hat,
         (*dt_gamma_hat)(ti::I) +
             // terms with lapse and s
@@ -538,7 +537,7 @@ void TimeDerivative<Dim>::apply(
                2.0 * c * d_theta(ti::k)));
   // now, if s == 1, also add terms with s
   if (static_cast<bool>(evolve_shift)) {
-    ::tenex::evaluate<ti::k>(
+    ::tenex::update<ti::k>(
         dt_field_a, (*dt_field_a)(ti::k) -
                         (*lapse_times_slicing_condition)() *
                             ((*inv_conformal_metric_times_d_a_tilde)(ti::k) -
@@ -585,7 +584,7 @@ void TimeDerivative<Dim>::apply(
                    (*field_d_up_times_a_tilde)(ti::k)));
   // now, if s == 1, also add terms with s
   if (static_cast<bool>(evolve_shift)) {
-    ::tenex::evaluate<ti::k, ti::i, ti::j>(
+    ::tenex::update<ti::k, ti::i, ti::j>(
         dt_field_d, (*dt_field_d)(ti::k, ti::i, ti::j) +
                         0.5 * ((*conformal_metric_times_symmetrized_d_field_b)(
                                    ti::i, ti::k, ti::j) +
@@ -605,7 +604,7 @@ void TimeDerivative<Dim>::apply(
                            field_a(ti::k) * trace_extrinsic_curvature()));
   // now, if s == 1, also add terms with s
   if (static_cast<bool>(evolve_shift)) {
-    ::tenex::evaluate<ti::k>(
+    ::tenex::update<ti::k>(
         dt_field_p,
         (*dt_field_p)(ti::k) +
             one_third *

@@ -12,10 +12,10 @@
 #include "DataStructures/DynamicVector.hpp"
 #include "Framework/ActionTesting.hpp"
 #include "NumericalAlgorithms/Convergence/HasConverged.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Phase.hpp"
 #include "ParallelAlgorithms/Actions/SetData.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/LinearSolver/ConjugateGradient/ElementActions.hpp"
 #include "ParallelAlgorithms/LinearSolver/ConjugateGradient/InitializeElement.hpp"
 #include "ParallelAlgorithms/LinearSolver/ConjugateGradient/Tags/InboxTags.hpp"
@@ -63,7 +63,6 @@ struct ElementArray {
 
 struct Metavariables {
   using component_list = tmpl::list<ElementArray<Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 }  // namespace
@@ -99,8 +98,7 @@ SPECTRE_TEST_CASE(
         make_not_null(&runner), 0, value);
   };
 
-  ActionTesting::set_phase(make_not_null(&runner),
-                           Metavariables::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Can't test the other element actions because reductions are not yet
   // supported. The full algorithm is tested in

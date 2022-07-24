@@ -72,7 +72,8 @@ Spectral::Spectral(const double reference_density,
 EQUATION_OF_STATE_MEMBER_DEFINITIONS(, Spectral, double, 1)
 EQUATION_OF_STATE_MEMBER_DEFINITIONS(, Spectral, DataVector, 1)
 
-Spectral::Spectral(CkMigrateMessage* /*unused*/) {}
+Spectral::Spectral(CkMigrateMessage* msg) : EquationOfState<true, 1>(msg) {}
+
 
 void Spectral::pup(PUP::er& p) {
   EquationOfState<true, 1>::pup(p);
@@ -120,22 +121,6 @@ Scalar<DataType> Spectral::rest_mass_density_from_enthalpy_impl(
     for (size_t i = 0; i < get(result).size(); ++i) {
       get(result)[i] =
           rest_mass_density_from_enthalpy(get(specific_enthalpy)[i]);
-    }
-    return result;
-  }
-}
-
-template <class DataType>
-Scalar<DataType> Spectral::specific_enthalpy_from_density_impl(
-    const Scalar<DataType>& rest_mass_density) const {
-  if constexpr (std::is_same_v<DataType, double>) {
-    return Scalar<double>{
-        specific_enthalpy_from_density(get(rest_mass_density))};
-  } else if constexpr (std::is_same_v<DataType, DataVector>) {
-    auto result = make_with_value<Scalar<DataVector>>(rest_mass_density, 0.0);
-    for (size_t i = 0; i < get(result).size(); ++i) {
-      get(result)[i] =
-          specific_enthalpy_from_density(get(rest_mass_density)[i]);
     }
     return result;
   }

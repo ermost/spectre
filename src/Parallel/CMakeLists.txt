@@ -21,7 +21,6 @@ spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
-  Algorithm.hpp
   AlgorithmMetafunctions.hpp
   ArrayIndex.hpp
   Callback.hpp
@@ -29,6 +28,7 @@ spectre_target_headers(
   CharmPupable.hpp
   CharmRegistration.hpp
   CreateFromOptions.hpp
+  DistributedObject.hpp
   GetSection.hpp
   GlobalCache.hpp
   GlobalCacheDeclare.hpp
@@ -77,7 +77,6 @@ add_dependencies(
   module_Main          # GlobalCache module depends on Main module
   )
 
-add_subdirectory(Actions)
 add_subdirectory(Algorithms)
 add_subdirectory(MemoryMonitor)
 add_subdirectory(PhaseControl)

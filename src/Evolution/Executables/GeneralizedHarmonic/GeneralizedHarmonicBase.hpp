@@ -52,8 +52,6 @@
 #include "NumericalAlgorithms/LinearOperators/FilterAction.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Local.hpp"
@@ -64,6 +62,10 @@
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/Reduction.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
@@ -73,8 +75,6 @@
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/LogicalTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Trigger.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddComputeTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InterpolationTargetReceiveVars.hpp"
@@ -90,6 +90,7 @@
 #include "ParallelAlgorithms/Interpolation/Tags.hpp"
 #include "ParallelAlgorithms/Interpolation/Targets/ApparentHorizon.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/SphericalKerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
@@ -141,6 +142,29 @@ class CProxy_GlobalCache;
 template <bool UseDampedHarmonicRollon, typename EvolutionMetavarsDerived>
 struct GeneralizedHarmonicTemplateBase;
 
+namespace detail {
+template <typename InitialData>
+constexpr auto make_default_phase_order() {
+  if constexpr (evolution::is_numeric_initial_data_v<InitialData>) {
+    return std::array{Parallel::Phase::Initialization,
+                      Parallel::Phase::RegisterWithElementDataReader,
+                      Parallel::Phase::ImportInitialData,
+                      Parallel::Phase::InitializeInitialDataDependentQuantities,
+                      Parallel::Phase::InitializeTimeStepperHistory,
+                      Parallel::Phase::Register,
+                      Parallel::Phase::Evolve,
+                      Parallel::Phase::Exit};
+  } else {
+    return std::array{Parallel::Phase::Initialization,
+                      Parallel::Phase::InitializeInitialDataDependentQuantities,
+                      Parallel::Phase::InitializeTimeStepperHistory,
+                      Parallel::Phase::Register,
+                      Parallel::Phase::Evolve,
+                      Parallel::Phase::Exit};
+  }
+}
+}  // namespace detail
+
 template <bool UseDampedHarmonicRollon,
           template <size_t, typename, typename> class EvolutionMetavarsDerived,
           size_t VolumeDim, typename InitialData, typename BoundaryConditions>
@@ -163,24 +187,12 @@ struct GeneralizedHarmonicTemplateBase<
   // `read_spec_piecewise_polynomial()`
   static constexpr bool override_functions_of_time = false;
 
-  using Phase = Parallel::Phase;
-
-  static std::string phase_name(Phase phase) {
-    if (phase == Phase::LoadBalancing) {
-      return "LoadBalancing";
-    }
-    ERROR(
-        "Passed phase that should not be used in input file. Integer "
-        "corresponding to phase is: "
-        << static_cast<int>(phase));
-  }
-
   using analytic_solution_fields = typename system::variables_tag::tags_list;
 
-  using initialize_initial_data_dependent_quantities_actions = tmpl::list<
-      GeneralizedHarmonic::gauges::Actions::InitializeDampedHarmonic<
-          volume_dim, use_damped_harmonic_rollon>,
-      Parallel::Actions::TerminatePhase>;
+  using initialize_initial_data_dependent_quantities_actions =
+      tmpl::list<GeneralizedHarmonic::gauges::Actions::InitializeDampedHarmonic<
+                     volume_dim, use_damped_harmonic_rollon>,
+                 Parallel::Actions::TerminatePhase>;
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
@@ -267,8 +279,7 @@ struct GeneralizedHarmonicTemplateBase<
         tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
         tmpl::pair<PhaseChange,
                    tmpl::list<PhaseControl::VisitAndReturn<
-                                  GeneralizedHarmonicTemplateBase,
-                                  Phase::LoadBalancing>,
+                                  Parallel::Phase::LoadBalancing>,
                               PhaseControl::CheckpointAndExitAfterWallclock>>,
         tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
                    StepChoosers::standard_step_choosers<system>>,
@@ -303,45 +314,8 @@ struct GeneralizedHarmonicTemplateBase<
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
 
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<tuples::TaggedTuple<Tags...>*>
-          phase_change_decision_data,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<derived_metavars>& cache_proxy) {
-    const auto next_phase = PhaseControl::arbitrate_phase_change(
-        phase_change_decision_data, current_phase,
-        *Parallel::local_branch(cache_proxy));
-    if (next_phase.has_value()) {
-      return next_phase.value();
-    }
-    switch (current_phase) {
-      case Phase::Initialization:
-        return evolution::is_numeric_initial_data_v<initial_data>
-                   ? Phase::RegisterWithElementDataReader
-                   : Phase::InitializeInitialDataDependentQuantities;
-      case Phase::RegisterWithElementDataReader:
-        return Phase::ImportInitialData;
-      case Phase::ImportInitialData:
-        return Phase::InitializeInitialDataDependentQuantities;
-      case Phase::InitializeInitialDataDependentQuantities:
-        return Phase::Register;
-      case Phase::Register:
-        return Phase::InitializeTimeStepperHistory;
-      case Phase::InitializeTimeStepperHistory:
-        return Phase::Evolve;
-      case Phase::Evolve:
-        return Phase::Exit;
-      case Phase::Exit:
-        ERROR(
-            "Should never call determine_next_phase with the current phase "
-            "being 'Exit'");
-      default:
-        ERROR(
-            "Unknown type of phase. Did you static_cast<Phase> an integral "
-            "value?");
-    }
-  }
+  static constexpr auto default_phase_order =
+      detail::make_default_phase_order<initial_data>();
 
   using step_actions = tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<derived_metavars>,

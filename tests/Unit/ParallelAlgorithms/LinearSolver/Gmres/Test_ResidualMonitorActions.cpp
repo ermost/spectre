@@ -22,8 +22,8 @@
 #include "NumericalAlgorithms/Convergence/Criteria.hpp"
 #include "NumericalAlgorithms/Convergence/HasConverged.hpp"
 #include "NumericalAlgorithms/Convergence/Reason.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/LinearSolver/Gmres/ResidualMonitor.hpp"
 #include "ParallelAlgorithms/LinearSolver/Gmres/ResidualMonitorActions.hpp"
 #include "ParallelAlgorithms/LinearSolver/Observe.hpp"
@@ -93,7 +93,6 @@ struct Metavariables {
   using component_list = tmpl::list<MockResidualMonitor<Metavariables>,
                                     MockElementArray<Metavariables>,
                                     helpers::MockObserverWriter<Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 }  // namespace
@@ -140,8 +139,7 @@ SPECTRE_TEST_CASE(
     return ActionTesting::get_databox_tag<observer_writer, tag>(runner, 0);
   };
 
-  ActionTesting::set_phase(make_not_null(&runner),
-                           Metavariables::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   SECTION("InitializeResidualMagnitude") {
     ActionTesting::simple_action<

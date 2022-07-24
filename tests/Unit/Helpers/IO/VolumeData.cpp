@@ -117,14 +117,16 @@ void check_volume_data(
   // file, find the data which was written by the grid whose extents are
   // found at position `grid_index` in the vector of extents.
   const auto get_grid_data = [&element_num_points, &read_points_by_element](
-                                 const DataVector& all_data,
+                                 const auto& all_data,
                                  const size_t grid_index) {
     DataType result(element_num_points[grid_index]);
     // clang-tidy: do not use pointer arithmetic
-    std::copy(&all_data[read_points_by_element[grid_index]],
-              &all_data[read_points_by_element[grid_index]] +  // NOLINT
-                  element_num_points[grid_index],
-              result.begin());
+    std::copy(
+        &std::get<DataType>(all_data.data)[read_points_by_element[grid_index]],
+        &std::get<DataType>(
+            all_data.data)[read_points_by_element[grid_index]] +  // NOLINT
+            element_num_points[grid_index],
+        result.begin());
     return result;
   };
   // The tensor components can be written in any order to the file, we loop
@@ -154,6 +156,64 @@ void check_volume_data(
       }
     }
   }
+
+  // Read volume data on meshes. We previously tested all the get functions so
+  // we can just use those now.
+  const auto volume_data =
+      volume_file.get_data_by_element(std::nullopt, std::nullopt, std::nullopt);
+  size_t observations_found = 0;
+  for (const auto& single_time_data : volume_data) {
+    if (std::get<0>(single_time_data) != observation_id) {
+      continue;
+    }
+    ++observations_found;
+    CHECK(std::get<1>(single_time_data) == approx(observation_value));
+
+    for (size_t j = 0; j < grid_names.size(); j++) {
+      const std::string& grid_name = grid_names[j];
+      // Find the element in the vector
+      const auto volume_data_it = alg::find_if(
+          std::get<2>(single_time_data),
+          [&grid_name](const ElementVolumeData& local_volume_data) {
+            return local_volume_data.element_name == grid_name;
+          });
+      REQUIRE(volume_data_it != std::get<2>(single_time_data).end());
+      CHECK(volume_data_it->element_name == grid_name);
+
+      for (size_t i = 0; i < expected_components.size(); i++) {
+        const auto& component = expected_components[i];
+        const auto expected_data = get_grid_data(
+            volume_file.get_tensor_component(observation_id, component),
+            grid_positions[j]);
+        const auto component_data_it =
+            alg::find_if(volume_data_it->tensor_components,
+                         [&component](const TensorComponent& tensor_component) {
+                           return tensor_component.name == component;
+                         });
+        REQUIRE(component_data_it != volume_data_it->tensor_components.end());
+        CHECK(std::get<DataType>(component_data_it->data) == expected_data);
+      }
+    }
+  }
+  CHECK(observations_found == 1);
+  // Test that the data is sorted by copying it, sorting it, and verifying
+  // everything is the same. First sort outer vector by observation value, then
+  // sort the vector of ElementVolumeData on each time slice.
+  auto volume_data_sorted = volume_data;
+  alg::sort(volume_data_sorted, [](const auto& lhs, const auto& rhs) {
+    return std::get<1>(lhs) < std::get<1>(rhs);
+  });
+  for (auto& data_at_time : volume_data_sorted) {
+    alg::sort(std::get<2>(data_at_time), [](const auto& lhs, const auto& rhs) {
+      return lhs.element_name < rhs.element_name;
+    });
+    for (auto& element_data : std::get<2>(data_at_time)) {
+      alg::sort(
+          element_data.tensor_components,
+          [](const auto& lhs, const auto& rhs) { return lhs.name < rhs.name; });
+    }
+  }
+  CHECK((volume_data == volume_data_sorted));
 }
 
 #define GET_DTYPE(data) BOOST_PP_TUPLE_ELEM(0, data)

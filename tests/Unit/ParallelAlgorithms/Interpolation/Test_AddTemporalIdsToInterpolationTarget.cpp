@@ -21,9 +21,9 @@
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/Tags.hpp"
 #include "Framework/ActionTesting.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"  // IWYU pragma: keep
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/AddTemporalIdsToInterpolationTarget.hpp"  // IWYU pragma: keep
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveTimeSeriesOnSurface.hpp"
@@ -139,7 +139,6 @@ struct MockMetavariables {
 
   using component_list = tmpl::list<
       mock_interpolation_target<MockMetavariables, InterpolationTargetA>>;
-  using Phase = Parallel::Phase;
 };
 
 template <typename IsSequential>
@@ -160,7 +159,7 @@ void test_add_temporal_ids() {
   for (size_t i = 0; i < 2; ++i) {
     ActionTesting::next_action<target_component>(make_not_null(&runner), 0);
   }
-  ActionTesting::set_phase(make_not_null(&runner), metavars::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Both PendingTemporalIds and TemporalIds should be initially empty.
   CHECK(ActionTesting::get_databox_tag<
@@ -353,7 +352,7 @@ void test_add_temporal_ids_time_dependent() {
   for (size_t i = 0; i < 2; ++i) {
     ActionTesting::next_action<target_component>(make_not_null(&runner), 0);
   }
-  ActionTesting::set_phase(make_not_null(&runner), metavars::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Both PendingTemporalIds and TemporalIds should be initially empty.
   CHECK(ActionTesting::get_databox_tag<

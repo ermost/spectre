@@ -5,13 +5,14 @@
 
 #include "Evolution/Systems/Cce/Actions/InitializeWorldtubeBoundary.hpp"
 #include "Evolution/Systems/Cce/BoundaryData.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Invoke.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/Phase.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "Parallel/Tags/ResourceInfo.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 
 namespace Cce {
 
@@ -29,7 +30,8 @@ struct WorldtubeComponentBase {
                  Initialization::Actions::RemoveOptionsAndTerminatePhase>;
 
   using initialization_tags =
-      Parallel::get_initialization_tags<initialize_action_list>;
+      tmpl::push_back<Parallel::get_initialization_tags<initialize_action_list>,
+                      Parallel::Tags::SingletonInfo<WorldtubeComponent>>;
 
   using worldtube_boundary_computation_steps = tmpl::list<>;
 
@@ -45,10 +47,10 @@ struct WorldtubeComponentBase {
       Parallel::CProxy_GlobalCache<Metavariables>& /*global_cache*/) {}
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       const Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
-    if (next_phase == Metavariables::Phase::Evolve) {
+    if (next_phase == Parallel::Phase::Evolve) {
       Parallel::get_parallel_component<WorldtubeComponent>(local_cache)
           .start_phase(next_phase);
     }

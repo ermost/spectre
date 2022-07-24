@@ -13,7 +13,7 @@ spectre_target_sources(
   KerrHorizon.cpp
   KerrSchild.cpp
   Minkowski.cpp
-  Tov.cpp
+  SphericalKerrSchild.cpp
   WrappedGr.cpp
   )
 
@@ -27,7 +27,7 @@ spectre_target_headers(
   KerrSchild.hpp
   Minkowski.hpp
   Solutions.hpp
-  Tov.hpp
+  SphericalKerrSchild.hpp
   WrappedGr.hpp
   WrappedGr.tpp
   )
@@ -41,5 +41,3 @@ target_link_libraries(
   GeneralRelativity
   Interpolation
   )
-
-add_subdirectory(Python)

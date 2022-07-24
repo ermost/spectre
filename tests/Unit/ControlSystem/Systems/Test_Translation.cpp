@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "ControlSystem/Systems/Translation.hpp"
@@ -22,6 +23,7 @@
 #include "Domain/FunctionsOfTime/Tags.hpp"
 #include "Framework/ActionTesting.hpp"
 #include "Helpers/ControlSystem/SystemHelpers.hpp"
+#include "Parallel/Phase.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/MakeArray.hpp"
 #include "Utilities/StdArrayHelpers.hpp"
@@ -46,6 +48,7 @@ void test_translation_control_system() {
   using metavars = TestHelpers::MockMetavars<DerivOrder, 0, 0>;
   using translation_component = typename metavars::translation_component;
   using element_component = typename metavars::element_component;
+  using translation_system = typename metavars::translation_system;
   MAKE_GENERATOR(gen);
 
   // Global things
@@ -81,8 +84,10 @@ void test_translation_control_system() {
       "    ControlError:\n";
 
   // Initialize everything within the system helper
-  system_helper.setup_control_system_test(initial_time, initial_separation,
-                                          input_options);
+  system_helper.setup_control_system_test(
+      initial_time, initial_separation, input_options,
+      TestHelpers::initialize_translation_functions_of_time<
+          translation_system>);
 
   // Get references to everything that was set up inside the system helper. The
   // domain and two functions of time are not const references because they need
@@ -91,8 +96,10 @@ void test_translation_control_system() {
   auto& initial_functions_of_time = system_helper.initial_functions_of_time();
   auto& initial_measurement_timescales =
       system_helper.initial_measurement_timescales();
-  const auto& init_trans_tuple = system_helper.init_trans_tuple();
-  const std::string& translation_name = system_helper.translation_name();
+  const auto& init_trans_tuple =
+      system_helper.template init_tuple<translation_system>();
+  const std::string translation_name =
+      system_helper.template name<translation_system>();
 
   // Setup runner and all components
   using MockRuntimeSystem = ActionTesting::MockRuntimeSystem<metavars>;
@@ -106,7 +113,7 @@ void test_translation_control_system() {
       make_not_null(&runner), ActionTesting::NodeId{0},
       ActionTesting::LocalCoreId{0}, 0);
 
-  ActionTesting::set_phase(make_not_null(&runner), metavars::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Create coordinate map for mapping the translation to the "grid" frame
   // where the control system does its calculations
@@ -128,15 +135,22 @@ void test_translation_control_system() {
         -init_pos + velocity * time, init_pos + velocity * time};
   };
 
+  const auto horizon_function = [&position_function, &runner,
+                                 &coord_map](const double time) {
+    return TestHelpers::build_horizons_for_basic_control_systems<
+        element_component>(time, runner, position_function, coord_map);
+  };
+
   // Run the actual control system test.
   system_helper.run_control_system_test(runner, final_time, make_not_null(&gen),
-                                        position_function, coord_map);
+                                        horizon_function, 2);
 
   // Grab results
-  const std::array<double, 3> grid_position_of_a =
-      system_helper.grid_position_of_a();
-  const std::array<double, 3> grid_position_of_b =
-      system_helper.grid_position_of_b();
+  std::array<double, 3> grid_position_of_a;
+  std::array<double, 3> grid_position_of_b;
+  std::tie(grid_position_of_a, grid_position_of_b) =
+      TestHelpers::grid_frame_horizon_centers_for_basic_control_systems<
+          element_component>(final_time, runner, position_function, coord_map);
 
   // Our expected positions are just the initial positions
   const std::array<double, 3> expected_grid_position_of_a{

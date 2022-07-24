@@ -33,18 +33,17 @@
 #include "IO/Observer/Tags.hpp"
 #include "NumericalAlgorithms/Convergence/HasConverged.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmArray.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Invoke.hpp"
-#include "Parallel/Main.hpp"
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/Reduction.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Initialization/MutateAssign.hpp"
 #include "ParallelAlgorithms/LinearSolver/Actions/MakeIdentityIfSkipped.hpp"
 #include "ParallelAlgorithms/LinearSolver/Tags.hpp"
@@ -356,7 +355,7 @@ using ElementArray = elliptic::DgElementArray<
     Metavariables,
     tmpl::list<Parallel::PhaseActions<Parallel::Phase::Initialization,
                                       initialization_actions<Metavariables>>,
-               Parallel::PhaseActions<Parallel::Phase::RegisterWithObserver,
+               Parallel::PhaseActions<Parallel::Phase::Register,
                                       register_actions<Metavariables>>,
                Parallel::PhaseActions<Parallel::Phase::Solve,
                                       solve_actions<Metavariables>>,

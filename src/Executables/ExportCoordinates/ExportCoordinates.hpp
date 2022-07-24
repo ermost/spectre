@@ -32,8 +32,6 @@
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmArray.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/InitializationFunctions.hpp"
@@ -43,14 +41,16 @@
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/Reduction.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Actions/RunEventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Event.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/LogicalTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Trigger.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddComputeTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/TimeSteppers/Factory.hpp"
 #include "Time/TimeSteppers/TimeStepper.hpp"
@@ -230,8 +230,6 @@ struct Metavariables {
                    tmpl::list<Triggers::SlabCompares, Triggers::TimeCompares>>>;
   };
 
-  using Phase = Parallel::Phase;
-
   using component_list = tmpl::list<
       DgElementArray<
           Metavariables,
@@ -248,7 +246,7 @@ struct Metavariables {
                       ::Initialization::Actions::
                           RemoveOptionsAndTerminatePhase>>,
               Parallel::PhaseActions<
-                  Parallel::Phase::RegisterWithObserver,
+                  Parallel::Phase::Register,
                   tmpl::list<observers::Actions::RegisterWithObservers<
                                  Actions::ExportCoordinates<Dim>>,
                              observers::Actions::RegisterWithObservers<
@@ -266,27 +264,9 @@ struct Metavariables {
   using observed_reduction_data_tags = observers::make_reduction_data_tags<
       tmpl::list<MinGridSpacingReductionData>>;
 
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<
-          tuples::TaggedTuple<Tags...>*> /*phase_change_decision_data*/,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<Metavariables>& /*cache_proxy*/) {
-    switch (current_phase) {
-      case Phase::Initialization:
-        return Phase::RegisterWithObserver;
-      case Phase::RegisterWithObserver:
-        return Phase::Execute;
-      case Phase::Execute:
-        return Phase::Exit;
-      case Phase::Exit:
-        ERROR(
-            "Should never call determine_next_phase with the current phase "
-            "being 'Exit'");
-      default:
-        ERROR("Unknown type of phase.");
-    }
-  }
+  static constexpr std::array<Parallel::Phase, 4> default_phase_order{
+      {Parallel::Phase::Initialization, Parallel::Phase::Register,
+       Parallel::Phase::Execute, Parallel::Phase::Exit}};
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}

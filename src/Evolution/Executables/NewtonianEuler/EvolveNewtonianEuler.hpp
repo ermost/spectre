@@ -69,8 +69,6 @@
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/Phase.hpp"
@@ -79,7 +77,11 @@
 #include "Parallel/PhaseControl/VisitAndReturn.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Actions/RunEventsAndTriggers.hpp"
@@ -88,8 +90,6 @@
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/LogicalTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Trigger.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddComputeTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "PointwiseFunctions/AnalyticData/AnalyticData.hpp"
 #include "PointwiseFunctions/AnalyticData/NewtonianEuler/KhInstability.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/AnalyticSolution.hpp"
@@ -172,20 +172,6 @@ struct EvolutionMetavars {
 
   using limiter = Tags::Limiter<NewtonianEuler::Limiters::Minmod<Dim>>;
 
-  using Phase = Parallel::Phase;
-
-  static std::string phase_name(Phase phase) {
-    if (phase == Phase::LoadBalancing) {
-      return "LoadBalancing";
-    } else if (phase == Phase::WriteCheckpoint) {
-      return "WriteCheckpoint";
-    }
-    ERROR(
-        "Passed phase that should not be used in input file. Integer "
-        "corresponding to phase is: "
-        << static_cast<int>(phase));
-  }
-
   using analytic_compute =
       evolution::Tags::AnalyticSolutionsCompute<volume_dim,
                                                 analytic_variables_tags>;
@@ -232,12 +218,12 @@ struct EvolutionMetavars {
             NewtonianEuler::BoundaryConditions::BoundaryCondition<volume_dim>,
             NewtonianEuler::BoundaryConditions::standard_boundary_conditions<
                 volume_dim>>,
-        tmpl::pair<PhaseChange,
-                   tmpl::list<PhaseControl::VisitAndReturn<
-                                  EvolutionMetavars, Phase::LoadBalancing>,
-                              PhaseControl::VisitAndReturn<
-                                  EvolutionMetavars, Phase::WriteCheckpoint>,
-                              PhaseControl::CheckpointAndExitAfterWallclock>>,
+        tmpl::pair<
+            PhaseChange,
+            tmpl::list<
+                PhaseControl::VisitAndReturn<Parallel::Phase::LoadBalancing>,
+                PhaseControl::VisitAndReturn<Parallel::Phase::WriteCheckpoint>,
+                PhaseControl::CheckpointAndExitAfterWallclock>>,
         tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
                    StepChoosers::standard_step_choosers<system>>,
         tmpl::pair<
@@ -275,7 +261,9 @@ struct EvolutionMetavars {
           tmpl::list<evolution::dg::subcell::Actions::Initialize<
                          volume_dim, system,
                          NewtonianEuler::subcell::DgInitialDataTci<volume_dim>>,
-                     Actions::UpdateConservatives>,
+                     Actions::UpdateConservatives,
+                     Actions::MutateApply<NewtonianEuler::subcell::
+                                              SetInitialRdmpData<volume_dim>>>,
           tmpl::list<>>,
       Initialization::Actions::AddComputeTags<
           tmpl::list<NewtonianEuler::Tags::SoundSpeedSquaredCompute<DataVector>,
@@ -413,37 +401,10 @@ struct EvolutionMetavars {
   static constexpr Options::String help{
       "Evolve the Newtonian Euler system in conservative form.\n\n"};
 
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<tuples::TaggedTuple<Tags...>*>
-          phase_change_decision_data,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<EvolutionMetavars>& cache_proxy) {
-    const auto next_phase = PhaseControl::arbitrate_phase_change(
-        phase_change_decision_data, current_phase,
-        *Parallel::local_branch(cache_proxy));
-    if (next_phase.has_value()) {
-      return next_phase.value();
-    }
-    switch (current_phase) {
-      case Phase::Initialization:
-        return Phase::InitializeTimeStepperHistory;
-      case Phase::InitializeTimeStepperHistory:
-        return Phase::Register;
-      case Phase::Register:
-        return Phase::Evolve;
-      case Phase::Evolve:
-        return Phase::Exit;
-      case Phase::Exit:
-        ERROR(
-            "Should never call determine_next_phase with the current phase "
-            "being 'Exit'");
-      default:
-        ERROR(
-            "Unknown type of phase. Did you static_cast<Phase> to an integral "
-            "value?");
-    }
-  }
+  static constexpr std::array<Parallel::Phase, 5> default_phase_order{
+      {Parallel::Phase::Initialization,
+       Parallel::Phase::InitializeTimeStepperHistory, Parallel::Phase::Register,
+       Parallel::Phase::Evolve, Parallel::Phase::Exit}};
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}

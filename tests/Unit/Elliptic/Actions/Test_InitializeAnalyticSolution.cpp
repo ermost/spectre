@@ -17,11 +17,11 @@
 #include "Elliptic/Tags.hpp"
 #include "Framework/ActionTesting.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/CharmPupable.hpp"
 #include "Parallel/ParallelComponentHelpers.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/AnalyticSolution.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Background.hpp"
@@ -94,7 +94,6 @@ struct Metavariables {
   using const_global_cache_tags = tmpl::list<
       elliptic::Tags::Background<elliptic::analytic_data::Background>>;
   using component_list = tmpl::list<element_array>;
-  using Phase = Parallel::Phase;
   struct factory_creation
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
     using factory_classes =
@@ -121,7 +120,7 @@ void test_initialize_analytic_solution(
         ActionTesting::emplace_component_and_initialize<element_array>(
             &runner, element_id, {inertial_coords});
         ActionTesting::set_phase(make_not_null(&runner),
-                                 metavariables::Phase::Testing);
+                                 Parallel::Phase::Testing);
         for (size_t i = 0; i < 2; ++i) {
           ActionTesting::next_action<element_array>(make_not_null(&runner),
                                                     element_id);

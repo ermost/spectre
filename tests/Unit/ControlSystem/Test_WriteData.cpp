@@ -32,10 +32,10 @@
 #include "IO/Observer/Initialize.hpp"
 #include "IO/Observer/ObserverComponent.hpp"
 #include "IO/Observer/Tags.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Utilities/FileSystem.hpp"
 #include "Utilities/GetOutput.hpp"
 #include "Utilities/Gsl.hpp"
@@ -101,7 +101,6 @@ struct MockControlComponent {
 struct TestMetavars {
   using observed_reduction_data_tags = tmpl::list<>;
 
-  using Phase = Parallel::Phase;
 
   using component_list =
       tmpl::list<::TestHelpers::observers::MockObserverWriter<TestMetavars>,
@@ -198,7 +197,7 @@ SPECTRE_TEST_CASE("Unit.ControlSystem.WriteData", "[Unit][ControlSystem]") {
 
   // set up runner and stuff
   ActionTesting::MockRuntimeSystem<TestMetavars> runner{{}};
-  runner.set_phase(TestMetavars::Phase::Initialization);
+  runner.set_phase(Parallel::Phase::Initialization);
   ActionTesting::emplace_nodegroup_component_and_initialize<observer>(
       make_not_null(&runner), {});
   ActionTesting::emplace_singleton_component<control_comp>(
@@ -209,7 +208,7 @@ SPECTRE_TEST_CASE("Unit.ControlSystem.WriteData", "[Unit][ControlSystem]") {
       ActionTesting::LocalCoreId{0});
   auto& cache = ActionTesting::cache<observer>(runner, 0);
 
-  runner.set_phase(TestMetavars::Phase::Execute);
+  runner.set_phase(Parallel::Phase::Execute);
 
   // set up data to write
   FoTPtr normal_fot = std::make_unique<

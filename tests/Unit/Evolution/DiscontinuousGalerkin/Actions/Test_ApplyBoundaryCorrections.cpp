@@ -31,10 +31,10 @@
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags/Formulation.hpp"
 #include "NumericalAlgorithms/Spectral/Projection.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/CharmPupable.hpp"
 #include "Parallel/Phase.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "Time/Slab.hpp"
 #include "Time/Tags.hpp"
 #include "Time/Time.hpp"
@@ -431,7 +431,6 @@ struct Metavariables {
   using const_global_cache_tags = tmpl::list<domain::Tags::InitialExtents<Dim>>;
 
   using component_list = tmpl::list<component<Metavariables>>;
-  using Phase = Parallel::Phase;
 };
 
 template <typename Tag, typename Metavariables, size_t Dim>
@@ -584,7 +583,7 @@ void test_impl(const Spectral::Quadrature quadrature,
                                                   self_id);
 
   // Start testing the actual dg::ApplyBoundaryCorrections action
-  ActionTesting::set_phase(make_not_null(&runner), metavars::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Make a copy of the mortar data so we can check against it locally
   auto all_mortar_data =

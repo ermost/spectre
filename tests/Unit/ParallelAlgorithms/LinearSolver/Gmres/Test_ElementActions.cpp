@@ -14,10 +14,10 @@
 #include "DataStructures/DynamicVector.hpp"
 #include "Framework/ActionTesting.hpp"
 #include "NumericalAlgorithms/Convergence/HasConverged.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Phase.hpp"
 #include "ParallelAlgorithms/Actions/SetData.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/LinearSolver/Gmres/ElementActions.hpp"
 #include "ParallelAlgorithms/LinearSolver/Gmres/InitializeElement.hpp"
 #include "ParallelAlgorithms/LinearSolver/Gmres/Tags/InboxTags.hpp"
@@ -83,7 +83,6 @@ template <bool Preconditioned>
 struct Metavariables {
   using element_array = ElementArray<Metavariables, Preconditioned>;
   using component_list = tmpl::list<element_array>;
-  using Phase = Parallel::Phase;
 };
 
 template <bool Preconditioned>
@@ -117,8 +116,7 @@ void test_element_actions() {
         make_not_null(&runner), 0, value);
   };
 
-  ActionTesting::set_phase(make_not_null(&runner),
-                           metavariables::Phase::Testing);
+  ActionTesting::set_phase(make_not_null(&runner), Parallel::Phase::Testing);
 
   // Can't test the other element actions because reductions are not yet
   // supported. The full algorithm is tested in

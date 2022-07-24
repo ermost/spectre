@@ -9,11 +9,11 @@
 #include "DataStructures/DataBox/Prefixes.hpp"
 #include "IO/Logging/Tags.hpp"
 #include "NumericalAlgorithms/Convergence/Tags.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
 #include "Parallel/Phase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
 #include "ParallelAlgorithms/Initialization/MutateAssign.hpp"
 #include "ParallelAlgorithms/LinearSolver/Tags.hpp"
 #include "ParallelAlgorithms/NonlinearSolver/Tags.hpp"
@@ -52,7 +52,7 @@ struct ResidualMonitor {
       Parallel::CProxy_GlobalCache<Metavariables>& /*global_cache*/) {}
 
   static void execute_next_phase(
-      const typename Metavariables::Phase next_phase,
+      const Parallel::Phase next_phase,
       Parallel::CProxy_GlobalCache<Metavariables>& global_cache) {
     auto& local_cache = *Parallel::local_branch(global_cache);
     Parallel::get_parallel_component<ResidualMonitor>(local_cache)

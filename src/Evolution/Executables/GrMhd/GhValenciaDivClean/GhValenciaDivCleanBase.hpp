@@ -71,8 +71,6 @@
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
-#include "Parallel/Actions/SetupDataBox.hpp"
-#include "Parallel/Actions/TerminatePhase.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Local.hpp"
@@ -82,6 +80,10 @@
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/Reduction.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
+#include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
+#include "ParallelAlgorithms/Actions/RemoveOptionsAndTerminatePhase.hpp"
+#include "ParallelAlgorithms/Actions/SetupDataBox.hpp"
+#include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Actions/RunEventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
@@ -89,8 +91,6 @@
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/LogicalTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Trigger.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/AddComputeTags.hpp"
-#include "ParallelAlgorithms/Initialization/Actions/RemoveOptionsAndTerminatePhase.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/ElementInitInterpPoints.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
@@ -117,7 +117,6 @@
 #include "PointwiseFunctions/AnalyticData/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/AnalyticSolution.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
-#include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Tov.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GrMhd/AlfvenWave.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GrMhd/BondiMichel.hpp"
@@ -203,18 +202,6 @@ struct GhValenciaDivCleanDefaults {
                                      grmhd::ValenciaDivClean::Tags::TildeS<>,
                                      grmhd::ValenciaDivClean::Tags::TildeB<>>>>;
 
-  using Phase = Parallel::Phase;
-
-  static std::string phase_name(Phase phase) {
-    if (phase == Phase::LoadBalancing) {
-        return "LoadBalancing";
-      }
-      ERROR(
-          "Passed phase that should not be used in input file. Integer "
-          "corresponding to phase is: "
-          << static_cast<int>(phase));
-  }
-
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       GeneralizedHarmonic::gauges::Actions::InitializeDampedHarmonic<
           volume_dim, use_damped_harmonic_rollon>,
@@ -238,6 +225,29 @@ struct GhValenciaDivCleanDefaults {
 
 template <typename EvolutionMetavarsDerived>
 struct GhValenciaDivCleanTemplateBase;
+
+namespace detail {
+template <typename InitialData>
+constexpr auto make_default_phase_order() {
+  if constexpr (evolution::is_numeric_initial_data_v<InitialData>) {
+    return std::array<Parallel::Phase, 8>{
+        {Parallel::Phase::Initialization,
+         Parallel::Phase::RegisterWithElementDataReader,
+         Parallel::Phase::ImportInitialData,
+         Parallel::Phase::InitializeInitialDataDependentQuantities,
+         Parallel::Phase::InitializeTimeStepperHistory,
+         Parallel::Phase::Register, Parallel::Phase::Evolve,
+         Parallel::Phase::Exit}};
+  } else {
+    return std::array<Parallel::Phase, 6>{
+        {Parallel::Phase::Initialization,
+         Parallel::Phase::InitializeInitialDataDependentQuantities,
+         Parallel::Phase::InitializeTimeStepperHistory,
+         Parallel::Phase::Register, Parallel::Phase::Evolve,
+         Parallel::Phase::Exit}};
+  }
+}
+}  // namespace detail
 
 template <template <typename, typename...> class EvolutionMetavarsDerived,
           typename InitialData, typename... InterpolationTargetTags>
@@ -304,9 +314,8 @@ struct GhValenciaDivCleanTemplateBase<
             grmhd::GhValenciaDivClean::BoundaryConditions::
                 standard_boundary_conditions>,
         tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
-        tmpl::pair<PhaseChange,
-                   tmpl::list<PhaseControl::VisitAndReturn<
-                       GhValenciaDivCleanTemplateBase, Phase::LoadBalancing>>>,
+        tmpl::pair<PhaseChange, tmpl::list<PhaseControl::VisitAndReturn<
+                                    Parallel::Phase::LoadBalancing>>>,
         tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
                    StepChoosers::standard_step_choosers<system>>,
         tmpl::pair<
@@ -342,45 +351,8 @@ struct GhValenciaDivCleanTemplateBase<
       tmpl::list<intrp::Actions::RegisterElementWithInterpolator,
                  observers::Actions::RegisterEventsWithObservers>;
 
-  template <typename... Tags>
-  static Phase determine_next_phase(
-      const gsl::not_null<tuples::TaggedTuple<Tags...>*>
-          phase_change_decision_data,
-      const Phase& current_phase,
-      const Parallel::CProxy_GlobalCache<derived_metavars>& cache_proxy) {
-    const auto next_phase = PhaseControl::arbitrate_phase_change(
-        phase_change_decision_data, current_phase,
-        *Parallel::local_branch(cache_proxy));
-    if (next_phase.has_value()) {
-      return next_phase.value();
-    }
-    switch (current_phase) {
-      case Phase::Initialization:
-        return evolution::is_numeric_initial_data_v<initial_data>
-                   ? Phase::RegisterWithElementDataReader
-                   : Phase::InitializeInitialDataDependentQuantities;
-      case Phase::RegisterWithElementDataReader:
-        return Phase::ImportInitialData;
-      case Phase::ImportInitialData:
-        return Phase::InitializeInitialDataDependentQuantities;
-      case Phase::InitializeInitialDataDependentQuantities:
-        return Phase::InitializeTimeStepperHistory;
-      case Phase::InitializeTimeStepperHistory:
-        return Phase::Register;
-      case Phase::Register:
-        return Phase::Evolve;
-      case Phase::Evolve:
-        return Phase::Exit;
-      case Phase::Exit:
-        ERROR(
-            "Should never call determine_next_phase with the current phase "
-            "being 'Exit'");
-      default:
-        ERROR(
-            "Unknown type of phase. Did you static_cast<Phase> an integral "
-            "value?");
-    }
-  }
+  static constexpr auto default_phase_order =
+      detail::make_default_phase_order<initial_data>();
 
   using step_actions = tmpl::flatten<tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<derived_metavars>,
