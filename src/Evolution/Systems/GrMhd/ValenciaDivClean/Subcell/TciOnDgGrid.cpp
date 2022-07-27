@@ -53,7 +53,7 @@ TciOnDgGrid<RecoveryScheme>::apply(
   using std::min;
   const size_t num_dg_pts = dg_mesh.number_of_grid_points();
   const size_t num_subcell_pts = subcell_mesh.number_of_grid_points();
-  DataVector temp_buffer{3 * num_subcell_pts + num_dg_pts};
+  DataVector temp_buffer{4 * num_subcell_pts + num_dg_pts};
   size_t offset_into_temp_buffer = 0;
   const auto assign_data =
       [&temp_buffer, &offset_into_temp_buffer](
