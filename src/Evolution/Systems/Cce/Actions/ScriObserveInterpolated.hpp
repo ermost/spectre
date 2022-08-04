@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -15,9 +16,10 @@
 #include "Evolution/Systems/Cce/OptionTags.hpp"
 #include "Evolution/Systems/Cce/ScriPlusInterpolationManager.hpp"
 #include "Evolution/Systems/Cce/Tags.hpp"
-#include "IO/Observer/WriteSimpleData.hpp"
+#include "IO/Observer/ReductionActions.hpp"
 #include "NumericalAlgorithms/Spectral/SwshCoefficients.hpp"
 #include "NumericalAlgorithms/Spectral/SwshTransform.hpp"
+#include "Parallel/AlgorithmExecution.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Invoke.hpp"
 #include "Parallel/Local.hpp"
@@ -115,7 +117,7 @@ struct ScriObserveInterpolated {
   template <typename DbTags, typename... InboxTags, typename Metavariables,
             typename ArrayIndex, typename ActionList,
             typename ParallelComponent>
-  static std::tuple<db::DataBox<DbTags>&&> apply(
+  static Parallel::iterable_action_return_t apply(
       db::DataBox<DbTags>& box,
       const tuples::TaggedTuple<InboxTags...>& /*inboxes*/,
       Parallel::GlobalCache<Metavariables>& cache,
@@ -224,7 +226,7 @@ struct ScriObserveInterpolated {
         }
       }
     }
-    return std::forward_as_tuple(std::move(box));
+    return {Parallel::AlgorithmExecution::Continue, std::nullopt};
   }
 
  private:
@@ -250,13 +252,12 @@ struct ScriObserveInterpolated {
       (*data_to_write_buffer)[2 * i + 1] = real(goldberg_modes.data()[i]);
       (*data_to_write_buffer)[2 * i + 2] = imag(goldberg_modes.data()[i]);
     }
-    auto& my_proxy = Parallel::get_parallel_component<ParallelComponent>(cache);
     auto observer_proxy =
-        Parallel::get_parallel_component<ObserverWriterComponent>(
-            cache)[Parallel::my_node<size_t>(*Parallel::local(my_proxy))];
-    Parallel::threaded_action<observers::ThreadedActions::WriteSimpleData>(
-        observer_proxy, legend, *data_to_write_buffer,
-        "/" + detail::ScriOutput<Tag>::name());
+        Parallel::get_parallel_component<ObserverWriterComponent>(cache)[0];
+    Parallel::threaded_action<
+        observers::ThreadedActions::WriteReductionDataRow>(
+        observer_proxy, "/Cce/" + detail::ScriOutput<Tag>::name(), legend,
+        std::make_tuple(*data_to_write_buffer));
   }
 };
 }  // namespace Actions

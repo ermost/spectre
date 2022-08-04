@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include <optional>
 #include <tuple>
 
 #include "DataStructures/DataBox/DataBox.hpp"
 #include "Evolution/Systems/Cce/OptionTags.hpp"
 #include "Evolution/Systems/Cce/Tags.hpp"
+#include "IO/Observer/ReductionActions.hpp"
+#include "Parallel/AlgorithmExecution.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Local.hpp"
 #include "Time/Tags.hpp"
@@ -77,10 +80,8 @@ void output_impl(const size_t observation_l_max, const size_t l_max,
       file_legend.push_back(MakeString{} << "Imag Y_" << l << "," << m);
     }
   }
-  auto& my_proxy = Parallel::get_parallel_component<ParallelComponent>(cache);
   auto observer_proxy = Parallel::get_parallel_component<
-      observers::ObserverWriter<Metavariables>>(cache)[static_cast<size_t>(
-      Parallel::my_node<int>(*Parallel::local(my_proxy)))];
+      observers::ObserverWriter<Metavariables>>(cache)[0];
   // swsh transform
   const ComplexModalVector goldberg_modes =
       Spectral::Swsh::libsharp_to_goldberg_modes(
@@ -92,9 +93,9 @@ void output_impl(const size_t observation_l_max, const size_t l_max,
     data_to_write[2 * i + 1] = real(goldberg_modes[i]);
     data_to_write[2 * i + 2] = imag(goldberg_modes[i]);
   }
-  Parallel::threaded_action<observers::ThreadedActions::WriteSimpleData>(
-      observer_proxy, file_legend, data_to_write,
-      "/" + db::tag_name<Tag>() + "_Noninertial");
+  Parallel::threaded_action<observers::ThreadedActions::WriteReductionDataRow>(
+      observer_proxy, "/Cce/" + db::tag_name<Tag>() + "_Noninertial",
+      file_legend, std::make_tuple(data_to_write));
 }
 }  // namespace detail
 
@@ -134,12 +135,12 @@ struct InsertInterpolationScriData {
   template <typename DbTags, typename... InboxTags, typename Metavariables,
             typename ArrayIndex, typename ActionList,
             typename ParallelComponent>
-  static auto apply(db::DataBox<DbTags>& box,
-                    const tuples::TaggedTuple<InboxTags...>& /*inboxes*/,
-                    Parallel::GlobalCache<Metavariables>& cache,
-                    const ArrayIndex& /*array_index*/,
-                    const ActionList /*meta*/,
-                    const ParallelComponent* const /*meta*/) {
+  static Parallel::iterable_action_return_t apply(
+      db::DataBox<DbTags>& box,
+      const tuples::TaggedTuple<InboxTags...>& /*inboxes*/,
+      Parallel::GlobalCache<Metavariables>& cache,
+      const ArrayIndex& /*array_index*/, const ActionList /*meta*/,
+      const ParallelComponent* const /*meta*/) {
     if constexpr(tt::is_a_v<AnalyticWorldtubeBoundary, BoundaryComponent>) {
       if (db::get<Tags::OutputNoninertialNews>(box) and
           db::get<::Tags::TimeStepId>(box).substep() == 0 and
@@ -185,7 +186,7 @@ struct InsertInterpolationScriData {
           },
           db::get<InitializationTags::ScriOutputDensity>(box));
     }
-    return std::forward_as_tuple(std::move(box));
+    return {Parallel::AlgorithmExecution::Continue, std::nullopt};
   }
 };
 }  // namespace Actions
