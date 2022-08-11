@@ -63,10 +63,10 @@ struct DgInitialDataTci {
           //         Inactive<ValenciaDivClean::Tags::TildeS<>>,
           //         Inactive<ValenciaDivClean::Tags::TildeB<>>,
           //         Inactive<ValenciaDivClean::Tags::TildePhi>>>& subcell_vars,
-          ValenciaDivClean::Tags::TildeD,
-          ValenciaDivClean::Tags::TildeYe ValenciaDivClean::Tags::TildeTau,
-          ValenciaDivClean::Tags::TildeS<>, ValenciaDivClean::Tags::TildeB<>,
-          ValenciaDivClean::Tags::TildePhi>>& dg_vars,
+          ValenciaDivClean::Tags::TildeD, ValenciaDivClean::Tags::TildeYe,
+          ValenciaDivClean::Tags::TildeTau, ValenciaDivClean::Tags::TildeS<>,
+          ValenciaDivClean::Tags::TildeB<>, ValenciaDivClean::Tags::TildePhi>>&
+          dg_vars,
       double rdmp_delta0, double rdmp_epsilon, double persson_exponent,
       const Mesh<3>& dg_mesh, const Mesh<3>& subcell_mesh,
       const ValenciaDivClean::subcell::TciOptions& tci_options);

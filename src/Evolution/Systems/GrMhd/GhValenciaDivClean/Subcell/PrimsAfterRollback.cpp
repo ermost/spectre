@@ -30,7 +30,7 @@ void PrimsAfterRollback<OrderedListOfRecoverySchemes>::apply(
     const gsl::not_null<Variables<hydro::grmhd_tags<DataVector>>*> prim_vars,
     const bool did_rollback, const Mesh<3>& dg_mesh,
     const Mesh<3>& subcell_mesh, const Scalar<DataVector>& tilde_d,
-    const Scalar<DataVector>& tilde_tau,
+    const Scalar<DataVector>& tilde_ye, const Scalar<DataVector>& tilde_tau,
     const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,
     const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,
     const Scalar<DataVector>& tilde_phi,
@@ -58,9 +58,7 @@ void PrimsAfterRollback<OrderedListOfRecoverySchemes>::apply(
     // term, but that likely requires more refactoring anyway.
     Variables<tmpl::list<gr::Tags::SpatialMetric<3>,
                          gr::Tags::InverseSpatialMetric<3>,
-                         gr::Tags::SqrtDetSpatialMetric<>>,
-              grmhd::ValenciaDivClean::Tags::ElectronFraction<>,
-              grmhd::ValenciaDivClean::Tags::Tags::TildeYe<>>  // FIXME
+                         gr::Tags::SqrtDetSpatialMetric<>>>
         temp_buffer{num_grid_points};
     auto& spatial_metric = get<gr::Tags::SpatialMetric<3>>(temp_buffer);
     gr::spatial_metric(make_not_null(&spatial_metric), spacetime_metric);
@@ -72,15 +70,13 @@ void PrimsAfterRollback<OrderedListOfRecoverySchemes>::apply(
                             make_not_null(&inverse_spatial_metric),
                             spatial_metric);
     get(sqrt_det_spatial_metric) = sqrt(get(sqrt_det_spatial_metric));
-    auto& electron_fraction =
-        get<grmhd::ValenciaDivClean::Tags::ElectronFraction>(temp_buffer);
-    auto& tilde_ye = get<grmhd::ValenciaDivClean::Tags::TildeYe>(temp_buffer);
 
     grmhd::ValenciaDivClean::
         PrimitiveFromConservative<OrderedListOfRecoverySchemes, true>::apply(
             make_not_null(
                 &get<hydro::Tags::RestMassDensity<DataVector>>(*prim_vars)),
-            make_not_null(electron_fraction),
+            make_not_null(
+                &get<hydro::Tags::ElectronFraction<DataVector>>(*prim_vars)),
             make_not_null(&get<hydro::Tags::SpecificInternalEnergy<DataVector>>(
                 *prim_vars)),
             make_not_null(
@@ -118,7 +114,8 @@ using KastaunThenNewmanThenPalenzuela =
       const gsl::not_null<Variables<hydro::grmhd_tags<DataVector>>*>          \
           prim_vars,                                                          \
       bool did_rollback, const Mesh<3>& dg_mesh, const Mesh<3>& subcell_mesh, \
-      const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_tau, \
+      const Scalar<DataVector>& tilde_d, const Scalar<DataVector>& tilde_ye,  \
+      const Scalar<DataVector>& tilde_tau,                                    \
       const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,                 \
       const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,                 \
       const Scalar<DataVector>& tilde_phi,                                    \

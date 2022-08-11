@@ -3,11 +3,11 @@
 
 #include "Evolution/Systems/GrMhd/GhValenciaDivClean/FiniteDifference/MonotonisedCentral.hpp"
 
+#include <pup.h>
 #include <array>
 #include <boost/functional/hash.hpp>
 #include <cstddef>
 #include <memory>
-#include <pup.h>
 #include <utility>
 
 #include "DataStructures/DataBox/Prefixes.hpp"
@@ -221,13 +221,12 @@ bool operator!=(const MonotonisedCentralPrim& lhs,
   tmpl::list<                                                                 \
       gr::Tags::SpacetimeMetric<3>, GeneralizedHarmonic::Tags::Pi<3>,         \
       GeneralizedHarmonic::Tags::Phi<3>, ValenciaDivClean::Tags::TildeD,      \
-      ValenciaDivClean::Tags::TildeYe,                                       \
-      ValenciaDivClean::Tags::TildeTau,                                       \
+      ValenciaDivClean::Tags::TildeYe, ValenciaDivClean::Tags::TildeTau,      \
       ValenciaDivClean::Tags::TildeS<Frame::Inertial>,                        \
       ValenciaDivClean::Tags::TildeB<Frame::Inertial>,                        \
       ValenciaDivClean::Tags::TildePhi,                                       \
       hydro::Tags::RestMassDensity<DataVector>,                               \
-      hydro::Tags::ElectronFraction<DataVector>,                               \
+      hydro::Tags::ElectronFraction<DataVector>,                              \
       hydro::Tags::SpecificInternalEnergy<DataVector>,                        \
       hydro::Tags::SpatialVelocity<DataVector, 3>,                            \
       hydro::Tags::MagneticField<DataVector, 3>,                              \
@@ -238,7 +237,7 @@ bool operator!=(const MonotonisedCentralPrim& lhs,
       hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>,          \
       ::Tags::Flux<ValenciaDivClean::Tags::TildeD, tmpl::size_t<3>,           \
                    Frame::Inertial>,                                          \
-      ::Tags::Flux<ValenciaDivClean::Tags::TildeYe, tmpl::size_t<3>,           \
+      ::Tags::Flux<ValenciaDivClean::Tags::TildeYe, tmpl::size_t<3>,          \
                    Frame::Inertial>,                                          \
       ::Tags::Flux<ValenciaDivClean::Tags::TildeTau, tmpl::size_t<3>,         \
                    Frame::Inertial>,                                          \

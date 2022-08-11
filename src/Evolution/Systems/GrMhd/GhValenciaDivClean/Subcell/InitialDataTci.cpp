@@ -24,16 +24,16 @@ std::tuple<bool, evolution::dg::subcell::RdmpTciData> DgInitialDataTci::apply(
         ValenciaDivClean::Tags::TildeTau, ValenciaDivClean::Tags::TildeS<>,
         ValenciaDivClean::Tags::TildeB<>, ValenciaDivClean::Tags::TildePhi>>&
         dg_vars,
-//   const Variables<tmpl::list<
-//       Inactive<gr::Tags::SpacetimeMetric<3, Frame::Inertial, DataVector>>,
-//       Inactive<GeneralizedHarmonic::Tags::Pi<3, Frame::Inertial>>,
-//       Inactive<GeneralizedHarmonic::Tags::Phi<3, Frame::Inertial>>,
-//       Inactive<ValenciaDivClean::Tags::TildeD>,
-//       Inactive<ValenciaDivClean::Tags::TildeYe>,
-//       Inactive<ValenciaDivClean::Tags::TildeTau>,
-//       Inactive<ValenciaDivClean::Tags::TildeS<>>,
-//       Inactive<ValenciaDivClean::Tags::TildeB<>>,
-//       Inactive<ValenciaDivClean::Tags::TildePhi>>>& subcell_vars,
+    //   const Variables<tmpl::list<
+    //       Inactive<gr::Tags::SpacetimeMetric<3, Frame::Inertial,
+    //       DataVector>>, Inactive<GeneralizedHarmonic::Tags::Pi<3,
+    //       Frame::Inertial>>, Inactive<GeneralizedHarmonic::Tags::Phi<3,
+    //       Frame::Inertial>>, Inactive<ValenciaDivClean::Tags::TildeD>,
+    //       Inactive<ValenciaDivClean::Tags::TildeYe>,
+    //       Inactive<ValenciaDivClean::Tags::TildeTau>,
+    //       Inactive<ValenciaDivClean::Tags::TildeS<>>,
+    //       Inactive<ValenciaDivClean::Tags::TildeB<>>,
+    //       Inactive<ValenciaDivClean::Tags::TildePhi>>>& subcell_vars,
     const double rdmp_delta0, const double rdmp_epsilon,
     const double persson_exponent, const Mesh<3>& dg_mesh,
     const Mesh<3>& subcell_mesh,
@@ -50,7 +50,7 @@ std::tuple<bool, evolution::dg::subcell::RdmpTciData> DgInitialDataTci::apply(
       get<ValenciaDivClean::Tags::TildeYe>(dg_vars),
       get<ValenciaDivClean::Tags::TildeTau>(dg_vars), dg_tilde_b_magnitude,
       get<ValenciaDivClean::Tags::TildeD>(subcell_vars),
-      get<Inactive<ValenciaDivClean::Tags::TildeYe>>(subcell_vars),
+      get<ValenciaDivClean::Tags::TildeYe>(subcell_vars),
       get<ValenciaDivClean::Tags::TildeTau>(subcell_vars),
       subcell_tilde_b_magnitude, persson_exponent, dg_mesh, tci_options);
   return {std::get<0>(result) or

@@ -59,19 +59,19 @@ bool operator!=(const SmoothFlow& lhs, const SmoothFlow& rhs) {
 #define DTYPE(data) BOOST_PP_TUPLE_ELEM(0, data)
 #define TAG(data) BOOST_PP_TUPLE_ELEM(1, data)
 
-#define INSTANTIATE_SCALARS(_, data)                                        \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data)> >                   \
-      SmoothFlow::variables(const tnsr::I<DTYPE(data), 3>& x, double t,     \
-                            tmpl::list<TAG(data) < DTYPE(data)> > /*meta*/) \
+#define INSTANTIATE_SCALARS(_, data)                                       \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data)>>                   \
+      SmoothFlow::variables(const tnsr::I<DTYPE(data), 3>& x, double t,    \
+                            tmpl::list<TAG(data) < DTYPE(data)>> /*meta*/) \
           const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (double, DataVector),
                         (hydro::Tags::DivergenceCleaningField))
 
-#define INSTANTIATE_VECTORS(_, data)                                           \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3> >                   \
-      SmoothFlow::variables(const tnsr::I<DTYPE(data), 3>& x, double t,        \
-                            tmpl::list<TAG(data) < DTYPE(data), 3> > /*meta*/) \
+#define INSTANTIATE_VECTORS(_, data)                                          \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3>>                   \
+      SmoothFlow::variables(const tnsr::I<DTYPE(data), 3>& x, double t,       \
+                            tmpl::list<TAG(data) < DTYPE(data), 3>> /*meta*/) \
           const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (double, DataVector),

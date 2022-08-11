@@ -7,7 +7,7 @@
 #include <cmath>
 #include <cstddef>
 
-#include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
+#include "DataStructures/DataVector.hpp"                  // IWYU pragma: keep
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"  // IWYU pragma: keep
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "NumericalAlgorithms/RootFinding/TOMS748.hpp"
@@ -136,7 +136,7 @@ BondiMichel::IntermediateVars<DataType>::IntermediateVars(
                                           : sonic_bound,
             current_radius < sonic_radius ? sonic_bound : sonic_density, 1.e-15,
             1.e-15);
-    get_element(electron_fraction, i) = 0.4; // FIXME
+    get_element(electron_fraction, i) = 0.4;  // FIXME
   }
   if (need_spacetime) {
     kerr_schild_soln = background_spacetime.variables(
