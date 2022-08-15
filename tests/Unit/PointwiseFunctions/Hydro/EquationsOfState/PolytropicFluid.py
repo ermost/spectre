@@ -53,5 +53,5 @@ def polytropic_chi_from_density(rest_mass_density, polytropic_constant,
 
 
 def polytropic_kappa_times_p_over_rho_squared_from_density(
-    rest_mass_density, polytropic_constant, polytropic_exponent):
+        rest_mass_density, polytropic_constant, polytropic_exponent):
     return 0.0

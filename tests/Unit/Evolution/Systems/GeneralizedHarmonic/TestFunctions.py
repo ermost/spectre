@@ -504,10 +504,10 @@ def f_constraint_stress_energy_term(inverse_spacetime_metric,
 
 
 def f_constraint_with_stress_energy(
-    gauge_function, d_gauge_function, spacetime_normal_one_form,
-    spacetime_normal_vector, inverse_spatial_metric, inverse_spacetime_metric,
-    pi, phi, d_pi, d_phi, gamma2, three_index_constraint,
-    trace_reversed_stress_energy):
+        gauge_function, d_gauge_function, spacetime_normal_one_form,
+        spacetime_normal_vector, inverse_spatial_metric,
+        inverse_spacetime_metric, pi, phi, d_pi, d_phi, gamma2,
+        three_index_constraint, trace_reversed_stress_energy):
     constraint = f_constraint(gauge_function, d_gauge_function,
                               spacetime_normal_one_form,
                               spacetime_normal_vector, inverse_spatial_metric,

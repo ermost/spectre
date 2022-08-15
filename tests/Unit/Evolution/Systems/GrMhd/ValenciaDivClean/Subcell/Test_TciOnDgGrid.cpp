@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <cstddef>
 #include <limits>
 #include <memory>
@@ -24,6 +22,7 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOnDgGrid.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOptions.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
@@ -96,7 +95,11 @@ void test(const TestThis test_this) {
                                                    1.0};
 
   const grmhd::ValenciaDivClean::subcell::TciOptions tci_options{
-      1.0e-20, 1.0e-40, 1.1e-12, 1.0e-12,
+      1.0e-20,
+      1.e-3,
+      1.0e-40,
+      1.1e-12,
+      1.0e-12,
       test_this == TestThis::PerssonTildeB ? std::optional<double>{1.0e-2}
                                            : std::nullopt};
 

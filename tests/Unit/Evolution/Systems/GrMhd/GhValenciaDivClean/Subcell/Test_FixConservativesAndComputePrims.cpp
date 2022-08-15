@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <cstddef>
 #include <memory>
 
@@ -17,6 +15,7 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
 #include "Evolution/VariableFixing/Tags.hpp"
 #include "Framework/TestHelpers.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/EquationOfState.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/PolytropicFluid.hpp"
@@ -51,6 +50,7 @@ SPECTRE_TEST_CASE(
                                                                  0.0, 0.0};
   typename System::variables_tag::type cons_vars{num_pts, 0.0};
   get(get<grmhd::ValenciaDivClean::Tags::TildeD>(cons_vars))[0] = 2.e-12;
+  get(get<grmhd::ValenciaDivClean::Tags::TildeYe>(cons_vars))[0] = 2.e-13;
   get(get<grmhd::ValenciaDivClean::Tags::TildeTau>(cons_vars))[0] = 1.e-7;
   get<gr::Tags::SpacetimeMetric<3, Frame::Inertial, DataVector>>(cons_vars) =
       spacetime_metric;
@@ -86,6 +86,8 @@ SPECTRE_TEST_CASE(
       apply(
           make_not_null(
               &get<hydro::Tags::RestMassDensity<DataVector>>(expected_prims)),
+          make_not_null(
+              &get<hydro::Tags::ElectronFraction<DataVector>>(expected_prims)),
           make_not_null(&get<hydro::Tags::SpecificInternalEnergy<DataVector>>(
               expected_prims)),
           make_not_null(&get<hydro::Tags::SpatialVelocity<DataVector, 3>>(
@@ -101,6 +103,7 @@ SPECTRE_TEST_CASE(
           make_not_null(
               &get<hydro::Tags::SpecificEnthalpy<DataVector>>(expected_prims)),
           db::get<grmhd::ValenciaDivClean::Tags::TildeD>(box),
+          db::get<grmhd::ValenciaDivClean::Tags::TildeYe>(box),
           db::get<grmhd::ValenciaDivClean::Tags::TildeTau>(box),
           db::get<grmhd::ValenciaDivClean::Tags::TildeS<Frame::Inertial>>(box),
           db::get<grmhd::ValenciaDivClean::Tags::TildeB<Frame::Inertial>>(box),

@@ -36,15 +36,15 @@ def linearized_hamiltonian_sources_conf(*args, **kwargs):
 
 
 def distortion_hamiltonian_sources(
-    longitudinal_shift_minus_dt_conformal_metric_over_lapse_square,
-    conformal_factor):
+        longitudinal_shift_minus_dt_conformal_metric_over_lapse_square,
+        conformal_factor):
     return (-1. / 32. * conformal_factor**5 *
             longitudinal_shift_minus_dt_conformal_metric_over_lapse_square)
 
 
 def linearized_distortion_hamiltonian_sources(
-    longitudinal_shift_minus_dt_conformal_metric_over_lapse_square,
-    conformal_factor, conformal_factor_correction):
+        longitudinal_shift_minus_dt_conformal_metric_over_lapse_square,
+        conformal_factor, conformal_factor_correction):
     return (-5. / 32. * conformal_factor**4 * conformal_factor_correction *
             longitudinal_shift_minus_dt_conformal_metric_over_lapse_square)
 
@@ -103,16 +103,16 @@ def linearized_lapse_sources_conf(*args, **kwargs):
 
 
 def distortion_hamiltonian_sources_with_lapse(
-    longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
-    lapse_times_conformal_factor):
+        longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
+        lapse_times_conformal_factor):
     return (-1. / 32. * conformal_factor**7 / lapse_times_conformal_factor**2 *
             longitudinal_shift_minus_dt_conformal_metric_square)
 
 
 def linearized_distortion_hamiltonian_sources_with_lapse(
-    longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
-    lapse_times_conformal_factor, conformal_factor_correction,
-    lapse_times_conformal_factor_correction):
+        longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
+        lapse_times_conformal_factor, conformal_factor_correction,
+        lapse_times_conformal_factor_correction):
     return (-1. / 32. *
             (7. * conformal_factor**6 * conformal_factor_correction /
              lapse_times_conformal_factor**2 -
@@ -122,16 +122,16 @@ def linearized_distortion_hamiltonian_sources_with_lapse(
 
 
 def distortion_lapse_sources(
-    longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
-    lapse_times_conformal_factor):
+        longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
+        lapse_times_conformal_factor):
     return (7. / 32. * conformal_factor**6 / lapse_times_conformal_factor *
             longitudinal_shift_minus_dt_conformal_metric_square)
 
 
 def linearized_distortion_lapse_sources(
-    longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
-    lapse_times_conformal_factor, conformal_factor_correction,
-    lapse_times_conformal_factor_correction):
+        longitudinal_shift_minus_dt_conformal_metric_square, conformal_factor,
+        lapse_times_conformal_factor, conformal_factor_correction,
+        lapse_times_conformal_factor_correction):
     return (7. / 32. *
             (6. * conformal_factor**5 / lapse_times_conformal_factor *
              conformal_factor_correction -
@@ -230,7 +230,7 @@ def linearized_momentum_sources_conf(*args, **kwargs):
 
 
 def flat_cartesian_linearized_momentum_sources(
-    momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
+        momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
     return linearized_momentum_sources(momentum_density,
                                        extrinsic_curvature_trace_gradient,
                                        np.identity(3), np.identity(3), *args,
@@ -244,31 +244,31 @@ def flat_cartesian_linearized_momentum_sources_conf(*args, **kwargs):
 
 
 def distortion_hamiltonian_sources_full(
-    momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
-    inv_conformal_metric, minus_div_dt_conformal_metric, conformal_factor,
-    lapse_times_conformal_factor, conformal_factor_flux,
-    lapse_times_conformal_factor_flux, longitudinal_shift):
+        momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
+        inv_conformal_metric, minus_div_dt_conformal_metric, conformal_factor,
+        lapse_times_conformal_factor, conformal_factor_flux,
+        lapse_times_conformal_factor_flux, longitudinal_shift):
     return (-1. / 32. * conformal_factor**7 / lapse_times_conformal_factor**2 *
             np.einsum('ij,kl,ik,jl', conformal_metric, conformal_metric,
                       longitudinal_shift, longitudinal_shift))
 
 
 def flat_cartesian_distortion_hamiltonian_sources_full(
-    momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
+        momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
     return distortion_hamiltonian_sources_full(
         momentum_density, extrinsic_curvature_trace_gradient, np.identity(3),
         np.identity(3), *args, **kwargs)
 
 
 def linearized_distortion_hamiltonian_sources_full(
-    momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
-    inv_conformal_metric, conformal_factor, lapse_times_conformal_factor,
-    conformal_factor_flux, lapse_times_conformal_factor_flux,
-    longitudinal_shift, conformal_factor_correction,
-    lapse_times_conformal_factor_correction, shift_correction,
-    conformal_factor_flux_correction,
-    lapse_times_conformal_factor_flux_correction,
-    longitudinal_shift_correction):
+        momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
+        inv_conformal_metric, conformal_factor, lapse_times_conformal_factor,
+        conformal_factor_flux, lapse_times_conformal_factor_flux,
+        longitudinal_shift, conformal_factor_correction,
+        lapse_times_conformal_factor_correction, shift_correction,
+        conformal_factor_flux_correction,
+        lapse_times_conformal_factor_flux_correction,
+        longitudinal_shift_correction):
     longitudinal_shift_square = np.einsum('ij,kl,ik,jl', conformal_metric,
                                           conformal_metric, longitudinal_shift,
                                           longitudinal_shift)
@@ -285,8 +285,8 @@ def linearized_distortion_hamiltonian_sources_full(
 
 
 def flat_cartesian_linearized_distortion_hamiltonian_sources_full(
-    momentum_density, extrinsic_curvature_trace_gradient, conformal_factor,
-    lapse_times_conformal_factor, *args, **kwargs):
+        momentum_density, extrinsic_curvature_trace_gradient, conformal_factor,
+        lapse_times_conformal_factor, *args, **kwargs):
     return linearized_distortion_hamiltonian_sources_full(
         momentum_density, extrinsic_curvature_trace_gradient, np.identity(3),
         np.identity(3), conformal_factor, lapse_times_conformal_factor, *args,
@@ -294,31 +294,31 @@ def flat_cartesian_linearized_distortion_hamiltonian_sources_full(
 
 
 def distortion_lapse_sources_with_shift(
-    momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
-    inv_conformal_metric, minus_div_dt_conformal_metric, conformal_factor,
-    lapse_times_conformal_factor, conformal_factor_flux,
-    lapse_times_conformal_factor_flux, longitudinal_shift):
+        momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
+        inv_conformal_metric, minus_div_dt_conformal_metric, conformal_factor,
+        lapse_times_conformal_factor, conformal_factor_flux,
+        lapse_times_conformal_factor_flux, longitudinal_shift):
     return (7. / 32. * conformal_factor**6 / lapse_times_conformal_factor *
             np.einsum('ij,kl,ik,jl', conformal_metric, conformal_metric,
                       longitudinal_shift, longitudinal_shift))
 
 
 def flat_cartesian_distortion_lapse_sources_with_shift(
-    momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
+        momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
     return distortion_lapse_sources_with_shift(
         momentum_density, extrinsic_curvature_trace_gradient, np.identity(3),
         np.identity(3), *args, **kwargs)
 
 
 def linearized_distortion_lapse_sources_with_shift(
-    momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
-    inv_conformal_metric, conformal_factor, lapse_times_conformal_factor,
-    conformal_factor_flux, lapse_times_conformal_factor_flux,
-    longitudinal_shift, conformal_factor_correction,
-    lapse_times_conformal_factor_correction, shift_correction,
-    conformal_factor_flux_correction,
-    lapse_times_conformal_factor_flux_correction,
-    longitudinal_shift_correction):
+        momentum_density, extrinsic_curvature_trace_gradient, conformal_metric,
+        inv_conformal_metric, conformal_factor, lapse_times_conformal_factor,
+        conformal_factor_flux, lapse_times_conformal_factor_flux,
+        longitudinal_shift, conformal_factor_correction,
+        lapse_times_conformal_factor_correction, shift_correction,
+        conformal_factor_flux_correction,
+        lapse_times_conformal_factor_flux_correction,
+        longitudinal_shift_correction):
     longitudinal_shift_square = np.einsum('ij,kl,ik,jl', conformal_metric,
                                           conformal_metric, longitudinal_shift,
                                           longitudinal_shift)
@@ -337,7 +337,7 @@ def linearized_distortion_lapse_sources_with_shift(
 
 
 def flat_cartesian_linearized_distortion_lapse_sources_with_shift(
-    momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
+        momentum_density, extrinsic_curvature_trace_gradient, *args, **kwargs):
     return linearized_distortion_lapse_sources_with_shift(
         momentum_density, extrinsic_curvature_trace_gradient, np.identity(3),
         np.identity(3), *args, **kwargs)

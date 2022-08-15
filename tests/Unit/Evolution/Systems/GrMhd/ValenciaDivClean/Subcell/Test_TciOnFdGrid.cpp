@@ -1,8 +1,6 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include <cstddef>
 #include <memory>
 
@@ -17,6 +15,7 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOnFdGrid.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOptions.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
+#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 #include "Utilities/Gsl.hpp"
@@ -41,7 +40,11 @@ void test(const TestThis test_this) {
   const Mesh<3> subcell_mesh = evolution::dg::subcell::fd::mesh(mesh);
   const double persson_exponent = 5.0;
   const grmhd::ValenciaDivClean::subcell::TciOptions tci_options{
-      1.0e-12, 1.0e-40, 1.0e-11, 1.0e-12,
+      1.0e-12,
+      1.e-3,
+      1.0e-40,
+      1.0e-11,
+      1.0e-12,
       test_this == TestThis::PerssonTildeB ? std::optional<double>{1.0e-2}
                                            : std::nullopt};
 

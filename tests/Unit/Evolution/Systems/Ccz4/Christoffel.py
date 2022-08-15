@@ -23,6 +23,6 @@ def christoffel_second_kind(conformal_spatial_metric,
 
 
 def contracted_conformal_christoffel_second_kind(
-    inverse_conformal_spatial_metric, conformal_christoffel_second_kind):
+        inverse_conformal_spatial_metric, conformal_christoffel_second_kind):
     return np.einsum("jl,ijl", inverse_conformal_spatial_metric,
                      conformal_christoffel_second_kind)

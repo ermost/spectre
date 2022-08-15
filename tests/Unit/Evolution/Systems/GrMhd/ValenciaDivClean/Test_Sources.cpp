@@ -1,12 +1,11 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Framework/TestingFramework.hpp"
-
 #include "DataStructures/DataVector.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Sources.hpp"
 #include "Framework/CheckWithRandomValues.hpp"
 #include "Framework/SetupLocalPythonEnvironment.hpp"
+#include "Framework/TestingFramework.hpp"
 
 // IWYU pragma: no_include "DataStructures/Tensor/Tensor.hpp"
 // IWYU pragma: no_include "Utilities/Gsl.hpp"

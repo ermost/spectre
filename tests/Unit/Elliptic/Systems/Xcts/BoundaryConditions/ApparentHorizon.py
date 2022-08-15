@@ -47,10 +47,11 @@ def projected_normal_gradient(conformal_unit_normal, x, inv_conformal_metric,
 # This function implements the apparent-horizon boundary condition, Eq. 7.12 in
 # Harald's thesis https://arxiv.org/abs/gr-qc/0510016
 def normal_dot_conformal_factor_gradient(
-    conformal_factor, lapse_times_conformal_factor,
-    n_dot_longitudinal_shift_excess, center, spin, x,
-    extrinsic_curvature_trace, shift_background, longitudinal_shift_background,
-    inv_conformal_metric, conformal_christoffel_second_kind):
+        conformal_factor, lapse_times_conformal_factor,
+        n_dot_longitudinal_shift_excess, center, spin, x,
+        extrinsic_curvature_trace, shift_background,
+        longitudinal_shift_background, inv_conformal_metric,
+        conformal_christoffel_second_kind):
     x -= center
     make_metric_riemannian(inv_conformal_metric)
     conformal_unit_normal = -make_spherical_face_normal(
@@ -76,11 +77,12 @@ def normal_dot_conformal_factor_gradient_flat_cartesian(*args, **kwargs):
 
 
 def normal_dot_conformal_factor_gradient_correction(
-    conformal_factor_correction, lapse_times_conformal_factor_correction,
-    n_dot_longitudinal_shift_excess_correction, center, spin, x,
-    extrinsic_curvature_trace, longitudinal_shift_background, conformal_factor,
-    lapse_times_conformal_factor, n_dot_longitudinal_shift_excess,
-    inv_conformal_metric, conformal_christoffel_second_kind):
+        conformal_factor_correction, lapse_times_conformal_factor_correction,
+        n_dot_longitudinal_shift_excess_correction, center, spin, x,
+        extrinsic_curvature_trace, longitudinal_shift_background,
+        conformal_factor, lapse_times_conformal_factor,
+        n_dot_longitudinal_shift_excess, inv_conformal_metric,
+        conformal_christoffel_second_kind):
     x -= center
     make_metric_riemannian(inv_conformal_metric)
     conformal_unit_normal = -make_spherical_face_normal(
@@ -107,7 +109,7 @@ def normal_dot_conformal_factor_gradient_correction(
 
 
 def normal_dot_conformal_factor_gradient_correction_flat_cartesian(
-    *args, **kwargs):
+        *args, **kwargs):
     return normal_dot_conformal_factor_gradient_correction(
         *args,
         inv_conformal_metric=np.identity(3),
@@ -147,11 +149,12 @@ def shift_excess_flat_cartesian(*args, **kwargs):
 
 
 def shift_excess_correction(
-    conformal_factor_correction, lapse_times_conformal_factor_correction,
-    n_dot_longitudinal_shift_excess_correction, center, spin, x,
-    extrinsic_curvature_trace, longitudinal_shift_background, conformal_factor,
-    lapse_times_conformal_factor, n_dot_longitudinal_shift_excess,
-    inv_conformal_metric, conformal_christoffel_second_kind):
+        conformal_factor_correction, lapse_times_conformal_factor_correction,
+        n_dot_longitudinal_shift_excess_correction, center, spin, x,
+        extrinsic_curvature_trace, longitudinal_shift_background,
+        conformal_factor, lapse_times_conformal_factor,
+        n_dot_longitudinal_shift_excess, inv_conformal_metric,
+        conformal_christoffel_second_kind):
     x -= center
     make_metric_riemannian(inv_conformal_metric)
     conformal_unit_normal = -make_spherical_face_normal(

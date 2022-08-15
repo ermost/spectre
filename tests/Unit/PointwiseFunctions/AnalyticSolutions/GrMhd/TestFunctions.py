@@ -123,7 +123,7 @@ def bondi_michel_bernoulli_constant_squared_minus_one(n_s_c_2, u_c_2, g):
 
 
 def bondi_michel_bernoulli_equation_lhs_squared_minus_one(
-    rho, r, g, k, m_dot_over_four_pi, mass):
+        rho, r, g, k, m_dot_over_four_pi, mass):
     u = m_dot_over_four_pi / (r**2 * rho)
     g_minus_one = g - 1.0
     #polytropic_index times newtonian_sound_speed_squared:

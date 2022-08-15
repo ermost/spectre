@@ -11,7 +11,7 @@ def spatial_z4_constraint(conformal_spatial_metric,
 
 
 def upper_spatial_z4_constraint(
-    half_conformal_factor_squared,
-    gamma_hat_minus_contracted_conformal_christoffel):
+        half_conformal_factor_squared,
+        gamma_hat_minus_contracted_conformal_christoffel):
     return (half_conformal_factor_squared *
             gamma_hat_minus_contracted_conformal_christoffel)

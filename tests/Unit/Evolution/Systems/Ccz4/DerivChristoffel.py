@@ -19,8 +19,9 @@ def deriv_conformal_christoffel_second_kind(inverse_conformal_spatial_metric,
 
 
 def deriv_contracted_conformal_christoffel_second_kind(
-    inverse_conformal_spatial_metric, field_d_up,
-    conformal_christoffel_second_kind, d_conformal_christoffel_second_kind):
+        inverse_conformal_spatial_metric, field_d_up,
+        conformal_christoffel_second_kind,
+        d_conformal_christoffel_second_kind):
     return (-2.0 * np.einsum("kjl,ijl->ki", field_d_up,
                              conformal_christoffel_second_kind) +
             np.einsum("jl,kijl->ki", inverse_conformal_spatial_metric,

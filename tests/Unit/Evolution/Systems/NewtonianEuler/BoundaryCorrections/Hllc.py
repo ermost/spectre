@@ -5,26 +5,26 @@ import numpy as np
 
 
 def dg_package_data_mass_density(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return mass_density
 
 
 def dg_package_data_momentum_density(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return momentum_density
 
 
 def dg_package_data_energy_density(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return energy_density
 
 
@@ -45,42 +45,42 @@ def dg_package_data_pressure(mass_density, momentum_density, energy_density,
 
 
 def dg_package_data_normal_dot_flux_mass_density(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return np.einsum("i,i", normal_covector, flux_mass_density)
 
 
 def dg_package_data_normal_dot_flux_momentum_density(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return np.einsum("i,ij->j", normal_covector, flux_momentum_density)
 
 
 def dg_package_data_normal_dot_flux_energy_density(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return np.einsum("i,i", normal_covector, flux_energy_density)
 
 
 def dg_package_data_interface_unit_normal(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     return normal_covector
 
 
 def dg_package_data_normal_dot_velocity(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     if normal_dot_mesh_velocity is None:
         return np.einsum("i,i", normal_covector, velocity)
     else:
@@ -89,10 +89,10 @@ def dg_package_data_normal_dot_velocity(
 
 
 def dg_package_data_largest_outgoing_char_speed(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     velocity_dot_normal = np.einsum("i,i", normal_covector, velocity)
     if use_polytropic_fluid:
         polytropic_constant = 1.0e-3
@@ -113,10 +113,10 @@ def dg_package_data_largest_outgoing_char_speed(
 
 
 def dg_package_data_largest_ingoing_char_speed(
-    mass_density, momentum_density, energy_density, flux_mass_density,
-    flux_momentum_density, flux_energy_density, velocity,
-    specific_internal_energy, normal_covector, mesh_velocity,
-    normal_dot_mesh_velocity, use_polytropic_fluid):
+        mass_density, momentum_density, energy_density, flux_mass_density,
+        flux_momentum_density, flux_energy_density, velocity,
+        specific_internal_energy, normal_covector, mesh_velocity,
+        normal_dot_mesh_velocity, use_polytropic_fluid):
     velocity_dot_normal = np.einsum("i,i", normal_covector, velocity)
     if use_polytropic_fluid:
         polytropic_constant = 1.0e-3
@@ -137,18 +137,21 @@ def dg_package_data_largest_ingoing_char_speed(
 
 
 def dg_boundary_terms_mass_density(
-    interior_mass_density, interior_momentum_density, interior_energy_density,
-    interior_pressure, interior_normal_dot_flux_mass_density,
-    interior_normal_dot_flux_momentum_density,
-    interior_normal_dot_flux_energy_density, interior_interface_unit_normal,
-    interior_normal_dot_velocity, interior_largest_outgoing_char_speed,
-    interior_largest_ingoing_char_speed, exterior_mass_density,
-    exterior_momentum_density, exterior_energy_density, exterior_pressure,
-    exterior_normal_dot_flux_mass_density,
-    exterior_normal_dot_flux_momentum_density,
-    exterior_normal_dot_flux_energy_density, exterior_interface_unit_normal,
-    exterior_normal_dot_velocity, exterior_largest_outgoing_char_speed,
-    exterior_largest_ingoing_char_speed, use_strong_form):
+        interior_mass_density, interior_momentum_density,
+        interior_energy_density, interior_pressure,
+        interior_normal_dot_flux_mass_density,
+        interior_normal_dot_flux_momentum_density,
+        interior_normal_dot_flux_energy_density,
+        interior_interface_unit_normal, interior_normal_dot_velocity,
+        interior_largest_outgoing_char_speed,
+        interior_largest_ingoing_char_speed, exterior_mass_density,
+        exterior_momentum_density, exterior_energy_density, exterior_pressure,
+        exterior_normal_dot_flux_mass_density,
+        exterior_normal_dot_flux_momentum_density,
+        exterior_normal_dot_flux_energy_density,
+        exterior_interface_unit_normal, exterior_normal_dot_velocity,
+        exterior_largest_outgoing_char_speed,
+        exterior_largest_ingoing_char_speed, use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -190,18 +193,21 @@ def dg_boundary_terms_mass_density(
 
 
 def dg_boundary_terms_momentum_density(
-    interior_mass_density, interior_momentum_density, interior_energy_density,
-    interior_pressure, interior_normal_dot_flux_mass_density,
-    interior_normal_dot_flux_momentum_density,
-    interior_normal_dot_flux_energy_density, interior_interface_unit_normal,
-    interior_normal_dot_velocity, interior_largest_outgoing_char_speed,
-    interior_largest_ingoing_char_speed, exterior_mass_density,
-    exterior_momentum_density, exterior_energy_density, exterior_pressure,
-    exterior_normal_dot_flux_mass_density,
-    exterior_normal_dot_flux_momentum_density,
-    exterior_normal_dot_flux_energy_density, exterior_interface_unit_normal,
-    exterior_normal_dot_velocity, exterior_largest_outgoing_char_speed,
-    exterior_largest_ingoing_char_speed, use_strong_form):
+        interior_mass_density, interior_momentum_density,
+        interior_energy_density, interior_pressure,
+        interior_normal_dot_flux_mass_density,
+        interior_normal_dot_flux_momentum_density,
+        interior_normal_dot_flux_energy_density,
+        interior_interface_unit_normal, interior_normal_dot_velocity,
+        interior_largest_outgoing_char_speed,
+        interior_largest_ingoing_char_speed, exterior_mass_density,
+        exterior_momentum_density, exterior_energy_density, exterior_pressure,
+        exterior_normal_dot_flux_mass_density,
+        exterior_normal_dot_flux_momentum_density,
+        exterior_normal_dot_flux_energy_density,
+        exterior_interface_unit_normal, exterior_normal_dot_velocity,
+        exterior_largest_outgoing_char_speed,
+        exterior_largest_ingoing_char_speed, use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -257,18 +263,21 @@ def dg_boundary_terms_momentum_density(
 
 
 def dg_boundary_terms_energy_density(
-    interior_mass_density, interior_momentum_density, interior_energy_density,
-    interior_pressure, interior_normal_dot_flux_mass_density,
-    interior_normal_dot_flux_momentum_density,
-    interior_normal_dot_flux_energy_density, interior_interface_unit_normal,
-    interior_normal_dot_velocity, interior_largest_outgoing_char_speed,
-    interior_largest_ingoing_char_speed, exterior_mass_density,
-    exterior_momentum_density, exterior_energy_density, exterior_pressure,
-    exterior_normal_dot_flux_mass_density,
-    exterior_normal_dot_flux_momentum_density,
-    exterior_normal_dot_flux_energy_density, exterior_interface_unit_normal,
-    exterior_normal_dot_velocity, exterior_largest_outgoing_char_speed,
-    exterior_largest_ingoing_char_speed, use_strong_form):
+        interior_mass_density, interior_momentum_density,
+        interior_energy_density, interior_pressure,
+        interior_normal_dot_flux_mass_density,
+        interior_normal_dot_flux_momentum_density,
+        interior_normal_dot_flux_energy_density,
+        interior_interface_unit_normal, interior_normal_dot_velocity,
+        interior_largest_outgoing_char_speed,
+        interior_largest_ingoing_char_speed, exterior_mass_density,
+        exterior_momentum_density, exterior_energy_density, exterior_pressure,
+        exterior_normal_dot_flux_mass_density,
+        exterior_normal_dot_flux_momentum_density,
+        exterior_normal_dot_flux_energy_density,
+        exterior_interface_unit_normal, exterior_normal_dot_velocity,
+        exterior_largest_outgoing_char_speed,
+        exterior_largest_ingoing_char_speed, use_strong_form):
 
     lambda_max = np.maximum(
         0.,
