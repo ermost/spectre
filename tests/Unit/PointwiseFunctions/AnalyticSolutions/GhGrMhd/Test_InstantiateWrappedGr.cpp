@@ -19,9 +19,9 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.AnalyticSolutions.GhGrMhd.WrappedGr",
 
   check_wrapped_gr_solution_consistency(
       GeneralizedHarmonic::Solutions::WrappedGr<grmhd::Solutions::AlfvenWave>{
-          2.2, 1.23, 0.2, 1.4, {{0.0, 0.0, 2.0}}, {{0.75, 0.0, 0.0}}},
+          2.2, 1.23, 0.2, 0.1, 1.4, {{0.0, 0.0, 2.0}}, {{0.75, 0.0, 0.0}}},
       grmhd::Solutions::AlfvenWave{
-          2.2, 1.23, 0.2, 1.4, {{0.0, 0.0, 2.0}}, {{0.75, 0.0, 0.0}}},
+          2.2, 1.23, 0.2, 0.1, 1.4, {{0.0, 0.0, 2.0}}, {{0.75, 0.0, 0.0}}},
       x, t);
 
   check_wrapped_gr_solution_consistency(
@@ -32,13 +32,13 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.AnalyticSolutions.GhGrMhd.WrappedGr",
   check_wrapped_gr_solution_consistency(
       GeneralizedHarmonic::Solutions::WrappedGr<
           grmhd::Solutions::KomissarovShock>{
-          4. / 3., 1., 3.323, 10., 55.36,
+          4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
           std::array<double, 3>{{0.8370659816473115, 0., 0.}},
           std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
           std::array<double, 3>{{10., 18.28, 0.}},
           std::array<double, 3>{{10., 14.49, 0.}}, 0.5},
       grmhd::Solutions::KomissarovShock{
-          4. / 3., 1., 3.323, 10., 55.36,
+          4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
           std::array<double, 3>{{0.8370659816473115, 0., 0.}},
           std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
           std::array<double, 3>{{10., 18.28, 0.}},

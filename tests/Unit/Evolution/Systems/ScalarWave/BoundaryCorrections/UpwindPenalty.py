@@ -89,14 +89,13 @@ def dg_package_data_char_speeds(psi, pi, phi, constraint_gamma2,
 
 
 def dg_boundary_terms_pi(
-        int_char_speed_v_psi, int_char_speed_v_zero, int_char_speed_v_plus,
-        int_char_speed_v_minus, int_char_speed_v_plus_times_normal,
-        int_char_speed_v_minus_times_normal, int_char_speed_gamma2_v_psi,
-        int_char_speeds, ext_char_speed_v_psi, ext_char_speed_v_zero,
-        ext_char_speed_v_plus, ext_char_speed_v_minus,
-        ext_char_speed_v_plus_times_normal,
-        ext_char_speed_v_minus_times_normal, ext_char_speed_gamma2_v_psi,
-        ext_char_speeds, use_strong_form):
+    int_char_speed_v_psi, int_char_speed_v_zero, int_char_speed_v_plus,
+    int_char_speed_v_minus, int_char_speed_v_plus_times_normal,
+    int_char_speed_v_minus_times_normal, int_char_speed_gamma2_v_psi,
+    int_char_speeds, ext_char_speed_v_psi, ext_char_speed_v_zero,
+    ext_char_speed_v_plus, ext_char_speed_v_minus,
+    ext_char_speed_v_plus_times_normal, ext_char_speed_v_minus_times_normal,
+    ext_char_speed_gamma2_v_psi, ext_char_speeds, use_strong_form):
     result = int_char_speed_v_psi * 0.
     # Add v^+ terms
     if ext_char_speeds[1] > 0.:
@@ -119,14 +118,13 @@ def dg_boundary_terms_pi(
 
 
 def dg_boundary_terms_phi(
-        int_char_speed_v_psi, int_char_speed_v_zero, int_char_speed_v_plus,
-        int_char_speed_v_minus, int_char_speed_v_plus_times_normal,
-        int_char_speed_v_minus_times_normal, int_char_speed_gamma2_v_psi,
-        int_char_speeds, ext_char_speed_v_psi, ext_char_speed_v_zero,
-        ext_char_speed_v_plus, ext_char_speed_v_minus,
-        ext_char_speed_v_plus_times_normal,
-        ext_char_speed_v_minus_times_normal, ext_char_speed_gamma2_v_psi,
-        ext_char_speeds, use_strong_form):
+    int_char_speed_v_psi, int_char_speed_v_zero, int_char_speed_v_plus,
+    int_char_speed_v_minus, int_char_speed_v_plus_times_normal,
+    int_char_speed_v_minus_times_normal, int_char_speed_gamma2_v_psi,
+    int_char_speeds, ext_char_speed_v_psi, ext_char_speed_v_zero,
+    ext_char_speed_v_plus, ext_char_speed_v_minus,
+    ext_char_speed_v_plus_times_normal, ext_char_speed_v_minus_times_normal,
+    ext_char_speed_gamma2_v_psi, ext_char_speeds, use_strong_form):
     result = int_char_speed_v_zero * 0.
 
     # Add v^+ terms
@@ -150,14 +148,13 @@ def dg_boundary_terms_phi(
 
 
 def dg_boundary_terms_psi(
-        int_char_speed_v_psi, int_char_speed_v_zero, int_char_speed_v_plus,
-        int_char_speed_v_minus, int_char_speed_v_plus_times_normal,
-        int_char_speed_v_minus_times_normal, int_char_speed_gamma2_v_psi,
-        int_char_speeds, ext_char_speed_v_psi, ext_char_speed_v_zero,
-        ext_char_speed_v_plus, ext_char_speed_v_minus,
-        ext_char_speed_v_plus_times_normal,
-        ext_char_speed_v_minus_times_normal, ext_char_speed_gamma2_v_psi,
-        ext_char_speeds, use_strong_form):
+    int_char_speed_v_psi, int_char_speed_v_zero, int_char_speed_v_plus,
+    int_char_speed_v_minus, int_char_speed_v_plus_times_normal,
+    int_char_speed_v_minus_times_normal, int_char_speed_gamma2_v_psi,
+    int_char_speeds, ext_char_speed_v_psi, ext_char_speed_v_zero,
+    ext_char_speed_v_plus, ext_char_speed_v_minus,
+    ext_char_speed_v_plus_times_normal, ext_char_speed_v_minus_times_normal,
+    ext_char_speed_gamma2_v_psi, ext_char_speeds, use_strong_form):
     result = int_char_speed_v_psi * 0.
     if ext_char_speeds[0] >= 0.:
         result -= ext_char_speed_v_psi

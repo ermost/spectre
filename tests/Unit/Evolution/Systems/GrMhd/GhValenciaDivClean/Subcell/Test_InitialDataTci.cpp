@@ -30,7 +30,7 @@ SPECTRE_TEST_CASE(
   const double epsilon = 1.0e-3;
   const double exponent = 4.0;
   const grmhd::ValenciaDivClean::subcell::TciOptions tci_options{
-      1.0e-20, 1.0e-40, 1.1e-12, 1.0e-12, std::optional<double>{1.0e-2}};
+      1.0e-20, 0.001, 1.0e-40, 1.1e-12, 1.0e-12, std::optional<double>{1.0e-2}};
 
   const auto compute_expected_rdmp_tci_data = [&dg_vars, &dg_mesh,
                                                &subcell_mesh]() {

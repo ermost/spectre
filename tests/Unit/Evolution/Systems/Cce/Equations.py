@@ -104,11 +104,11 @@ def integrand_for_h_pole_part(j, u, w, eth_u, ethbar_j, ethbar_jbar_u,
 
 
 def integrand_for_h_regular_part(
-        _0, _1, _2, dy_dy_j, dy_j, dy_w, exp_2_beta, j, q, u, w, eth_beta,
-        eth_eth_beta, eth_ethbar_beta, eth_ethbar_j, eth_ethbar_j_jbar,
-        eth_j_jbar, eth_q, eth_u, eth_ubar_dy_j, ethbar_dy_j, ethbar_ethbar_j,
-        ethbar_j, ethbar_jbar_dy_j, ethbar_jbar_q_minus_2_eth_beta, ethbar_q,
-        ethbar_u, du_r_divided_by_r, eth_r_divided_by_r, k, one_minus_y, r):
+    _0, _1, _2, dy_dy_j, dy_j, dy_w, exp_2_beta, j, q, u, w, eth_beta,
+    eth_eth_beta, eth_ethbar_beta, eth_ethbar_j, eth_ethbar_j_jbar, eth_j_jbar,
+    eth_q, eth_u, eth_ubar_dy_j, ethbar_dy_j, ethbar_ethbar_j, ethbar_j,
+    ethbar_jbar_dy_j, ethbar_jbar_q_minus_2_eth_beta, ethbar_q, ethbar_u,
+    du_r_divided_by_r, eth_r_divided_by_r, k, one_minus_y, r):
     # script_aj, script_bj, and script_cj input is unused, needed only to match
     # function signature from the C++
     jbar = np.conj(j)

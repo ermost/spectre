@@ -341,6 +341,11 @@ bool operator!=(const BondiMichel& lhs, const BondiMichel& rhs) {
       const tnsr::I<DTYPE(data), 3>& x,                                       \
       tmpl::list<hydro::Tags::RestMassDensity<DTYPE(data)>> /*meta*/,         \
       const BondiMichel::IntermediateVars<DTYPE(data)>& vars) const;          \
+  template tuples::TaggedTuple<hydro::Tags::ElectronFraction<DTYPE(data)>>    \
+  BondiMichel::variables(                                                     \
+      const tnsr::I<DTYPE(data), 3>& x,                                       \
+      tmpl::list<hydro::Tags::ElectronFraction<DTYPE(data)>> /*meta*/,        \
+      const BondiMichel::IntermediateVars<DTYPE(data)>& vars) const;          \
   template tuples::TaggedTuple<hydro::Tags::SpecificEnthalpy<DTYPE(data)>>    \
   BondiMichel::variables(                                                     \
       const tnsr::I<DTYPE(data), 3>& x,                                       \

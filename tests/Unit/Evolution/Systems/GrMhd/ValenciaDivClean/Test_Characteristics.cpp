@@ -58,7 +58,8 @@ void test_with_normal_along_coordinate_axes(const DataVector& used_for_size) {
       rest_mass_density, specific_internal_energy,
       eos.pressure_from_density(rest_mass_density));
 
-  const auto electron_fraction = helper::random_ye(nn_gen, used_for_size);
+  const auto electron_fraction =
+      helper::random_electron_fraction(nn_gen, used_for_size);
 
   const auto lapse = gr_helper::random_lapse(nn_gen, used_for_size);
   const auto shift = gr_helper::random_shift<3>(nn_gen, used_for_size);

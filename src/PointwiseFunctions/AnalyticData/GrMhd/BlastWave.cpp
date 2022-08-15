@@ -3,9 +3,9 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/BlastWave.hpp"
 
+#include <pup.h>
 #include <cmath>
 #include <ostream>
-#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"
@@ -111,8 +111,8 @@ tuples::TaggedTuple<hydro::Tags::ElectronFraction<DataType>>
 BlastWave::variables(
     const tnsr::I<DataType, 3>& x,
     tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
-  return compute_piecewise(x, inner_radius_, outer_radius_, 0.1,
-                           0.4, geometry_);
+  return compute_piecewise(x, inner_radius_, outer_radius_, 0.1, 0.4,
+                           geometry_);
 }
 
 template <typename DataType>
@@ -205,23 +205,23 @@ bool operator!=(const BlastWave& lhs, const BlastWave& rhs) {
 #define DTYPE(data) BOOST_PP_TUPLE_ELEM(0, data)
 #define TAG(data) BOOST_PP_TUPLE_ELEM(1, data)
 
-#define INSTANTIATE_SCALARS(_, data)                                       \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data)> >                  \
-      BlastWave::variables(const tnsr::I<DTYPE(data), 3>& x,               \
-                           tmpl::list<TAG(data) < DTYPE(data)> > /*meta*/) \
+#define INSTANTIATE_SCALARS(_, data)                                      \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data)>>                  \
+      BlastWave::variables(const tnsr::I<DTYPE(data), 3>& x,              \
+                           tmpl::list<TAG(data) < DTYPE(data)>> /*meta*/) \
           const;
 
 GENERATE_INSTANTIATIONS(
     INSTANTIATE_SCALARS, (double, DataVector),
     (hydro::Tags::RestMassDensity, hydro::Tags::ElectronFraction,
-     hydro::Tags::SpecificInternalEnergy,
-     hydro::Tags::Pressure, hydro::Tags::DivergenceCleaningField,
-     hydro::Tags::LorentzFactor, hydro::Tags::SpecificEnthalpy))
+     hydro::Tags::SpecificInternalEnergy, hydro::Tags::Pressure,
+     hydro::Tags::DivergenceCleaningField, hydro::Tags::LorentzFactor,
+     hydro::Tags::SpecificEnthalpy))
 
-#define INSTANTIATE_VECTORS(_, data)                                          \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3> >                  \
-      BlastWave::variables(const tnsr::I<DTYPE(data), 3>& x,                  \
-                           tmpl::list<TAG(data) < DTYPE(data), 3> > /*meta*/) \
+#define INSTANTIATE_VECTORS(_, data)                                         \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3>>                  \
+      BlastWave::variables(const tnsr::I<DTYPE(data), 3>& x,                 \
+                           tmpl::list<TAG(data) < DTYPE(data), 3>> /*meta*/) \
           const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (double, DataVector),

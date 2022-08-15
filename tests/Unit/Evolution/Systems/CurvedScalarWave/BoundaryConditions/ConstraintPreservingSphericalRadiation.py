@@ -21,9 +21,9 @@ def subtract_mesh_velocity(face_mesh_velocity, dt_psi, dt_pi, dt_phi, d_psi,
 
 
 def dt_psi_constraint_preserving_spherical_radiation(
-        face_mesh_velocity, normal_covector, normal_vector, psi, phi,
-        inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,
-        d_psi, d_pi, d_phi):
+    face_mesh_velocity, normal_covector, normal_vector, psi, phi,
+    inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,
+    d_psi, d_pi, d_phi):
     subtract_mesh_velocity(face_mesh_velocity, dt_psi, dt_pi, dt_phi, d_psi,
                            d_pi, d_phi)
     char_speed_psi = char_speed_vpsi(gamma1, lapse, shift, normal_covector)
@@ -35,9 +35,9 @@ def dt_psi_constraint_preserving_spherical_radiation(
 
 
 def dt_phi_constraint_preserving_spherical_radiation(
-        face_mesh_velocity, normal_covector, normal_vector, psi, phi,
-        inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,
-        d_psi, d_pi, d_phi):
+    face_mesh_velocity, normal_covector, normal_vector, psi, phi,
+    inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,
+    d_psi, d_pi, d_phi):
     subtract_mesh_velocity(face_mesh_velocity, dt_psi, dt_pi, dt_phi, d_psi,
                            d_pi, d_phi)
     char_speed_zero = char_speed_vzero(gamma1, lapse, shift, normal_covector)
@@ -48,9 +48,9 @@ def dt_phi_constraint_preserving_spherical_radiation(
 
 
 def dt_pi_constraint_preserving_spherical_radiation(
-        face_mesh_velocity, normal_covector, normal_vector, psi, phi,
-        inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,
-        d_psi, d_pi, d_phi):
+    face_mesh_velocity, normal_covector, normal_vector, psi, phi,
+    inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,
+    d_psi, d_pi, d_phi):
     dt_psi_correction = dt_psi_constraint_preserving_spherical_radiation(
         face_mesh_velocity, normal_covector, normal_vector, psi, phi,
         inertial_coords, gamma1, gamma2, lapse, shift, dt_psi, dt_pi, dt_phi,

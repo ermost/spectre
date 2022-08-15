@@ -110,6 +110,7 @@ void test_primitive_from_conservative_random(
       expected_divergence_cleaning_field);
 
   Scalar<DataVector> rest_mass_density(number_of_points);
+  Scalar<DataVector> electron_fraction(number_of_points);
   Scalar<DataVector> specific_internal_energy(number_of_points);
   tnsr::I<DataVector, 3> spatial_velocity(number_of_points);
   tnsr::I<DataVector, 3> magnetic_field(number_of_points);

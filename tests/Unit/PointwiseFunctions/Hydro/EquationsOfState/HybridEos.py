@@ -20,8 +20,8 @@ def hybrid_polytrope_pressure_from_density_and_energy(rest_mass_density,
 
 
 def hybrid_polytrope_rel_pressure_from_density_and_enthalpy(
-        rest_mass_density, specific_enthalpy, polytropic_constant,
-        polytropic_exponent, thermal_adiabatic_index):
+    rest_mass_density, specific_enthalpy, polytropic_constant,
+    polytropic_exponent, thermal_adiabatic_index):
     p_c = polytropic_pressure_from_density(rest_mass_density,
                                            polytropic_constant,
                                            polytropic_exponent)
@@ -34,16 +34,16 @@ def hybrid_polytrope_rel_pressure_from_density_and_enthalpy(
 
 
 def hybrid_polytrope_temperature_from_density_and_energy(
-        rest_mass_density, specific_internal_energy, polytropic_constant,
-        polytropic_exponent, thermal_adiabatic_index):
+    rest_mass_density, specific_internal_energy, polytropic_constant,
+    polytropic_exponent, thermal_adiabatic_index):
     eps_c = polytropic_specific_internal_energy_from_density(
         rest_mass_density, polytropic_constant, polytropic_exponent)
     return (thermal_adiabatic_index - 1.0) * (specific_internal_energy - eps_c)
 
 
 def hybrid_polytrope_newt_pressure_from_density_and_enthalpy(
-        rest_mass_density, specific_enthalpy, polytropic_constant,
-        polytropic_exponent, thermal_adiabatic_index):
+    rest_mass_density, specific_enthalpy, polytropic_constant,
+    polytropic_exponent, thermal_adiabatic_index):
     p_c = polytropic_pressure_from_density(rest_mass_density,
                                            polytropic_constant,
                                            polytropic_exponent)
@@ -56,8 +56,8 @@ def hybrid_polytrope_newt_pressure_from_density_and_enthalpy(
 
 
 def hybrid_polytrope_rel_specific_enthalpy_from_density_and_energy(
-        rest_mass_density, specific_internal_energy, polytropic_constant,
-        polytropic_exponent, thermal_adiabatic_index):
+    rest_mass_density, specific_internal_energy, polytropic_constant,
+    polytropic_exponent, thermal_adiabatic_index):
     p_c = polytropic_pressure_from_density(rest_mass_density,
                                            polytropic_constant,
                                            polytropic_exponent)
@@ -68,8 +68,8 @@ def hybrid_polytrope_rel_specific_enthalpy_from_density_and_energy(
 
 
 def hybrid_polytrope_newt_specific_enthalpy_from_density_and_energy(
-        rest_mass_density, specific_internal_energy, polytropic_constant,
-        polytropic_exponent, thermal_adiabatic_index):
+    rest_mass_density, specific_internal_energy, polytropic_constant,
+    polytropic_exponent, thermal_adiabatic_index):
     p_c = polytropic_pressure_from_density(rest_mass_density,
                                            polytropic_constant,
                                            polytropic_exponent)
@@ -80,8 +80,8 @@ def hybrid_polytrope_newt_specific_enthalpy_from_density_and_energy(
 
 
 def hybrid_polytrope_specific_internal_energy_from_density_and_pressure(
-        rest_mass_density, pressure, polytropic_constant, polytropic_exponent,
-        thermal_adiabatic_index):
+    rest_mass_density, pressure, polytropic_constant, polytropic_exponent,
+    thermal_adiabatic_index):
     p_c = polytropic_pressure_from_density(rest_mass_density,
                                            polytropic_constant,
                                            polytropic_exponent)
@@ -107,8 +107,8 @@ def hybrid_polytrope_chi_from_density_and_energy(rest_mass_density,
 
 
 def hybrid_polytrope_kappa_times_p_over_rho_squared_from_density_and_energy(
-        rest_mass_density, specific_internal_energy, polytropic_constant,
-        polytropic_exponent, thermal_adiabatic_index):
+    rest_mass_density, specific_internal_energy, polytropic_constant,
+    polytropic_exponent, thermal_adiabatic_index):
     p_c = polytropic_pressure_from_density(rest_mass_density,
                                            polytropic_constant,
                                            polytropic_exponent)

@@ -75,8 +75,8 @@ void test_variable_fixer(
 
 SPECTRE_TEST_CASE("Unit.Evolution.GrMhd.ValenciaDivClean.FixConservatives",
                   "[VariableFixing][Unit]") {
-  grmhd::ValenciaDivClean::FixConservatives variable_fixer{1.e-12, 1.e-13,
-                                                           1.0e-11, 0.0, 0.0};
+  grmhd::ValenciaDivClean::FixConservatives variable_fixer{1.e-12, 1.0e-11, 0.0,
+                                                           0.0};
   test_variable_fixer(variable_fixer);
   test_serialization(variable_fixer);
 

@@ -55,23 +55,23 @@ SPECTRE_TEST_CASE("Unit.GrMhd.ValenciaDivClean.Flattener", "[Unit][GrMhd]") {
   const auto flattener = serialize_and_deserialize(
       grmhd::ValenciaDivClean::Flattener<tmpl::list<
           grmhd::ValenciaDivClean::PrimitiveRecoverySchemes::KastaunEtAl>>{
-          true, false, true});
+          true, true, false, true});
   CHECK(flattener ==
         grmhd::ValenciaDivClean::Flattener<tmpl::list<
             grmhd::ValenciaDivClean::PrimitiveRecoverySchemes::KastaunEtAl>>{
-            true, false, true});
+            true, true, false, true});
   CHECK(flattener !=
         grmhd::ValenciaDivClean::Flattener<tmpl::list<
             grmhd::ValenciaDivClean::PrimitiveRecoverySchemes::KastaunEtAl>>{
-            false, false, true});
+            false, true, false, true});
   CHECK(flattener !=
         grmhd::ValenciaDivClean::Flattener<tmpl::list<
             grmhd::ValenciaDivClean::PrimitiveRecoverySchemes::KastaunEtAl>>{
-            true, true, true});
+            true, true, true, true});
   CHECK(flattener !=
         grmhd::ValenciaDivClean::Flattener<tmpl::list<
             grmhd::ValenciaDivClean::PrimitiveRecoverySchemes::KastaunEtAl>>{
-            true, false, false});
+            true, true, false, false});
 
   {
     INFO("Case: NoOp");

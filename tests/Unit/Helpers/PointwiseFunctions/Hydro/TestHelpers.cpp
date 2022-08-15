@@ -32,7 +32,6 @@ Scalar<DataType> random_density(const gsl::not_null<std::mt19937*> generator,
       generator, make_not_null(&distribution), used_for_size))};
 }
 
-namespace TestHelpers::hydro {
 template <typename DataType>
 Scalar<DataType> random_electron_fraction(
     const gsl::not_null<std::mt19937*> generator,

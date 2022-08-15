@@ -5,10 +5,9 @@ import numpy as np
 
 
 def grad_spatial_z4_constraint(
-        spatial_z4_constraint, conformal_spatial_metric,
-        christoffel_second_kind, field_d,
-        gamma_hat_minus_contracted_conformal_christoffel,
-        d_gamma_hat_minus_contracted_conformal_christoffel):
+    spatial_z4_constraint, conformal_spatial_metric, christoffel_second_kind,
+    field_d, gamma_hat_minus_contracted_conformal_christoffel,
+    d_gamma_hat_minus_contracted_conformal_christoffel):
     return (
         np.einsum("ijl,l", field_d,
                   gamma_hat_minus_contracted_conformal_christoffel) +

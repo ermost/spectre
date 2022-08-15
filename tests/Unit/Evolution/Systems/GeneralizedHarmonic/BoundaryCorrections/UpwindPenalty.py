@@ -62,9 +62,9 @@ def dg_package_data_char_speed_v_minus(spacetime_metric, pi, phi,
 
 
 def dg_package_data_char_speed_v_plus_times_normal(
-        spacetime_metric, pi, phi, constraint_gamma1, constraint_gamma2, lapse,
-        shift, normal_covector, normal_vector, mesh_velocity,
-        normal_dot_mesh_velocity):
+    spacetime_metric, pi, phi, constraint_gamma1, constraint_gamma2, lapse,
+    shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.einsum(
         "i,ab->iab", normal_covector,
         dg_package_data_char_speed_v_plus(spacetime_metric, pi, phi,
@@ -75,9 +75,9 @@ def dg_package_data_char_speed_v_plus_times_normal(
 
 
 def dg_package_data_char_speed_v_minus_times_normal(
-        spacetime_metric, pi, phi, constraint_gamma1, constraint_gamma2, lapse,
-        shift, normal_covector, normal_vector, mesh_velocity,
-        normal_dot_mesh_velocity):
+    spacetime_metric, pi, phi, constraint_gamma1, constraint_gamma2, lapse,
+    shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.einsum(
         "i,ab->iab", normal_covector,
         dg_package_data_char_speed_v_minus(spacetime_metric, pi, phi,
@@ -89,9 +89,9 @@ def dg_package_data_char_speed_v_minus_times_normal(
 
 
 def dg_package_data_char_speed_gamma2_v_spacetime_metric(
-        spacetime_metric, pi, phi, constraint_gamma1, constraint_gamma2, lapse,
-        shift, normal_covector, normal_vector, mesh_velocity,
-        normal_dot_mesh_velocity):
+    spacetime_metric, pi, phi, constraint_gamma1, constraint_gamma2, lapse,
+    shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     if normal_dot_mesh_velocity is None:
         return -(1.0 + constraint_gamma1) * np.dot(
             shift, normal_covector) * spacetime_metric * constraint_gamma2
@@ -117,17 +117,15 @@ def dg_package_data_char_speeds(spacetime_metric, pi, phi, constraint_gamma1,
 
 
 def dg_boundary_terms_spacetime_metric(
-        int_char_speed_v_spacetime_metric, int_char_speed_v_zero,
-        int_char_speed_v_plus, int_char_speed_v_minus,
-        int_char_speed_v_plus_times_normal,
-        int_char_speed_v_minus_times_normal,
-        int_char_speed_gamma2_v_spacetime_metric, int_char_speeds,
-        ext_char_speed_v_spacetime_metric, ext_char_speed_v_zero,
-        ext_char_speed_v_plus, ext_char_speed_v_minus,
-        ext_char_speed_v_plus_times_normal,
-        ext_char_speed_v_minus_times_normal,
-        ext_char_speed_gamma2_v_spacetime_metric, ext_char_speeds,
-        use_strong_form):
+    int_char_speed_v_spacetime_metric, int_char_speed_v_zero,
+    int_char_speed_v_plus, int_char_speed_v_minus,
+    int_char_speed_v_plus_times_normal, int_char_speed_v_minus_times_normal,
+    int_char_speed_gamma2_v_spacetime_metric, int_char_speeds,
+    ext_char_speed_v_spacetime_metric, ext_char_speed_v_zero,
+    ext_char_speed_v_plus, ext_char_speed_v_minus,
+    ext_char_speed_v_plus_times_normal, ext_char_speed_v_minus_times_normal,
+    ext_char_speed_gamma2_v_spacetime_metric, ext_char_speeds,
+    use_strong_form):
     result = int_char_speed_v_spacetime_metric * 0.
     if ext_char_speeds[0] > 0.:
         result -= ext_char_speed_v_spacetime_metric
@@ -137,17 +135,15 @@ def dg_boundary_terms_spacetime_metric(
 
 
 def dg_boundary_terms_pi(
-        int_char_speed_v_spacetime_metric, int_char_speed_v_zero,
-        int_char_speed_v_plus, int_char_speed_v_minus,
-        int_char_speed_v_plus_times_normal,
-        int_char_speed_v_minus_times_normal,
-        int_char_speed_gamma2_v_spacetime_metric, int_char_speeds,
-        ext_char_speed_v_spacetime_metric, ext_char_speed_v_zero,
-        ext_char_speed_v_plus, ext_char_speed_v_minus,
-        ext_char_speed_v_plus_times_normal,
-        ext_char_speed_v_minus_times_normal,
-        ext_char_speed_gamma2_v_spacetime_metric, ext_char_speeds,
-        use_strong_form):
+    int_char_speed_v_spacetime_metric, int_char_speed_v_zero,
+    int_char_speed_v_plus, int_char_speed_v_minus,
+    int_char_speed_v_plus_times_normal, int_char_speed_v_minus_times_normal,
+    int_char_speed_gamma2_v_spacetime_metric, int_char_speeds,
+    ext_char_speed_v_spacetime_metric, ext_char_speed_v_zero,
+    ext_char_speed_v_plus, ext_char_speed_v_minus,
+    ext_char_speed_v_plus_times_normal, ext_char_speed_v_minus_times_normal,
+    ext_char_speed_gamma2_v_spacetime_metric, ext_char_speeds,
+    use_strong_form):
     result = int_char_speed_v_spacetime_metric * 0.
     # Add v^+ terms
     if ext_char_speeds[2] > 0.:
@@ -170,17 +166,15 @@ def dg_boundary_terms_pi(
 
 
 def dg_boundary_terms_phi(
-        int_char_speed_v_spacetime_metric, int_char_speed_v_zero,
-        int_char_speed_v_plus, int_char_speed_v_minus,
-        int_char_speed_v_plus_times_normal,
-        int_char_speed_v_minus_times_normal,
-        int_char_speed_gamma2_v_spacetime_metric, int_char_speeds,
-        ext_char_speed_v_spacetime_metric, ext_char_speed_v_zero,
-        ext_char_speed_v_plus, ext_char_speed_v_minus,
-        ext_char_speed_v_plus_times_normal,
-        ext_char_speed_v_minus_times_normal,
-        ext_char_speed_gamma2_v_spacetime_metric, ext_char_speeds,
-        use_strong_form):
+    int_char_speed_v_spacetime_metric, int_char_speed_v_zero,
+    int_char_speed_v_plus, int_char_speed_v_minus,
+    int_char_speed_v_plus_times_normal, int_char_speed_v_minus_times_normal,
+    int_char_speed_gamma2_v_spacetime_metric, int_char_speeds,
+    ext_char_speed_v_spacetime_metric, ext_char_speed_v_zero,
+    ext_char_speed_v_plus, ext_char_speed_v_minus,
+    ext_char_speed_v_plus_times_normal, ext_char_speed_v_minus_times_normal,
+    ext_char_speed_gamma2_v_spacetime_metric, ext_char_speeds,
+    use_strong_form):
     result = int_char_speed_v_zero * 0.
 
     # Add v^+ terms

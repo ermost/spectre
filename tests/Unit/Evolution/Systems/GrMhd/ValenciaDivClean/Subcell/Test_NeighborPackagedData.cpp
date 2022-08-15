@@ -255,7 +255,7 @@ double test(const size_t num_dg_pts) {
 
   std::vector<std::pair<Direction<3>, ElementId<3>>>
       mortars_to_reconstruct_to{};
-  for (const auto& [direction, neighbors] : element.neighbors()) {
+  for (const auto & [ direction, neighbors ] : element.neighbors()) {
     mortars_to_reconstruct_to.emplace_back(direction, *neighbors.begin());
   }
 
@@ -270,7 +270,7 @@ double test(const size_t num_dg_pts) {
                boost::hash<std::pair<Direction<3>, ElementId<3>>>>
       evolved_vars_errors{};
   double max_abs_error = 0.0;
-  for (const auto& [direction_and_id, data] : all_packaged_data) {
+  for (const auto & [ direction_and_id, data ] : all_packaged_data) {
     const auto& direction = direction_and_id.first;
     using dg_package_field_tags = typename grmhd::ValenciaDivClean::
         BoundaryCorrections::Hll::dg_package_field_tags;

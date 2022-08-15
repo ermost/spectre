@@ -59,50 +59,50 @@ def dg_package_data_tilde_phi(tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b,
 
 
 def dg_package_data_normal_dot_flux_tilde_d(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_ye, flux_tilde_tau, flux_tilde_s,
-        flux_tilde_b, flux_tilde_phi, lapse, shift, normal_covector,
-        normal_vector, mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_ye, flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi,
+    lapse, shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.dot(flux_tilde_d, normal_covector)
 
 
 def dg_package_data_normal_dot_flux_tilde_tau(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_ye, flux_tilde_tau, flux_tilde_s,
-        flux_tilde_b, flux_tilde_phi, lapse, shift, normal_covector,
-        normal_vector, mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_ye, flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi,
+    lapse, shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.dot(flux_tilde_tau, normal_covector)
 
 
 def dg_package_data_normal_dot_flux_tilde_s(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_ye, flux_tilde_tau, flux_tilde_s,
-        flux_tilde_b, flux_tilde_phi, lapse, shift, normal_covector,
-        normal_vector, mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_ye, flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi,
+    lapse, shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.einsum("ij,i->j", flux_tilde_s, normal_covector)
 
 
 def dg_package_data_normal_dot_flux_tilde_b(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_ye, flux_tilde_tau, flux_tilde_s,
-        flux_tilde_b, flux_tilde_phi, lapse, shift, normal_covector,
-        normal_vector, mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_ye, flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi,
+    lapse, shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.einsum("ij,i->j", flux_tilde_b, normal_covector)
 
 
 def dg_package_data_normal_dot_flux_tilde_phi(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_ye, flux_tilde_tau, flux_tilde_s,
-        flux_tilde_b, flux_tilde_phi, lapse, shift, normal_covector,
-        normal_vector, mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_ye, flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi,
+    lapse, shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     return np.dot(flux_tilde_phi, normal_covector)
 
 
 def dg_package_data_largest_outgoing_char_speed(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_ye, flux_tilde_tau, flux_tilde_s,
-        flux_tilde_b, flux_tilde_phi, lapse, shift, normal_covector,
-        normal_vector, mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_ye, flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi,
+    lapse, shift, normal_covector, normal_vector, mesh_velocity,
+    normal_dot_mesh_velocity):
     if normal_dot_mesh_velocity is None:
         return lapse - np.dot(shift, normal_covector)
     else:
@@ -111,10 +111,9 @@ def dg_package_data_largest_outgoing_char_speed(
 
 
 def dg_package_data_largest_ingoing_char_speed(
-        tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
-        flux_tilde_d, flux_tilde_tau, flux_tilde_s, flux_tilde_b,
-        flux_tilde_phi, lapse, shift, normal_covector, normal_vector,
-        mesh_velocity, normal_dot_mesh_velocity):
+    tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, flux_tilde_d,
+    flux_tilde_tau, flux_tilde_s, flux_tilde_b, flux_tilde_phi, lapse, shift,
+    normal_covector, normal_vector, mesh_velocity, normal_dot_mesh_velocity):
     if normal_dot_mesh_velocity is None:
         return -lapse - np.dot(shift, normal_covector)
     else:
@@ -123,20 +122,18 @@ def dg_package_data_largest_ingoing_char_speed(
 
 
 def dg_boundary_terms_tilde_d(
-        interior_tilde_d, interior_tilde_ye, interior_tilde_tau,
-        interior_tilde_s, interior_tilde_b, interior_tilde_phi,
-        interior_normal_dot_flux_tilde_d, interior_normal_dot_flux_tilde_ye,
-        interior_normal_dot_flux_tilde_tau, interior_normal_dot_flux_tilde_s,
-        interior_normal_dot_flux_tilde_b, interior_normal_dot_flux_tilde_phi,
-        interior_largest_outgoing_char_speed,
-        interior_largest_ingoing_char_speed, exterior_tilde_d,
-        exteriror_tilde_ye, exterior_tilde_tau, exterior_tilde_s,
-        exterior_tilde_b, exterior_tilde_phi, exterior_normal_dot_flux_tilde_d,
-        exterior_normal_dot_flux_tilde_ye, exterior_normal_dot_flux_tilde_tau,
-        exterior_normal_dot_flux_tilde_s, exterior_normal_dot_flux_tilde_b,
-        exterior_normal_dot_flux_tilde_phi,
-        exterior_largest_outgoing_char_speed,
-        exterior_largest_ingoing_char_speed, use_strong_form):
+    interior_tilde_d, interior_tilde_ye, interior_tilde_tau, interior_tilde_s,
+    interior_tilde_b, interior_tilde_phi, interior_normal_dot_flux_tilde_d,
+    interior_normal_dot_flux_tilde_ye, interior_normal_dot_flux_tilde_tau,
+    interior_normal_dot_flux_tilde_s, interior_normal_dot_flux_tilde_b,
+    interior_normal_dot_flux_tilde_phi, interior_largest_outgoing_char_speed,
+    interior_largest_ingoing_char_speed, exterior_tilde_d, exteriror_tilde_ye,
+    exterior_tilde_tau, exterior_tilde_s, exterior_tilde_b, exterior_tilde_phi,
+    exterior_normal_dot_flux_tilde_d, exterior_normal_dot_flux_tilde_ye,
+    exterior_normal_dot_flux_tilde_tau, exterior_normal_dot_flux_tilde_s,
+    exterior_normal_dot_flux_tilde_b, exterior_normal_dot_flux_tilde_phi,
+    exterior_largest_outgoing_char_speed, exterior_largest_ingoing_char_speed,
+    use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -161,20 +158,18 @@ def dg_boundary_terms_tilde_d(
 
 
 def dg_boundary_terms_tilde_ye(
-        interior_tilde_d, interior_tilde_ye, interior_tilde_tau,
-        interior_tilde_s, interior_tilde_b, interior_tilde_phi,
-        interior_normal_dot_flux_tilde_d, interior_normal_dot_flux_tilde_ye,
-        interior_normal_dot_flux_tilde_tau, interior_normal_dot_flux_tilde_s,
-        interior_normal_dot_flux_tilde_b, interior_normal_dot_flux_tilde_phi,
-        interior_largest_outgoing_char_speed,
-        interior_largest_ingoing_char_speed, exterior_tilde_d,
-        exteriror_tilde_ye, exterior_tilde_tau, exterior_tilde_s,
-        exterior_tilde_b, exterior_tilde_phi, exterior_normal_dot_flux_tilde_d,
-        exterior_normal_dot_flux_tilde_ye, exterior_normal_dot_flux_tilde_tau,
-        exterior_normal_dot_flux_tilde_s, exterior_normal_dot_flux_tilde_b,
-        exterior_normal_dot_flux_tilde_phi,
-        exterior_largest_outgoing_char_speed,
-        exterior_largest_ingoing_char_speed, use_strong_form):
+    interior_tilde_d, interior_tilde_ye, interior_tilde_tau, interior_tilde_s,
+    interior_tilde_b, interior_tilde_phi, interior_normal_dot_flux_tilde_d,
+    interior_normal_dot_flux_tilde_ye, interior_normal_dot_flux_tilde_tau,
+    interior_normal_dot_flux_tilde_s, interior_normal_dot_flux_tilde_b,
+    interior_normal_dot_flux_tilde_phi, interior_largest_outgoing_char_speed,
+    interior_largest_ingoing_char_speed, exterior_tilde_d, exteriror_tilde_ye,
+    exterior_tilde_tau, exterior_tilde_s, exterior_tilde_b, exterior_tilde_phi,
+    exterior_normal_dot_flux_tilde_d, exterior_normal_dot_flux_tilde_ye,
+    exterior_normal_dot_flux_tilde_tau, exterior_normal_dot_flux_tilde_s,
+    exterior_normal_dot_flux_tilde_b, exterior_normal_dot_flux_tilde_phi,
+    exterior_largest_outgoing_char_speed, exterior_largest_ingoing_char_speed,
+    use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -199,20 +194,18 @@ def dg_boundary_terms_tilde_ye(
 
 
 def dg_boundary_terms_tilde_tau(
-        interior_tilde_d, interior_tilde_ye, interior_tilde_tau,
-        interior_tilde_s, interior_tilde_b, interior_tilde_phi,
-        interior_normal_dot_flux_tilde_d, interior_normal_dot_flux_tilde_ye,
-        interior_normal_dot_flux_tilde_tau, interior_normal_dot_flux_tilde_s,
-        interior_normal_dot_flux_tilde_b, interior_normal_dot_flux_tilde_phi,
-        interior_largest_outgoing_char_speed,
-        interior_largest_ingoing_char_speed, exterior_tilde_d,
-        exteriror_tilde_ye, exterior_tilde_tau, exterior_tilde_s,
-        exterior_tilde_b, exterior_tilde_phi, exterior_normal_dot_flux_tilde_d,
-        exterior_normal_dot_flux_tilde_ye, exterior_normal_dot_flux_tilde_tau,
-        exterior_normal_dot_flux_tilde_s, exterior_normal_dot_flux_tilde_b,
-        exterior_normal_dot_flux_tilde_phi,
-        exterior_largest_outgoing_char_speed,
-        exterior_largest_ingoing_char_speed, use_strong_form):
+    interior_tilde_d, interior_tilde_ye, interior_tilde_tau, interior_tilde_s,
+    interior_tilde_b, interior_tilde_phi, interior_normal_dot_flux_tilde_d,
+    interior_normal_dot_flux_tilde_ye, interior_normal_dot_flux_tilde_tau,
+    interior_normal_dot_flux_tilde_s, interior_normal_dot_flux_tilde_b,
+    interior_normal_dot_flux_tilde_phi, interior_largest_outgoing_char_speed,
+    interior_largest_ingoing_char_speed, exterior_tilde_d, exteriror_tilde_ye,
+    exterior_tilde_tau, exterior_tilde_s, exterior_tilde_b, exterior_tilde_phi,
+    exterior_normal_dot_flux_tilde_d, exterior_normal_dot_flux_tilde_ye,
+    exterior_normal_dot_flux_tilde_tau, exterior_normal_dot_flux_tilde_s,
+    exterior_normal_dot_flux_tilde_b, exterior_normal_dot_flux_tilde_phi,
+    exterior_largest_outgoing_char_speed, exterior_largest_ingoing_char_speed,
+    use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -238,20 +231,18 @@ def dg_boundary_terms_tilde_tau(
 
 
 def dg_boundary_terms_tilde_s(
-        interior_tilde_d, interior_tilde_ye, interior_tilde_tau,
-        interior_tilde_s, interior_tilde_b, interior_tilde_phi,
-        interior_normal_dot_flux_tilde_d, interior_normal_dot_flux_tilde_ye,
-        interior_normal_dot_flux_tilde_tau, interior_normal_dot_flux_tilde_s,
-        interior_normal_dot_flux_tilde_b, interior_normal_dot_flux_tilde_phi,
-        interior_largest_outgoing_char_speed,
-        interior_largest_ingoing_char_speed, exterior_tilde_d,
-        exteriror_tilde_ye, exterior_tilde_tau, exterior_tilde_s,
-        exterior_tilde_b, exterior_tilde_phi, exterior_normal_dot_flux_tilde_d,
-        exterior_normal_dot_flux_tilde_ye, exterior_normal_dot_flux_tilde_tau,
-        exterior_normal_dot_flux_tilde_s, exterior_normal_dot_flux_tilde_b,
-        exterior_normal_dot_flux_tilde_phi,
-        exterior_largest_outgoing_char_speed,
-        exterior_largest_ingoing_char_speed, use_strong_form):
+    interior_tilde_d, interior_tilde_ye, interior_tilde_tau, interior_tilde_s,
+    interior_tilde_b, interior_tilde_phi, interior_normal_dot_flux_tilde_d,
+    interior_normal_dot_flux_tilde_ye, interior_normal_dot_flux_tilde_tau,
+    interior_normal_dot_flux_tilde_s, interior_normal_dot_flux_tilde_b,
+    interior_normal_dot_flux_tilde_phi, interior_largest_outgoing_char_speed,
+    interior_largest_ingoing_char_speed, exterior_tilde_d, exteriror_tilde_ye,
+    exterior_tilde_tau, exterior_tilde_s, exterior_tilde_b, exterior_tilde_phi,
+    exterior_normal_dot_flux_tilde_d, exterior_normal_dot_flux_tilde_ye,
+    exterior_normal_dot_flux_tilde_tau, exterior_normal_dot_flux_tilde_s,
+    exterior_normal_dot_flux_tilde_b, exterior_normal_dot_flux_tilde_phi,
+    exterior_largest_outgoing_char_speed, exterior_largest_ingoing_char_speed,
+    use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -276,20 +267,18 @@ def dg_boundary_terms_tilde_s(
 
 
 def dg_boundary_terms_tilde_b(
-        interior_tilde_d, interior_tilde_ye, interior_tilde_tau,
-        interior_tilde_s, interior_tilde_b, interior_tilde_phi,
-        interior_normal_dot_flux_tilde_d, interior_normal_dot_flux_tilde_ye,
-        interior_normal_dot_flux_tilde_tau, interior_normal_dot_flux_tilde_s,
-        interior_normal_dot_flux_tilde_b, interior_normal_dot_flux_tilde_phi,
-        interior_largest_outgoing_char_speed,
-        interior_largest_ingoing_char_speed, exterior_tilde_d,
-        exteriror_tilde_ye, exterior_tilde_tau, exterior_tilde_s,
-        exterior_tilde_b, exterior_tilde_phi, exterior_normal_dot_flux_tilde_d,
-        exterior_normal_dot_flux_tilde_ye, exterior_normal_dot_flux_tilde_tau,
-        exterior_normal_dot_flux_tilde_s, exterior_normal_dot_flux_tilde_b,
-        exterior_normal_dot_flux_tilde_phi,
-        exterior_largest_outgoing_char_speed,
-        exterior_largest_ingoing_char_speed, use_strong_form):
+    interior_tilde_d, interior_tilde_ye, interior_tilde_tau, interior_tilde_s,
+    interior_tilde_b, interior_tilde_phi, interior_normal_dot_flux_tilde_d,
+    interior_normal_dot_flux_tilde_ye, interior_normal_dot_flux_tilde_tau,
+    interior_normal_dot_flux_tilde_s, interior_normal_dot_flux_tilde_b,
+    interior_normal_dot_flux_tilde_phi, interior_largest_outgoing_char_speed,
+    interior_largest_ingoing_char_speed, exterior_tilde_d, exteriror_tilde_ye,
+    exterior_tilde_tau, exterior_tilde_s, exterior_tilde_b, exterior_tilde_phi,
+    exterior_normal_dot_flux_tilde_d, exterior_normal_dot_flux_tilde_ye,
+    exterior_normal_dot_flux_tilde_tau, exterior_normal_dot_flux_tilde_s,
+    exterior_normal_dot_flux_tilde_b, exterior_normal_dot_flux_tilde_phi,
+    exterior_largest_outgoing_char_speed, exterior_largest_ingoing_char_speed,
+    use_strong_form):
 
     lambda_max = np.maximum(
         0.,
@@ -314,20 +303,18 @@ def dg_boundary_terms_tilde_b(
 
 
 def dg_boundary_terms_tilde_phi(
-        interior_tilde_d, interior_tilde_ye, interior_tilde_tau,
-        interior_tilde_s, interior_tilde_b, interior_tilde_phi,
-        interior_normal_dot_flux_tilde_d, interior_normal_dot_flux_tilde_ye,
-        interior_normal_dot_flux_tilde_tau, interior_normal_dot_flux_tilde_s,
-        interior_normal_dot_flux_tilde_b, interior_normal_dot_flux_tilde_phi,
-        interior_largest_outgoing_char_speed,
-        interior_largest_ingoing_char_speed, exterior_tilde_d,
-        exteriror_tilde_ye, exterior_tilde_tau, exterior_tilde_s,
-        exterior_tilde_b, exterior_tilde_phi, exterior_normal_dot_flux_tilde_d,
-        exterior_normal_dot_flux_tilde_ye, exterior_normal_dot_flux_tilde_tau,
-        exterior_normal_dot_flux_tilde_s, exterior_normal_dot_flux_tilde_b,
-        exterior_normal_dot_flux_tilde_phi,
-        exterior_largest_outgoing_char_speed,
-        exterior_largest_ingoing_char_speed, use_strong_form):
+    interior_tilde_d, interior_tilde_ye, interior_tilde_tau, interior_tilde_s,
+    interior_tilde_b, interior_tilde_phi, interior_normal_dot_flux_tilde_d,
+    interior_normal_dot_flux_tilde_ye, interior_normal_dot_flux_tilde_tau,
+    interior_normal_dot_flux_tilde_s, interior_normal_dot_flux_tilde_b,
+    interior_normal_dot_flux_tilde_phi, interior_largest_outgoing_char_speed,
+    interior_largest_ingoing_char_speed, exterior_tilde_d, exteriror_tilde_ye,
+    exterior_tilde_tau, exterior_tilde_s, exterior_tilde_b, exterior_tilde_phi,
+    exterior_normal_dot_flux_tilde_d, exterior_normal_dot_flux_tilde_ye,
+    exterior_normal_dot_flux_tilde_tau, exterior_normal_dot_flux_tilde_s,
+    exterior_normal_dot_flux_tilde_b, exterior_normal_dot_flux_tilde_phi,
+    exterior_largest_outgoing_char_speed, exterior_largest_ingoing_char_speed,
+    use_strong_form):
 
     lambda_max = np.maximum(
         0.,

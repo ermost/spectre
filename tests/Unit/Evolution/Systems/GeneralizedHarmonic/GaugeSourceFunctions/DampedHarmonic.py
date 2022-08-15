@@ -32,10 +32,10 @@ def spatial_metric_from_spacetime_metric(spacetime_metric):
 
 
 def damped_harmonic_gauge_source_function_rollon(
-        gauge_h_init, dgauge_h_init, lapse, shift, unit_normal_one_form,
-        sqrt_det_spatial_metric, inverse_spatial_metric, spacetime_metric, pi,
-        phi, time, coords, amp_coef_L1, amp_coef_L2, amp_coef_S,
-        rollon_start_time, rollon_width, sigma_r):
+    gauge_h_init, dgauge_h_init, lapse, shift, unit_normal_one_form,
+    sqrt_det_spatial_metric, inverse_spatial_metric, spacetime_metric, pi, phi,
+    time, coords, amp_coef_L1, amp_coef_L2, amp_coef_S, rollon_start_time,
+    rollon_width, sigma_r):
 
     # We cannot pass int through pypp right now, so we hard-code exponents.
     exp_L1 = 4
@@ -66,11 +66,10 @@ def damped_harmonic_gauge_source_function_rollon(
 
 
 def spacetime_deriv_damped_harmonic_gauge_source_function_rollon(
-        gauge_h_init, dgauge_h_init, lapse, shift,
-        spacetime_unit_normal_one_form, sqrt_det_spatial_metric,
-        inverse_spatial_metric, spacetime_metric, pi, phi, time, coords,
-        amp_coef_L1, amp_coef_L2, amp_coef_S, rollon_start_time, rollon_width,
-        sigma_r):
+    gauge_h_init, dgauge_h_init, lapse, shift, spacetime_unit_normal_one_form,
+    sqrt_det_spatial_metric, inverse_spatial_metric, spacetime_metric, pi, phi,
+    time, coords, amp_coef_L1, amp_coef_L2, amp_coef_S, rollon_start_time,
+    rollon_width, sigma_r):
     spatial_dim = len(shift)
 
     spacetime_unit_normal = spacetime_normal_vector(lapse, shift)
@@ -184,9 +183,9 @@ def damped_harmonic_gauge_source_function(lapse, shift, unit_normal_one_form,
 
 
 def spacetime_deriv_damped_harmonic_gauge_source_function(
-        lapse, shift, spacetime_unit_normal_one_form, sqrt_det_spatial_metric,
-        inverse_spatial_metric, spacetime_metric, pi, phi, coords, amp_coef_L1,
-        amp_coef_L2, amp_coef_S, sigma_r):
+    lapse, shift, spacetime_unit_normal_one_form, sqrt_det_spatial_metric,
+    inverse_spatial_metric, spacetime_metric, pi, phi, coords, amp_coef_L1,
+    amp_coef_L2, amp_coef_S, sigma_r):
 
     return spacetime_deriv_damped_harmonic_gauge_source_function_rollon(
         None, None, lapse, shift, spacetime_unit_normal_one_form,

@@ -41,6 +41,7 @@ struct KomissarovShockProxy : grmhd::Solutions::KomissarovShock {
   template <typename DataType>
   using hydro_variables_tags =
       tmpl::list<hydro::Tags::RestMassDensity<DataType>,
+                 hydro::Tags::ElectronFraction<DataType>,
                  hydro::Tags::SpatialVelocity<DataType, 3>,
                  hydro::Tags::SpecificInternalEnergy<DataType>,
                  hydro::Tags::Pressure<DataType>,
@@ -74,6 +75,8 @@ void test_create_from_options() {
           "AdiabaticIndex: 1.33\n"
           "LeftDensity: 1.\n"
           "RightDensity: 3.323\n"
+          "LeftElectronFraction: 0.1\n"
+          "RightElectronFraction: 0.1\n"
           "LeftPressure: 10.\n"
           "RightPressure: 55.36\n"
           "LeftVelocity: [0.83, 0., 0.]\n"
@@ -82,7 +85,7 @@ void test_create_from_options() {
           "RightMagneticField: [10., 14.49, 0.]\n"
           "ShockSpeed: 0.5\n");
   CHECK(komissarov_shock == grmhd::Solutions::KomissarovShock(
-                                1.33, 1., 3.323, 10., 55.36,
+                                1.33, 1., 3.323, 0.1, 0.1, 10., 55.36,
                                 std::array<double, 3>{{0.83, 0., 0.}},
                                 std::array<double, 3>{{0.62, -0.44, 0.}},
                                 std::array<double, 3>{{10., 18.28, 0.}},
@@ -91,13 +94,13 @@ void test_create_from_options() {
 
 void test_move() {
   grmhd::Solutions::KomissarovShock komissarov_shock(
-      4. / 3., 1., 3.323, 10., 55.36,
+      4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
       std::array<double, 3>{{0.8370659816473115, 0., 0.}},
       std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
       std::array<double, 3>{{10., 18.28, 0.}},
       std::array<double, 3>{{10., 14.49, 0.}}, 0.5);
   grmhd::Solutions::KomissarovShock komissarov_shock_copy(
-      4. / 3., 1., 3.323, 10., 55.36,
+      4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
       std::array<double, 3>{{0.8370659816473115, 0., 0.}},
       std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
       std::array<double, 3>{{10., 18.28, 0.}},
@@ -108,7 +111,7 @@ void test_move() {
 
 void test_serialize() {
   grmhd::Solutions::KomissarovShock komissarov_shock(
-      4. / 3., 1., 3.323, 10., 55.36,
+      4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
       std::array<double, 3>{{0.8370659816473115, 0., 0.}},
       std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
       std::array<double, 3>{{10., 18.28, 0.}},
@@ -118,7 +121,7 @@ void test_serialize() {
 
 void test_left_and_right_variables() {
   grmhd::Solutions::KomissarovShock komissarov_shock(
-      4. / 3., 1., 3.323, 10., 55.36,
+      4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
       std::array<double, 3>{{0.8370659816473115, 0., 0.}},
       std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
       std::array<double, 3>{{10., 18.28, 0.}},
@@ -164,13 +167,13 @@ void test_left_and_right_variables() {
 template <typename DataType>
 void test_variables(const DataType& used_for_size) {
   KomissarovShockProxy komissarov_shock(
-      4. / 3., 1., 3.323, 10., 55.36,
+      4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
       std::array<double, 3>{{0.8370659816473115, 0., 0.}},
       std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
       std::array<double, 3>{{10., 18.28, 0.}},
       std::array<double, 3>{{10., 14.49, 0.}}, 0.5);
   const auto member_variables = std::make_tuple(
-      4. / 3., 1., 3.323, 10., 55.36,
+      4. / 3., 1., 3.323, 0.1, 0.1, 10., 55.36,
       std::array<double, 3>{{0.8370659816473115, 0., 0.}},
       std::array<double, 3>{{0.6202085442748952, -0.44207111995019704, 0.}},
       std::array<double, 3>{{10., 18.28, 0.}},
@@ -202,6 +205,8 @@ void test_solution() {
           "  AdiabaticIndex: 1.33\n"
           "  LeftDensity: 1.\n"
           "  RightDensity: 3.323\n"
+          "LeftElectronFraction: 0.1\n"
+          "RightElectronFraction: 0.1\n"
           "  LeftPressure: 10.\n"
           "  RightPressure: 55.36\n"
           "  LeftVelocity: [0.83, 0., 0.]\n"

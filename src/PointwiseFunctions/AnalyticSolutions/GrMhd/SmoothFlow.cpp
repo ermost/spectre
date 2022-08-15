@@ -29,6 +29,14 @@ void SmoothFlow::pup(PUP::er& p) {
 }
 
 template <typename DataType>
+tuples::TaggedTuple<hydro::Tags::ElectronFraction<DataType>>
+SmoothFlow::variables(
+    const tnsr::I<DataType, 3>& x, double /*t*/,
+    tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
+  return {make_with_value<Scalar<DataType>>(x, 0.1)};
+}
+
+template <typename DataType>
 tuples::TaggedTuple<hydro::Tags::MagneticField<DataType, 3>>
 SmoothFlow::variables(
     const tnsr::I<DataType, 3>& x, double /*t*/,
@@ -67,6 +75,9 @@ bool operator!=(const SmoothFlow& lhs, const SmoothFlow& rhs) {
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (double, DataVector),
                         (hydro::Tags::DivergenceCleaningField))
+
+GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (double, DataVector),
+                        (hydro::Tags::ElectronFraction))
 
 #define INSTANTIATE_VECTORS(_, data)                                          \
   template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3>>                   \

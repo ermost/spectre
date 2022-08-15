@@ -50,9 +50,9 @@ def dg_package_data_gamma2(psi, pi, phi, lapse, shift, inverse_spatial_metric,
 
 
 def dg_package_data_interface_unit_normal(
-        psi, pi, phi, lapse, shift, inverse_spatial_metric, constraint_gamma1,
-        constraint_gamma2, interface_unit_normal, interface_unit_normal_vector,
-        mesh_velocity, normal_dot_mesh_velocity):
+    psi, pi, phi, lapse, shift, inverse_spatial_metric, constraint_gamma1,
+    constraint_gamma2, interface_unit_normal, interface_unit_normal_vector,
+    mesh_velocity, normal_dot_mesh_velocity):
     return interface_unit_normal
 
 

@@ -75,7 +75,7 @@ auto face_centered_gr_tags(
   return face_centered_gr_vars;
 }
 
-std::array<double, 4> test(const size_t num_dg_pts) {
+std::array<double, 5> test(const size_t num_dg_pts) {
   using Affine = domain::CoordinateMaps::Affine;
   using Affine3D =
       domain::CoordinateMaps::ProductOf3Maps<Affine, Affine, Affine>;

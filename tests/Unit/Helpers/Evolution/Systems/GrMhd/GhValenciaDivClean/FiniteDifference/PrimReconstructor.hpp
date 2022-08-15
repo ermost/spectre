@@ -96,6 +96,7 @@ void test_prim_reconstructor_impl(
           typename ghmhd::fd::Reconstructor::creatable_classes, Reconstructor>);
 
   using Rho = hydro::Tags::RestMassDensity<DataVector>;
+  using ElectronFraction = hydro::Tags::ElectronFraction<DataVector>;
   using Pressure = hydro::Tags::Pressure<DataVector>;
   using Velocity = hydro::Tags::SpatialVelocity<DataVector, 3>;
   using MagField = hydro::Tags::MagneticField<DataVector, 3>;
@@ -347,11 +348,13 @@ void test_prim_reconstructor_impl(
     namespace mhd = ::grmhd::ValenciaDivClean;
     mhd::ConservativeFromPrimitive::apply(
         make_not_null(&get<mhd::Tags::TildeD>(expected_lower_face_values)),
+        make_not_null(&get<mhd::Tags::TildeYe>(expected_lower_face_values)),
         make_not_null(&get<mhd::Tags::TildeTau>(expected_lower_face_values)),
         make_not_null(&get<mhd::Tags::TildeS<>>(expected_lower_face_values)),
         make_not_null(&get<mhd::Tags::TildeB<>>(expected_lower_face_values)),
         make_not_null(&get<mhd::Tags::TildePhi>(expected_lower_face_values)),
         get<Rho>(expected_lower_face_values),
+        get<ElectronFraction>(expected_lower_face_values),
         get<SpecificInternalEnergy>(expected_lower_face_values),
         get<SpecificEnthalpy>(expected_lower_face_values),
         get<Pressure>(expected_lower_face_values),
@@ -364,11 +367,13 @@ void test_prim_reconstructor_impl(
         get<Phi>(expected_lower_face_values));
     mhd::ConservativeFromPrimitive::apply(
         make_not_null(&get<mhd::Tags::TildeD>(expected_upper_face_values)),
+        make_not_null(&get<mhd::Tags::TildeYe>(expected_upper_face_values)),
         make_not_null(&get<mhd::Tags::TildeTau>(expected_upper_face_values)),
         make_not_null(&get<mhd::Tags::TildeS<>>(expected_upper_face_values)),
         make_not_null(&get<mhd::Tags::TildeB<>>(expected_upper_face_values)),
         make_not_null(&get<mhd::Tags::TildePhi>(expected_upper_face_values)),
         get<Rho>(expected_upper_face_values),
+        get<ElectronFraction>(expected_upper_face_values),
         get<SpecificInternalEnergy>(expected_upper_face_values),
         get<SpecificEnthalpy>(expected_upper_face_values),
         get<Pressure>(expected_upper_face_values),

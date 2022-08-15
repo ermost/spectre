@@ -31,8 +31,8 @@ def function_of_time(time):
 
 
 def time_dependent_triple_gaussian_call_operator(
-        coords, time, constant, amplitude_1, width_1, center_1, amplitude_2,
-        width_2, center_2, amplitude_3, width_3, center_3):
+    coords, time, constant, amplitude_1, width_1, center_1, amplitude_2,
+    width_2, center_2, amplitude_3, width_3, center_3):
     factor_scaling_widths = 1.0 / function_of_time(time)
     return gaussian_plus_constant_call_operator(
         coords, time, constant, amplitude_1, width_1 * factor_scaling_widths,

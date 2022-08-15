@@ -18,10 +18,10 @@ def four_velocity_one_form(rest_mass_density, specific_enthalpy,
 
 
 def comoving_magnetic_field_one_form(
-        rest_mass_density, specific_enthalpy, spatial_velocity_one_form,
-        magnetic_field_one_form, magnetic_field_squared,
-        magnetic_field_dot_spatial_velocity, lorentz_factor,
-        one_over_w_squared, pressure, spacetime_metric, shift, lapse):
+    rest_mass_density, specific_enthalpy, spatial_velocity_one_form,
+    magnetic_field_one_form, magnetic_field_squared,
+    magnetic_field_dot_spatial_velocity, lorentz_factor, one_over_w_squared,
+    pressure, spacetime_metric, shift, lapse):
     spatial_comoving_magnetic_field_one_form = (
         magnetic_field_one_form / lorentz_factor + lorentz_factor *
         magnetic_field_dot_spatial_velocity * spatial_velocity_one_form)
@@ -33,10 +33,10 @@ def comoving_magnetic_field_one_form(
 
 
 def trace_reversed_stress_energy(
-        rest_mass_density, specific_enthalpy, spatial_velocity_one_form,
-        magnetic_field_one_form, magnetic_field_squared,
-        magnetic_field_dot_spatial_velocity, lorentz_factor,
-        one_over_w_squared, pressure, spacetime_metric, shift, lapse):
+    rest_mass_density, specific_enthalpy, spatial_velocity_one_form,
+    magnetic_field_one_form, magnetic_field_squared,
+    magnetic_field_dot_spatial_velocity, lorentz_factor, one_over_w_squared,
+    pressure, spacetime_metric, shift, lapse):
     local_four_velocity_one_form = four_velocity_one_form(
         rest_mass_density, specific_enthalpy, spatial_velocity_one_form,
         magnetic_field_one_form, magnetic_field_squared,
