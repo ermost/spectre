@@ -74,10 +74,8 @@ bool operator!=(const SmoothFlow& lhs, const SmoothFlow& rhs) {
           const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (double, DataVector),
-                        (hydro::Tags::DivergenceCleaningField))
-
-GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (double, DataVector),
-                        (hydro::Tags::ElectronFraction))
+                        (hydro::Tags::DivergenceCleaningField,
+                         hydro::Tags::ElectronFraction))
 
 #define INSTANTIATE_VECTORS(_, data)                                          \
   template tuples::TaggedTuple<TAG(data) < DTYPE(data), 3>>                   \

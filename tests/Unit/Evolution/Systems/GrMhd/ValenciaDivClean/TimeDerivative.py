@@ -5,12 +5,12 @@ import numpy as np
 import Fluxes, Sources
 
 
-def tilde_d(tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi, lapse,
-            shift, sqrt_det_spatial_metric, spatial_metric, inv_spatial_metric,
-            d_lapse, d_shift, d_spatial_metric, pressure, spatial_velocity,
-            lorentz_factor, magnetic_field, rest_mass_density,
-            electron_fraction, specific_enthalpy, extrinsic_curvature,
-            constraint_damping_parameter):
+def tilde_d_flux(tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b, tilde_phi,
+                 lapse, shift, sqrt_det_spatial_metric, spatial_metric,
+                 inv_spatial_metric, d_lapse, d_shift, d_spatial_metric,
+                 pressure, spatial_velocity, lorentz_factor, magnetic_field,
+                 rest_mass_density, electron_fraction, specific_enthalpy,
+                 extrinsic_curvature, constraint_damping_parameter):
     return Fluxes.tilde_d_flux(tilde_d, tilde_ye, tilde_tau, tilde_s, tilde_b,
                                tilde_phi, lapse, shift,
                                sqrt_det_spatial_metric, spatial_metric,

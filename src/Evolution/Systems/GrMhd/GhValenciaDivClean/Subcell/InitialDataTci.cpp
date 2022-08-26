@@ -24,16 +24,6 @@ std::tuple<bool, evolution::dg::subcell::RdmpTciData> DgInitialDataTci::apply(
         ValenciaDivClean::Tags::TildeTau, ValenciaDivClean::Tags::TildeS<>,
         ValenciaDivClean::Tags::TildeB<>, ValenciaDivClean::Tags::TildePhi>>&
         dg_vars,
-    //   const Variables<tmpl::list<
-    //       Inactive<gr::Tags::SpacetimeMetric<3, Frame::Inertial,
-    //       DataVector>>, Inactive<GeneralizedHarmonic::Tags::Pi<3,
-    //       Frame::Inertial>>, Inactive<GeneralizedHarmonic::Tags::Phi<3,
-    //       Frame::Inertial>>, Inactive<ValenciaDivClean::Tags::TildeD>,
-    //       Inactive<ValenciaDivClean::Tags::TildeYe>,
-    //       Inactive<ValenciaDivClean::Tags::TildeTau>,
-    //       Inactive<ValenciaDivClean::Tags::TildeS<>>,
-    //       Inactive<ValenciaDivClean::Tags::TildeB<>>,
-    //       Inactive<ValenciaDivClean::Tags::TildePhi>>>& subcell_vars,
     const double rdmp_delta0, const double rdmp_epsilon,
     const double persson_exponent, const Mesh<3>& dg_mesh,
     const Mesh<3>& subcell_mesh,

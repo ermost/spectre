@@ -25,6 +25,8 @@ template <typename DataType>
 struct ComovingMagneticFieldSquared;
 template <typename DataType>
 struct DivergenceCleaningField;
+template <typename DataType>
+struct ElectronFraction;
 struct EquationOfStateBase;
 template <typename EquationOfStateType>
 struct EquationOfState;
@@ -48,8 +50,6 @@ template <typename DataType>
 struct Pressure;
 template <typename DataType>
 struct RestMassDensity;
-template <typename DataType>
-struct ElectronFraction;
 template <typename DataType>
 struct SoundSpeedSquared;
 template <typename DataType, size_t Dim, typename Fr = Frame::Inertial>

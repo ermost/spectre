@@ -136,7 +136,8 @@ BondiMichel::IntermediateVars<DataType>::IntermediateVars(
                                           : sonic_bound,
             current_radius < sonic_radius ? sonic_bound : sonic_density, 1.e-15,
             1.e-15);
-    get_element(electron_fraction, i) = 0.4;  // FIXME
+    get_element(electron_fraction, i) =
+        0.4;  // FIXME Add correct EoS call to initialize Y_e
   }
   if (need_spacetime) {
     kerr_schild_soln = background_spacetime.variables(

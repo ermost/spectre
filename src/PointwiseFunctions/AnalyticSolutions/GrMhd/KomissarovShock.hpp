@@ -76,6 +76,7 @@ class KomissarovShock : public evolution::initial_data::InitialData,
     static constexpr Options::String help = {
         "Fluid electron fraction in the left half-domain"};
     static type lower_bound() { return 0.0; }
+    static type upper_bound() { return 1.0; }
   };
   struct RightElectronFraction {
     using type = double;
@@ -83,6 +84,7 @@ class KomissarovShock : public evolution::initial_data::InitialData,
     static constexpr Options::String help = {
         "Fluid electron fraction in the right half-domain"};
     static type lower_bound() { return 0.0; }
+    static type upper_bound() { return 1.0; }
   };
   struct LeftPressure {
     using type = double;
