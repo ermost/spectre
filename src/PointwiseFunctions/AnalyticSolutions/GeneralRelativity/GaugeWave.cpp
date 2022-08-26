@@ -8,8 +8,8 @@
 #include <pup.h>  // IWYU pragma: keep
 
 #include "DataStructures/DataBox/Prefixes.hpp"  // IWYU pragma: keep
-#include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
-#include "DataStructures/Tensor/Tensor.hpp"  // IWYU pragma: keep
+#include "DataStructures/DataVector.hpp"        // IWYU pragma: keep
+#include "DataStructures/Tensor/Tensor.hpp"     // IWYU pragma: keep
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/GenerateInstantiations.hpp"
@@ -40,14 +40,12 @@ GaugeWave<Dim>::GaugeWave(const double amplitude, const double wavelength,
                           const Options::Context& context)
     : amplitude_(amplitude), wavelength_(wavelength) {
   if (abs(amplitude) >= 1.0) {
-    PARSE_ERROR(context,
-                "Amplitude must be less than one. Given amplitude: "
-                << amplitude_);
+    PARSE_ERROR(context, "Amplitude must be less than one. Given amplitude: "
+                             << amplitude_);
   }
   if (wavelength <= 0.0) {
-    PARSE_ERROR(context,
-                "Wavelength must be non-negative. Given wavelength: "
-                << wavelength_);
+    PARSE_ERROR(context, "Wavelength must be non-negative. Given wavelength: "
+                             << wavelength_);
   }
 }
 

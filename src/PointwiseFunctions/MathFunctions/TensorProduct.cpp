@@ -107,15 +107,14 @@ bool operator!=(const TensorProduct<Dim>& lhs, const TensorProduct<Dim>& rhs) {
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
 #define DTYPE(data) BOOST_PP_TUPLE_ELEM(1, data)
 
-#define INSTANTIATE(_, data)                                   \
-  template Scalar<DTYPE(data)>                                 \
-  MathFunctions::TensorProduct<DIM(data)>::operator()(         \
-      const tnsr::I<DTYPE(data), DIM(data)>& x) const;         \
-  template tnsr::i<DTYPE(data), DIM(data)>                     \
-  MathFunctions::TensorProduct<DIM(data)>::first_derivatives(  \
-      const tnsr::I<DTYPE(data), DIM(data)>& x) const;         \
-  template tnsr::ii<DTYPE(data), DIM(data)>                    \
-  MathFunctions::TensorProduct<DIM(data)>::second_derivatives( \
+#define INSTANTIATE(_, data)                                             \
+  template Scalar<DTYPE(data)> MathFunctions::TensorProduct<DIM(data)>:: \
+  operator()(const tnsr::I<DTYPE(data), DIM(data)>& x) const;            \
+  template tnsr::i<DTYPE(data), DIM(data)>                               \
+  MathFunctions::TensorProduct<DIM(data)>::first_derivatives(            \
+      const tnsr::I<DTYPE(data), DIM(data)>& x) const;                   \
+  template tnsr::ii<DTYPE(data), DIM(data)>                              \
+  MathFunctions::TensorProduct<DIM(data)>::second_derivatives(           \
       const tnsr::I<DTYPE(data), DIM(data)>& x) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3), (double, DataVector))

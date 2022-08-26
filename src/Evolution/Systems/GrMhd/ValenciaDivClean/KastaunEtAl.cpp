@@ -275,7 +275,7 @@ Primitives FunctionOfMu<ThermodynamicDim>::primitives(const double mu) const {
 
 template <size_t ThermodynamicDim>
 double FunctionOfMu<ThermodynamicDim>::operator()(const double mu) const {
-  const auto [rho_hat, w_hat, p_hat, epsilon_hat, q_bar, r_bar_squared] =
+  const auto[rho_hat, w_hat, p_hat, epsilon_hat, q_bar, r_bar_squared] =
       primitives(mu);
   // Equation (43)
   const double a_hat = p_hat / (rho_hat * (1.0 + epsilon_hat));
@@ -313,7 +313,7 @@ std::optional<PrimitiveRecoveryData> KastaunEtAl::apply(
       std::numeric_limits<double>::signaling_NaN();
   try {
     // Bracket for master function, see Sec. II.F
-    const auto [lower_bound, upper_bound] = f_of_mu.root_bracket(
+    const auto[lower_bound, upper_bound] = f_of_mu.root_bracket(
         rest_mass_density_times_lorentz_factor, absolute_tolerance_,
         relative_tolerance_, max_iterations_);
 
@@ -327,8 +327,8 @@ std::optional<PrimitiveRecoveryData> KastaunEtAl::apply(
     return std::nullopt;
   }
 
-  const auto [rest_mass_density, lorentz_factor, pressure,
-              specific_internal_energy, q_bar, r_bar_squared] =
+  const auto[rest_mass_density, lorentz_factor, pressure,
+             specific_internal_energy, q_bar, r_bar_squared] =
       f_of_mu.primitives(one_over_specific_enthalpy_times_lorentz_factor);
 
   (void)(specific_internal_energy);

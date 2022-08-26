@@ -6,7 +6,6 @@
 // Need Boost MultiArray because it is used internally by ODEINT
 #include "DataStructures/BoostMultiArray.hpp"  // IWYU pragma: keep
 
-#include <pup.h>
 #include <algorithm>
 #include <array>
 #include <boost/numeric/odeint.hpp>  // IWYU pragma: keep
@@ -14,6 +13,7 @@
 #include <cstddef>
 #include <functional>
 #include <ostream>
+#include <pup.h>
 #include <string>
 #include <type_traits>
 #include <vector>

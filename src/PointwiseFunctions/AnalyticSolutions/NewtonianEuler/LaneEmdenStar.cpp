@@ -139,9 +139,9 @@ bool operator!=(const LaneEmdenStar& lhs, const LaneEmdenStar& rhs) {
       tmpl::list<Tags::MassDensity<DTYPE(data)>> /*meta*/,                   \
       const Scalar<DTYPE(data)>& mass_density) const;                        \
   template tuples::TaggedTuple<Tags::Velocity<DTYPE(data), 3>>               \
-  LaneEmdenStar::variables(                                                  \
-      tmpl::list<Tags::Velocity<DTYPE(data), 3>> /*meta*/,                   \
-      const Scalar<DTYPE(data)>& mass_density) const;                        \
+      LaneEmdenStar::variables(                                              \
+          tmpl::list<Tags::Velocity<DTYPE(data), 3>> /*meta*/,               \
+          const Scalar<DTYPE(data)>& mass_density) const;                    \
   template tuples::TaggedTuple<Tags::Pressure<DTYPE(data)>>                  \
   LaneEmdenStar::variables(tmpl::list<Tags::Pressure<DTYPE(data)>> /*meta*/, \
                            const Scalar<DTYPE(data)>& mass_density) const;   \

@@ -3,9 +3,9 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/KhInstability.hpp"
 
-#include <pup.h>
 #include <cmath>
 #include <cstddef>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/EagerMath/DotProduct.hpp"

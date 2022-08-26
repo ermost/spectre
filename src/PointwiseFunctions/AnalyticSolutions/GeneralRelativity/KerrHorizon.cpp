@@ -5,8 +5,8 @@
 
 #include <cmath>
 
-#include "DataStructures/DataVector.hpp"                 // IWYU pragma: keep
-#include "DataStructures/Tensor/EagerMath/Magnitude.hpp" // IWYU pragma: keep
+#include "DataStructures/DataVector.hpp"                  // IWYU pragma: keep
+#include "DataStructures/Tensor/EagerMath/Magnitude.hpp"  // IWYU pragma: keep
 #include "Utilities/ConstantExpressions.hpp"
 #include "Utilities/MakeWithValue.hpp"
 #include "Utilities/StdArrayHelpers.hpp"
@@ -66,4 +66,3 @@ template Scalar<double> kerr_horizon_radius(
 
 }  // namespace Solutions
 }  // namespace gr
-

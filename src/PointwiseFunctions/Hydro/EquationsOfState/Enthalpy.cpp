@@ -216,7 +216,6 @@ template <typename LowDensityEoS>
 Enthalpy<LowDensityEoS>::Enthalpy(CkMigrateMessage* msg)
     : EquationOfState<true, 1>(msg) {}
 
-
 template <typename LowDensityEoS>
 void Enthalpy<LowDensityEoS>::pup(PUP::er& p) {
   EquationOfState<true, 1>::pup(p);

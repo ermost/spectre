@@ -3,11 +3,11 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/MagnetizedFmDisk.hpp"
 
-#include <pup.h>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <ostream>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
 #include "DataStructures/Index.hpp"

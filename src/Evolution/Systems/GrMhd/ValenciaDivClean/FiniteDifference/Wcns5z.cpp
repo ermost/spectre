@@ -169,7 +169,7 @@ bool operator!=(const Wcns5zPrim& lhs, const Wcns5zPrim& rhs) {
              hydro::Tags::SpecificEnthalpy<DataVector>,                      \
              hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>,  \
              ::Tags::Flux<Tags::TildeD, tmpl::size_t<3>, Frame::Inertial>,   \
-             ::Tags::Flux<Tags::TildeYe, tmpl::size_t<3>, Frame::Inertial>,   \
+             ::Tags::Flux<Tags::TildeYe, tmpl::size_t<3>, Frame::Inertial>,  \
              ::Tags::Flux<Tags::TildeTau, tmpl::size_t<3>, Frame::Inertial>, \
              ::Tags::Flux<Tags::TildeS<Frame::Inertial>, tmpl::size_t<3>,    \
                           Frame::Inertial>,                                  \

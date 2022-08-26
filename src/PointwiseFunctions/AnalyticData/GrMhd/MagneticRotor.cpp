@@ -3,9 +3,9 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/MagneticRotor.hpp"
 
-#include <pup.h>
 #include <cmath>  // IWYU pragma: keep
 #include <ostream>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
 #include "DataStructures/Tensor/EagerMath/DotProduct.hpp"

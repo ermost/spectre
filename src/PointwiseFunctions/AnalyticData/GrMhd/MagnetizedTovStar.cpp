@@ -3,11 +3,11 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/MagnetizedTovStar.hpp"
 
-#include <pup.h>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <ostream>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Index.hpp"

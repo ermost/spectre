@@ -179,7 +179,7 @@ bool FixConservatives::operator()(
   for (size_t s = 0; s < size; s++) {
     double& ye_tilde = get(*tilde_ye)[s];
     double& d_tilde = get(*tilde_d)[s];
-    double ye_cutoff_ = 0.; //FIXME: Should this be a proper parameter?
+    double ye_cutoff_ = 0.;  // FIXME: Should this be a proper parameter?
     if (local_ye[s] < ye_cutoff_) {
       needed_fixing = true;
       local_ye[s] = ye_cutoff_;

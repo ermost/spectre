@@ -3,11 +3,11 @@
 
 #include "Evolution/Systems/GrMhd/GhValenciaDivClean/FiniteDifference/MonotonisedCentral.hpp"
 
-#include <pup.h>
 #include <array>
 #include <boost/functional/hash.hpp>
 #include <cstddef>
 #include <memory>
+#include <pup.h>
 #include <utility>
 
 #include "DataStructures/DataBox/Prefixes.hpp"

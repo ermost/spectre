@@ -3,8 +3,8 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/BondiHoyleAccretion.hpp"
 
-#include <pup.h>
 #include <cmath>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"     // IWYU pragma: keep
 #include "DataStructures/Tensor/Tensor.hpp"  // IWYU pragma: keep

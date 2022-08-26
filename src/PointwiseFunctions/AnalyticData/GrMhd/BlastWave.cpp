@@ -3,9 +3,9 @@
 
 #include "PointwiseFunctions/AnalyticData/GrMhd/BlastWave.hpp"
 
-#include <pup.h>
 #include <cmath>
 #include <ostream>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"

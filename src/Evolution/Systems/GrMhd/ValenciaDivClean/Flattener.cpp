@@ -73,50 +73,50 @@ void Flattener<RecoverySchemesList>::operator()(
       DataVector{get(det_logical_to_inertial_inv_jacobian)}};
   bool already_computed_means = false;
 
-  const auto compute_means =
-      [&already_computed_means, &mean_tilde_d, &mean_tilde_ye, &mean_tilde_tau,
-       &mean_tilde_s, &tilde_d, &tilde_ye, &tilde_tau, &tilde_s, &mesh,
-       &det_logical_to_inertial_jacobian,
-       require_positive_mean_tilde_d = require_positive_mean_tilde_d_,
-       require_positive_mean_tilde_ye = require_positive_mean_tilde_ye_]() {
-        if (already_computed_means) {
-          return;
-        }
-        already_computed_means = true;
-        // Compute the means w.r.t. the inertial coords
-        // (Note that several other parts of the limiter code take means w.r.t.
-        // the logical coords, and therefore might not be conservative on curved
-        // grids)
-        const double volume_of_cell =
-            definite_integral(get(det_logical_to_inertial_jacobian), mesh);
-        const auto inertial_coord_mean =
-            [&mesh, &det_logical_to_inertial_jacobian,
-             &volume_of_cell](const DataVector& u) {
-              // Note that the term `det_jac * u` below results in an
-              // allocation. If this function needs to be optimized, a buffer
-              // for the product could be allocated outside the lambda, and
-              // updated in the lambda.
-              return definite_integral(
-                         get(det_logical_to_inertial_jacobian) * u, mesh) /
-                     volume_of_cell;
-            };
-        mean_tilde_d = inertial_coord_mean(get(*tilde_d));
-        mean_tilde_ye = inertial_coord_mean(get(*tilde_ye));
-        mean_tilde_tau = inertial_coord_mean(get(*tilde_tau));
-        for (size_t i = 0; i < 3; ++i) {
-          gsl::at(mean_tilde_s, i) = inertial_coord_mean(tilde_s->get(i));
-        }
+  const auto compute_means = [
+    &already_computed_means, &mean_tilde_d, &mean_tilde_ye, &mean_tilde_tau,
+    &mean_tilde_s, &tilde_d, &tilde_ye, &tilde_tau, &tilde_s, &mesh,
+    &det_logical_to_inertial_jacobian,
+    require_positive_mean_tilde_d = require_positive_mean_tilde_d_,
+    require_positive_mean_tilde_ye = require_positive_mean_tilde_ye_
+  ]() {
+    if (already_computed_means) {
+      return;
+    }
+    already_computed_means = true;
+    // Compute the means w.r.t. the inertial coords
+    // (Note that several other parts of the limiter code take means w.r.t.
+    // the logical coords, and therefore might not be conservative on curved
+    // grids)
+    const double volume_of_cell =
+        definite_integral(get(det_logical_to_inertial_jacobian), mesh);
+    const auto inertial_coord_mean = [&mesh, &det_logical_to_inertial_jacobian,
+                                      &volume_of_cell](const DataVector& u) {
+      // Note that the term `det_jac * u` below results in an
+      // allocation. If this function needs to be optimized, a buffer
+      // for the product could be allocated outside the lambda, and
+      // updated in the lambda.
+      return definite_integral(get(det_logical_to_inertial_jacobian) * u,
+                               mesh) /
+             volume_of_cell;
+    };
+    mean_tilde_d = inertial_coord_mean(get(*tilde_d));
+    mean_tilde_ye = inertial_coord_mean(get(*tilde_ye));
+    mean_tilde_tau = inertial_coord_mean(get(*tilde_tau));
+    for (size_t i = 0; i < 3; ++i) {
+      gsl::at(mean_tilde_s, i) = inertial_coord_mean(tilde_s->get(i));
+    }
 
-        if (require_positive_mean_tilde_d and mean_tilde_d < 0.) {
-          ERROR("We require TildeD to have positive mean, but got "
-                << *tilde_d << " with mean value " << mean_tilde_d);
-        }
+    if (require_positive_mean_tilde_d and mean_tilde_d < 0.) {
+      ERROR("We require TildeD to have positive mean, but got "
+            << *tilde_d << " with mean value " << mean_tilde_d);
+    }
 
-        if (require_positive_mean_tilde_ye and mean_tilde_ye < 0.) {
-          ERROR("We require TildeYe to have positive mean, but got "
-                << *tilde_ye << " with mean value " << mean_tilde_ye);
-        }
-      };
+    if (require_positive_mean_tilde_ye and mean_tilde_ye < 0.) {
+      ERROR("We require TildeYe to have positive mean, but got "
+            << *tilde_ye << " with mean value " << mean_tilde_ye);
+    }
+  };
 
   // If min(tilde_d) is negative, then flatten.
   if (const double min_tilde_d = min(get(*tilde_d)),

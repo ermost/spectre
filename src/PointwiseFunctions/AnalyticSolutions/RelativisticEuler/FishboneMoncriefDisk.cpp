@@ -3,10 +3,10 @@
 
 #include "PointwiseFunctions/AnalyticSolutions/RelativisticEuler/FishboneMoncriefDisk.hpp"
 
-#include <pup.h>
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"  // IWYU pragma: keep
 #include "DataStructures/Tensor/EagerMath/DotProduct.hpp"

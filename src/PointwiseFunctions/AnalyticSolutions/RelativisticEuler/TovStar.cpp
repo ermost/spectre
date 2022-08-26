@@ -3,8 +3,8 @@
 
 #include "PointwiseFunctions/AnalyticSolutions/RelativisticEuler/TovStar.hpp"
 
-#include <pup.h>
 #include <cstddef>
+#include <pup.h>
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"

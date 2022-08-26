@@ -12,8 +12,8 @@
 
 namespace EquationsOfState {
 template <typename ColdEquationOfState>
-HybridEos<ColdEquationOfState>::HybridEos(
-    ColdEquationOfState cold_eos, const double thermal_adiabatic_index)
+HybridEos<ColdEquationOfState>::HybridEos(ColdEquationOfState cold_eos,
+                                          const double thermal_adiabatic_index)
     : cold_eos_(std::move(cold_eos)),
       thermal_adiabatic_index_(thermal_adiabatic_index) {}
 
