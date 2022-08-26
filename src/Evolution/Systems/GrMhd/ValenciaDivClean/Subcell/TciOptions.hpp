@@ -40,7 +40,8 @@ struct TciOptions {
         "switch to subcell."};
   };
   /// \brief Minimum value of \f$Y_e\f$ before we switch to subcell.
-  /// Used to identify places where the energy has suddenly become negative
+  /// Used to identify places where the electron fraction has suddenly become
+  //  negative
   struct MinimumValueOfYe {
     using type = double;
     static type lower_bound() { return 0.0; }

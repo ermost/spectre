@@ -250,16 +250,12 @@ Primitives FunctionOfMu<ThermodynamicDim>::primitives(const double mu) const {
       q_ - 0.5 * b_squared_ -
       0.5 * square(mu * x) * (r_squared_ * b_squared_ - r_dot_b_squared_);
 
-  // FIXME Add YE
-
   // Equation (42) with bounds from Equation (6)
   const double epsilon_hat = std::clamp(
       w_hat * (q_bar - mu * r_bar_squared) +
           v_hat_squared * square(w_hat) / (1.0 + w_hat),
       equation_of_state_.specific_internal_energy_lower_bound(rho_hat),
       equation_of_state_.specific_internal_energy_upper_bound(rho_hat));
-
-  // FIXME Add YE
 
   // Pressure from EOS
   double p_hat = std::numeric_limits<double>::signaling_NaN();
@@ -269,6 +265,8 @@ Primitives FunctionOfMu<ThermodynamicDim>::primitives(const double mu) const {
   } else if constexpr (ThermodynamicDim == 2) {
     p_hat = get(equation_of_state_.pressure_from_density_and_energy(
         Scalar<double>(rho_hat), Scalar<double>(epsilon_hat)));
+  } else if constexpr (ThermodynamicDim == 3) {
+    ERROR("3d EOS not implemented");
   }
   return Primitives{rho_hat, w_hat, p_hat, epsilon_hat, q_bar, r_bar_squared};
 }

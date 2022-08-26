@@ -64,7 +64,7 @@ class Flattener {
         "simulation."};
   };
 
-  /// \brief Require that the mean of TildeD is positive, otherwise terminate
+  /// \brief Require that the mean of TildeYe is positive, otherwise terminate
   /// the simulation.
   struct RequirePositiveMeanTildeYe {
     using type = bool;

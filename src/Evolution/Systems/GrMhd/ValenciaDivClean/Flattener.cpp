@@ -121,7 +121,7 @@ void Flattener<RecoverySchemesList>::operator()(
   // If min(tilde_d) is negative, then flatten.
   if (const double min_tilde_d = min(get(*tilde_d)),
       min_tilde_ye = min(get(*tilde_ye));
-      min_tilde_d < 0. || min_tilde_ye < 0.) {
+      min_tilde_d < 0. or min_tilde_ye < 0.) {
     compute_means();
 
     // Note: the current algorithm flattens all fields by the same factor,

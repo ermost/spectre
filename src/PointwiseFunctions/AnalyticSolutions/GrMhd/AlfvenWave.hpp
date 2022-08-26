@@ -122,6 +122,7 @@ class AlfvenWave : public evolution::initial_data::InitialData,
     static constexpr Options::String help = {
         "The constant electron fraction throughout the fluid."};
     static type lower_bound() { return 0.0; }
+    static type upper_bound() { return 1.0; }
   };
 
   /// The adiabatic index for the ideal fluid.

@@ -51,18 +51,6 @@ struct DgInitialDataTci {
           gr::Tags::SpacetimeMetric<3, Frame::Inertial, DataVector>,
           GeneralizedHarmonic::Tags::Pi<3, Frame::Inertial>,
           GeneralizedHarmonic::Tags::Phi<3, Frame::Inertial>,
-          //     const Variables<tmpl::list<
-          //         Inactive<gr::Tags::SpacetimeMetric<3, Frame::Inertial,
-          //         DataVector>>, Inactive<GeneralizedHarmonic::Tags::Pi<3,
-          //         Frame::Inertial>>,
-          //         Inactive<GeneralizedHarmonic::Tags::Phi<3,
-          //         Frame::Inertial>>,
-          //         Inactive<ValenciaDivClean::Tags::TildeD>,
-          //         Inactive<ValenciaDivClean::Tags::TildeYe>,
-          //         Inactive<ValenciaDivClean::Tags::TildeTau>,
-          //         Inactive<ValenciaDivClean::Tags::TildeS<>>,
-          //         Inactive<ValenciaDivClean::Tags::TildeB<>>,
-          //         Inactive<ValenciaDivClean::Tags::TildePhi>>>& subcell_vars,
           ValenciaDivClean::Tags::TildeD, ValenciaDivClean::Tags::TildeYe,
           ValenciaDivClean::Tags::TildeTau, ValenciaDivClean::Tags::TildeS<>,
           ValenciaDivClean::Tags::TildeB<>, ValenciaDivClean::Tags::TildePhi>>&

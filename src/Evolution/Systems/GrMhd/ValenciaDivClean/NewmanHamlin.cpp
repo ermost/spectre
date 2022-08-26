@@ -137,11 +137,7 @@ std::optional<PrimitiveRecoveryData> NewmanHamlin::apply(
               Scalar<double>(current_rest_mass_density),
               Scalar<double>(current_specific_enthalpy)));
     } else if constexpr (ThermodynamicDim == 3) {
-      // FIXME
-      current_pressure =
-          get(equation_of_state.pressure_from_density_and_enthalpy(
-              Scalar<double>(current_rest_mass_density),
-              Scalar<double>(current_specific_enthalpy)));
+      ERROR("3d EOS not implemented");
     }
 
     gsl::at(aitken_pressure, valid_entries_in_aitken_pressure++) =

@@ -19,17 +19,6 @@ class er;
 class DataVector;
 /// \endcond
 
-// IWYU pragma: no_forward_declare EquationsOfState::EquationOfState
-// IWYU pragma: no_forward_declare Tensor
-// IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeD
-// IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeYe
-// IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeTau
-// IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeS
-// IWYU pragma: no_forward_declare grmhd::ValenciaDivClean::Tags::TildeB
-// IWYU pragma: no_forward_declare gr::Tags::SpatialMetric
-// IWYU pragma: no_forward_declare gr::Tags::InverseSpatialMetric
-// IWYU pragma: no_forward_declare gr::Tags::SqrtDetSpatialMetric
-
 namespace grmhd {
 namespace ValenciaDivClean {
 

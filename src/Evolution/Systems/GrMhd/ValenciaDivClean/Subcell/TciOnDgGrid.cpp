@@ -171,9 +171,6 @@ TciOnDgGrid<RecoveryScheme>::apply(
   get<hydro::Tags::Pressure<DataVector>>(temp_prims) =
       get<hydro::Tags::Pressure<DataVector>>(*dg_prim_vars);
 
-  // FIXME
-  // auto& tilde_ye = tilde_d;
-
   if (not grmhd::ValenciaDivClean::
           PrimitiveFromConservative<tmpl::list<RecoveryScheme>, false>::apply(
               make_not_null(

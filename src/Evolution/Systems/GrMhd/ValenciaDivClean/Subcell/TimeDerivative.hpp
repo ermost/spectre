@@ -131,20 +131,20 @@ struct TimeDerivative {
             gr::Tags::SpatialMetric<3>,
             gr::Tags::SqrtDetSpatialMetric<DataVector>,
             gr::Tags::InverseSpatialMetric<3, Frame::Inertial, DataVector>>;
-        tmpl::for_each<spacetime_vars_to_copy>(
-            [&package_data_argvars_lower_face, &package_data_argvars_upper_face,
-             &spacetime_vars_on_face =
-                 db::get<evolution::dg::subcell::Tags::OnSubcellFaces<
-                     typename System::flux_spacetime_variables_tag, 3>>(*box)](
-                auto tag_v) {
-              using tag = tmpl::type_from<decltype(tag_v)>;
-              for (size_t d = 0; d < 3; ++d) {
-                get<tag>(gsl::at(package_data_argvars_lower_face, d)) =
-                    get<tag>(gsl::at(spacetime_vars_on_face, d));
-                get<tag>(gsl::at(package_data_argvars_upper_face, d)) =
-                    get<tag>(gsl::at(spacetime_vars_on_face, d));
-              }
-            });
+        tmpl::for_each<spacetime_vars_to_copy>([
+          &package_data_argvars_lower_face, &package_data_argvars_upper_face,
+          &spacetime_vars_on_face =
+              db::get<evolution::dg::subcell::Tags::OnSubcellFaces<
+                  typename System::flux_spacetime_variables_tag, 3>>(*box)
+        ](auto tag_v) {
+          using tag = tmpl::type_from<decltype(tag_v)>;
+          for (size_t d = 0; d < 3; ++d) {
+            get<tag>(gsl::at(package_data_argvars_lower_face, d)) =
+                get<tag>(gsl::at(spacetime_vars_on_face, d));
+            get<tag>(gsl::at(package_data_argvars_upper_face, d)) =
+                get<tag>(gsl::at(spacetime_vars_on_face, d));
+          }
+        });
 
         // Reconstruct data to the face
         call_with_dynamic_type<void, typename grmhd::ValenciaDivClean::fd::

@@ -103,9 +103,8 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
   rest_mass_density_times_lorentz_factor =
       get(tilde_d) / get(sqrt_det_spatial_metric);
 
-  // FIXME: This may need bounds
-
-  // FIXME limit Ye
+  // TODO: This may need bounds
+  // TODO: limit Ye to table bounds once that is implemented
 
   for (size_t s = 0; s < total_energy_density.size(); ++s) {
     get(*electron_fraction)[s] =
@@ -182,10 +181,7 @@ bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
         equation_of_state.specific_internal_energy_from_density_and_pressure(
             *rest_mass_density, *pressure);
   } else if constexpr (ThermodynamicDim == 3) {
-    // TODO FIXME
-    *specific_internal_energy =
-        equation_of_state.specific_internal_energy_from_density_and_pressure(
-            *rest_mass_density, *pressure);
+    ERROR("3d EOS not implemented");
   }
   *specific_enthalpy = hydro::relativistic_specific_enthalpy(
       *rest_mass_density, *specific_internal_energy, *pressure);
