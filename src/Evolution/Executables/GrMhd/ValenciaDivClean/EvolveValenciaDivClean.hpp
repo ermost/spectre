@@ -148,6 +148,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/RelativisticEuler/TovStar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/Factory.hpp"
+#include "PointwiseFunctions/Hydro/EquationsOfState/RegisterDerivedWithCharm.hpp"
 #include "PointwiseFunctions/Hydro/MassFlux.hpp"
 #include "PointwiseFunctions/Hydro/Tags.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
@@ -197,7 +198,9 @@ struct EvolutionMetavars {
   static_assert(
       is_analytic_data_v<initial_data> xor is_analytic_solution_v<initial_data>,
       "initial_data must be either an analytic_data or an analytic_solution");
-  using equation_of_state_type = typename initial_data::equation_of_state_type;
+  using eos_base = typename EquationsOfState::get_eos_base<
+      typename initial_data::equation_of_state_type>;
+  using equation_of_state_type = typename std::unique_ptr<eos_base>;
   using system = grmhd::ValenciaDivClean::System;
   using temporal_id = Tags::TimeStepId;
   static constexpr bool local_time_stepping = false;
@@ -336,9 +339,11 @@ struct EvolutionMetavars {
       evolution::dg::Actions::ComputeTimeDerivative<EvolutionMetavars>,
       tmpl::conditional_t<
           local_time_stepping,
-          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
+          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
+                         evolution::dg::ApplyBoundaryCorrections<
+                             EvolutionMetavars, true>,
                          system::primitive_from_conservative<
-                             ordered_list_of_primitive_recovery_schemes>>,
+                             ordered_list_of_primitive_recovery_schemes>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
                          EvolutionMetavars>>,
           tmpl::list<
@@ -346,8 +351,8 @@ struct EvolutionMetavars {
                   EvolutionMetavars>,
               Actions::RecordTimeStepperData<>,
               evolution::Actions::RunEventsAndDenseTriggers<
-                  system::primitive_from_conservative<
-                      ordered_list_of_primitive_recovery_schemes>>,
+                  tmpl::list<system::primitive_from_conservative<
+                      ordered_list_of_primitive_recovery_schemes>>>,
               Actions::UpdateU<>>>,
       Limiters::Actions::SendData<EvolutionMetavars>,
       Limiters::Actions::Limit<EvolutionMetavars>,
@@ -367,10 +372,10 @@ struct EvolutionMetavars {
       tmpl::conditional_t<
           local_time_stepping, tmpl::list<>,
           tmpl::list<Actions::RecordTimeStepperData<>,
-                     evolution::Actions::RunEventsAndDenseTriggers<
+                     evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
                          grmhd::ValenciaDivClean::subcell::
                              FixConservativesAndComputePrims<
-                                 ordered_list_of_primitive_recovery_schemes>>,
+                                 ordered_list_of_primitive_recovery_schemes>>>,
                      Actions::UpdateU<>>>,
       // Note: The primitive variables are computed as part of the TCI.
       evolution::dg::subcell::Actions::TciAndRollback<
@@ -394,9 +399,9 @@ struct EvolutionMetavars {
       evolution::dg::subcell::fd::Actions::TakeTimeStep<
           grmhd::ValenciaDivClean::subcell::TimeDerivative>,
       Actions::RecordTimeStepperData<>,
-      evolution::Actions::RunEventsAndDenseTriggers<
+      evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
           grmhd::ValenciaDivClean::subcell::FixConservativesAndComputePrims<
-              ordered_list_of_primitive_recovery_schemes>>,
+              ordered_list_of_primitive_recovery_schemes>>>,
       Actions::UpdateU<>,
       Actions::MutateApply<
           grmhd::ValenciaDivClean::subcell::FixConservativesAndComputePrims<
@@ -589,6 +594,7 @@ static const std::vector<void (*)()> charm_init_node_funcs{
     &domain::FunctionsOfTime::register_derived_with_charm,
     &grmhd::ValenciaDivClean::BoundaryCorrections::register_derived_with_charm,
     &grmhd::ValenciaDivClean::fd::register_derived_with_charm,
+    &EquationsOfState::register_derived_with_charm,
     &Parallel::register_factory_classes_with_charm<metavariables>};
 
 static const std::vector<void (*)()> charm_init_proc_funcs{

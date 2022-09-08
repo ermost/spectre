@@ -73,6 +73,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/RelativisticEuler/SmoothFlow.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/Hydro/EquationsOfState/Factory.hpp"
+#include "PointwiseFunctions/Hydro/EquationsOfState/RegisterDerivedWithCharm.hpp"
 #include "PointwiseFunctions/Hydro/SoundSpeedSquared.hpp"
 #include "PointwiseFunctions/Hydro/Tags.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
@@ -121,7 +122,9 @@ struct EvolutionMetavars {
       is_analytic_data_v<initial_data> xor is_analytic_solution_v<initial_data>,
       "initial_data must be either an analytic_data or an analytic_solution");
 
-  using equation_of_state_type = typename initial_data::equation_of_state_type;
+ using eos_base = typename EquationsOfState::get_eos_base<
+      typename initial_data::equation_of_state_type>;
+  using equation_of_state_type = typename std::unique_ptr<eos_base>;
 
   using system = RelativisticEuler::Valencia::System<Dim>;
 
@@ -202,8 +205,10 @@ struct EvolutionMetavars {
       evolution::dg::Actions::ComputeTimeDerivative<EvolutionMetavars>,
       tmpl::conditional_t<
           local_time_stepping,
-          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
-                         typename system::primitive_from_conservative>,
+          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
+                         evolution::dg::ApplyBoundaryCorrections<
+                             EvolutionMetavars, true>,
+                         typename system::primitive_from_conservative>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
                          EvolutionMetavars>>,
           tmpl::list<
@@ -211,7 +216,7 @@ struct EvolutionMetavars {
                   EvolutionMetavars>,
               Actions::RecordTimeStepperData<>,
               evolution::Actions::RunEventsAndDenseTriggers<
-                  typename system::primitive_from_conservative>,
+                  tmpl::list<typename system::primitive_from_conservative>>,
               Actions::UpdateU<>>>,
       Limiters::Actions::SendData<EvolutionMetavars>,
       Limiters::Actions::Limit<EvolutionMetavars>,
@@ -301,6 +306,7 @@ static const std::vector<void (*)()> charm_init_node_funcs{
     &domain::creators::register_derived_with_charm,
     &domain::creators::time_dependence::register_derived_with_charm,
     &domain::FunctionsOfTime::register_derived_with_charm,
+    &EquationsOfState::register_derived_with_charm,
     &RelativisticEuler::Valencia::BoundaryCorrections::
         register_derived_with_charm,
     &Parallel::register_factory_classes_with_charm<metavariables>};
