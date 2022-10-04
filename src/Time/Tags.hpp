@@ -14,6 +14,7 @@
 #include "DataStructures/DataBox/PrefixHelpers.hpp"
 #include "DataStructures/DataBox/Prefixes.hpp"
 #include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/LinkedMessageId.hpp"
 #include "Evolution/Tags.hpp"
 #include "Options/Options.hpp"
 #include "Parallel/Serialize.hpp"
@@ -24,6 +25,12 @@
 #include "Time/Time.hpp"
 #include "Time/TimeStepId.hpp"
 #include "Utilities/TMPL.hpp"
+
+/// \cond
+namespace evolution::Tags {
+struct PreviousTriggerTime;
+}  // namespace evolution::Tags
+/// \endcond
 
 namespace Tags {
 
@@ -46,9 +53,43 @@ struct TimeStep : db::SimpleTag {
 /// \ingroup DataBoxTagsGroup
 /// \ingroup TimeGroup
 /// \brief Tag for the current time as a double
+///
+/// The meaning of "current time" varies during the algorithm, but
+/// generally is whatever time is appropriate for the calculation
+/// being run.  Usually this is the substep time, but things such as
+/// dense-output calculations may temporarily change the value.
 struct Time : db::SimpleTag {
   using type = double;
 };
+
+/// @{
+/// \ingroup TimeGroup
+/// \brief Tag for the current and previous time as doubles
+///
+/// \warning The previous time is calculated via the value of the
+/// ::evolution::Tags::PreviousTriggerTime. Therefore, this tag can only be
+/// used in the context of dense triggers as that is where the
+/// ::evolution::Tags::PreviousTriggerTime tag is set. Any Events that request
+/// this tag in their `argument_tags` type alias, must be triggered by a
+/// DenseTrigger.
+struct TimeAndPrevious : db::SimpleTag {
+  using type = LinkedMessageId<double>;
+};
+
+struct TimeAndPreviousCompute : TimeAndPrevious, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<::Tags::Time, ::evolution::Tags::PreviousTriggerTime>;
+  using base = TimeAndPrevious;
+  using return_type = LinkedMessageId<double>;
+
+  static void function(
+      gsl::not_null<LinkedMessageId<double>*> time_and_previous,
+      const double time, const std::optional<double>& previous_time) {
+    time_and_previous->id = time;
+    time_and_previous->previous = previous_time;
+  }
+};
+/// @}
 
 /// \ingroup DataBoxTagsGroup
 /// \ingroup TimeGroup
@@ -66,7 +107,8 @@ struct HistoryEvolvedVariables<> : db::BaseTag {};
 
 template <typename Tag>
 struct HistoryEvolvedVariables : HistoryEvolvedVariables<>, db::SimpleTag {
-  using type = TimeSteppers::History<typename Tag::type>;
+  using type =
+      TimeSteppers::History<typename db::add_tag_prefix<::Tags::dt, Tag>::type>;
 };
 /// \endcond
 
@@ -76,6 +118,13 @@ struct HistoryEvolvedVariables : HistoryEvolvedVariables<>, db::SimpleTag {
 template <typename TagList>
 using get_all_history_tags =
     tmpl::filter<TagList, tt::is_a<::Tags::HistoryEvolvedVariables, tmpl::_1>>;
+
+/// \ingroup TimeGroup
+/// \brief Tag containing a previous value for time step rollback.
+template <typename VariablesTag>
+struct RollbackValue : db::SimpleTag {
+  using type = typename VariablesTag::type;
+};
 
 /// \ingroup DataBoxTagsGroup
 /// \ingroup TimeGroup

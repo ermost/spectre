@@ -30,6 +30,7 @@
 #include "Evolution/DgSubcell/Tags/NeighborData.hpp"
 #include "Evolution/DgSubcell/Tags/SubcellOptions.hpp"
 #include "Evolution/DgSubcell/Tags/TciGridHistory.hpp"
+#include "Evolution/DgSubcell/Tags/TciStatus.hpp"
 #include "Evolution/DiscontinuousGalerkin/InboxTags.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Parallel/AlgorithmExecution.hpp"
@@ -38,6 +39,7 @@
 #include "Time/Actions/SelfStartActions.hpp"
 #include "Time/History.hpp"
 #include "Time/Tags.hpp"
+#include "Utilities/ContainerHelpers.hpp"
 #include "Utilities/ErrorHandling/Assert.hpp"
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TaggedTuple.hpp"
@@ -121,38 +123,41 @@ struct TciAndRollback {
     // by documentation, the switching back to DG TCI gets passed in the
     // exponent it should use, and to keep the interface between the TCIs
     // consistent, we also pass the exponent in separately here.
-    std::tuple<bool, RdmpTciData> tci_result = db::mutate_apply<TciMutator>(
+    std::tuple<int, RdmpTciData> tci_result = db::mutate_apply<TciMutator>(
         make_not_null(&box), subcell_options.persson_exponent());
-    cell_is_troubled |= std::get<0>(tci_result);
+
+    const int tci_status = std::get<0>(tci_result);
+    cell_is_troubled |= static_cast<bool>(tci_status);
 
     if ((cell_is_not_on_external_boundary or
          subcell_enabled_at_external_boundary) and
         cell_is_troubled) {
       db::mutate<variables_tag, ::Tags::HistoryEvolvedVariables<variables_tag>,
-                 Tags::ActiveGrid, Tags::DidRollback>(
+                 Tags::ActiveGrid, Tags::DidRollback, Tags::TciStatus>(
           make_not_null(&box),
-          [&dg_mesh, &subcell_mesh](
+          [&dg_mesh, &subcell_mesh, &tci_status](
               const auto active_vars_ptr, const auto active_history_ptr,
               const gsl::not_null<ActiveGrid*> active_grid_ptr,
-              const gsl::not_null<bool*> did_rollback_ptr) {
+              const gsl::not_null<bool*> did_rollback_ptr,
+              const gsl::not_null<Scalar<DataVector>*> tci_status_ptr,
+              const typename variables_tag::type& rollback_value) {
             ASSERT(
                 active_history_ptr->size() > 0,
                 "We cannot have an empty history when unwinding, that's just "
                 "nutty. Did you call the action too early in the action "
                 "list?");
-            // Rollback u^{n+1}* to u^n (undoing the candidate solution) by
-            // using the time stepper history.
+            // Rollback u^{n+1}* to u^n (undoing the candidate solution).
             //
             // Note: strictly speaking, to be conservative this should project
             // uJ instead of u.
             *active_vars_ptr =
-                fd::project(active_history_ptr->most_recent_value(), dg_mesh,
-                            subcell_mesh.extents());
+                fd::project(rollback_value, dg_mesh, subcell_mesh.extents());
 
             // Project the time stepper history to the subcells, excluding the
             // most recent inadmissible history.
-            TimeSteppers::History<typename variables_tag::type> subcell_history{
-                active_history_ptr->integration_order()};
+            TimeSteppers::History<
+                typename db::add_tag_prefix<::Tags::dt, variables_tag>::type>
+                subcell_history{active_history_ptr->integration_order()};
             const auto end_it =
                 std::prev(active_history_ptr->derivatives_end());
             for (auto it = active_history_ptr->derivatives_begin();
@@ -168,7 +173,13 @@ struct TciAndRollback {
             // that needs to be done at the lifting stage of the subcell
             // method, since we need to lift G+D instead of the ingredients
             // that go into G+D, which is what we would be projecting here.
-          });
+
+            // resize TciStatus datavector and assign the tci_status value
+            destructive_resize_components(tci_status_ptr,
+                                          subcell_mesh.number_of_grid_points());
+            get(*tci_status_ptr) = static_cast<double>(tci_status);
+          },
+          db::get<::Tags::RollbackValue<variables_tag>>(box));
 
       if (UNLIKELY(db::get<::Tags::TimeStepId>(box).slab_number() < 0)) {
         // If we are doing self start, then we need to project the initial

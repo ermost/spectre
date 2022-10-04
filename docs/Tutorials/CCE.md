@@ -28,25 +28,22 @@ CCE using external data are:
     don't need the extra points, best just set it to 1.
   - If you're extracting at 100M or less, best to reduce the `TargetStepSize`,
     to around .5 at 100M and lower yet for nearer extraction.
-  - The `InitializeJ` in the example file uses `InverseCubic` which is a pretty
-    primitive scheme, but early tests indicate that it gives the best results
-    for most systems.
-    If initial data is a concern, you can also try replacing the `InverseCubic`
-    entry with:
-  ```
-    NoIncomingRadiation:
-      AngularCoordTolerance: 1.0e-13
-      MaxIterations: 500
-      RequireConvergence: true
-  ```
-  which are probably pretty good choices for those parameters,
-  and the `RequireConvergence: true` will cause the iterative solve in
-  this version to error out if it doesn't find a good frame.
+  - The `InitializeJ` in the example file uses `ConformalFactor` which has been
+    found to perform better than the other schemes implemented so far.
+    Other schemes for `InitializeJ` can be found in namespace
+    \link Cce::InitializeJ \endlink.  Some of these are:
+    - `ZeroNonSmooth`: Make `J` vanish
+    - `NoIncomingRadiation`: Make \f$\Psi_0 = 0\f$; this does not actually lead
+      to no incoming radiation, since \f$\Psi_0\f$ and \f$\Psi_4\f$ both include
+      incoming and outgoing radiation.
+    - `InverseCubic`: Ansatz where \f$J = A/r + B/r^3\f$
+    - `ConformalFactor`: Try to make initial time coordinate as inertial as
+      possible at \f$\mathscr{I}^+\f$.
 
 - An example of an appropriate submission command for slurm systems is:
   ```
   srun -n 1 -c 1 path/to/build/bin/CharacteristicExtract ++ppn 3 \
- --input-file path/to/input.yaml
+  --input-file path/to/input.yaml
   ```
   CCE doesn't currently scale to more than 4 cores, so those slurm options are
   best.
@@ -76,6 +73,9 @@ CCE using external data are:
         for attribute in input_h5[dset].attrs.keys():
             output_h5[dset].attrs[attribute] = input_h5[dset].attrs[attribute]
   ```
+- Note, these `*.h5` files required as an `input_file` (and also needed
+  in the `.yaml` file) will need to be obtained from an SXS member who has
+  completed a relevant `SpEC` run.
 - The output data will be written as spin-weighted spherical harmonic
   modes, one physical quantity per dataset, and each row will
   have the time value followed by the real and imaginary parts
@@ -121,11 +121,11 @@ import h5py as h5
 
 
 def spectre_real_mode_index(l, m):
-    return 2 * (l**2 + l + m)
+    return 2 * (l**2 + l + m) + 1
 
 
 def spectre_imag_mode_index(l, m):
-    return 2 * (l**2 + l + m) + 1
+    return 2 * (l**2 + l + m) + 2
 
 
 def get_modes_from_block_output(filename, dataset, modes=[[2, 2], [3, 3]]):

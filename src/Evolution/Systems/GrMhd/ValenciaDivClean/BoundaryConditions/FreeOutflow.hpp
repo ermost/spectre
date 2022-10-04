@@ -11,7 +11,9 @@
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Domain/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/BoundaryConditions/Type.hpp"
+#include "Evolution/DgSubcell/Tags/Mesh.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/GrMhd/ValenciaDivClean/FiniteDifference/Tag.hpp"
 #include "Options/Options.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/Hydro/Tags.hpp"
@@ -19,6 +21,8 @@
 
 /// \cond
 class DataVector;
+template <size_t VolumeDim>
+class Direction;
 namespace gsl {
 template <typename T>
 class not_null;
@@ -52,6 +56,19 @@ namespace grmhd::ValenciaDivClean::BoundaryConditions {
  *
  */
 class FreeOutflow final : public BoundaryCondition {
+ private:
+  using RestMassDensity = hydro::Tags::RestMassDensity<DataVector>;
+  using Pressure = hydro::Tags::Pressure<DataVector>;
+  using LorentzFactorTimesSpatialVelocity =
+      hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>;
+  using MagneticField = hydro::Tags::MagneticField<DataVector, 3>;
+  using DivergenceCleaningField =
+      hydro::Tags::DivergenceCleaningField<DataVector>;
+
+  using prim_tags_for_reconstruction =
+      tmpl::list<RestMassDensity, Pressure, LorentzFactorTimesSpatialVelocity,
+                 MagneticField, DivergenceCleaningField>;
+
  public:
   using options = tmpl::list<>;
   static constexpr Options::String help{
@@ -91,9 +108,7 @@ class FreeOutflow final : public BoundaryCondition {
       gr::Tags::Shift<3, Frame::Inertial, DataVector>,
       gr::Tags::Lapse<DataVector>,
       gr::Tags::InverseSpatialMetric<3, Frame::Inertial, DataVector>>;
-  using dg_gridless_tags =
-      tmpl::list<gr::Tags::SpatialMetric<3, Frame::Inertial, DataVector>,
-                 gr::Tags::SqrtDetSpatialMetric<DataVector>>;
+  using dg_gridless_tags = tmpl::list<>;
 
   static std::optional<std::string> dg_ghost(
       const gsl::not_null<Scalar<DataVector>*> tilde_d,
@@ -136,9 +151,39 @@ class FreeOutflow final : public BoundaryCondition {
       const tnsr::I<DataVector, 3, Frame::Inertial>& interior_shift,
       const Scalar<DataVector>& interior_lapse,
       const tnsr::II<DataVector, 3, Frame::Inertial>&
-          interior_inv_spatial_metric,
+          interior_inv_spatial_metric);
 
-      const tnsr::ii<DataVector, 3, Frame::Inertial>& interior_spatial_metric,
-      const Scalar<DataVector>& interior_sqrt_det_spatial_metric);
+  using fd_interior_evolved_variables_tags = tmpl::list<>;
+  using fd_interior_temporary_tags =
+      tmpl::list<evolution::dg::subcell::Tags::Mesh<3>>;
+  using fd_interior_primitive_variables_tags =
+      tmpl::list<RestMassDensity, Pressure,
+                 hydro::Tags::LorentzFactor<DataVector>,
+                 hydro::Tags::SpatialVelocity<DataVector, 3>, MagneticField>;
+  using fd_gridless_tags = tmpl::list<fd::Tags::Reconstructor>;
+
+  static void fd_ghost(
+      const gsl::not_null<Scalar<DataVector>*> rest_mass_density,
+      const gsl::not_null<Scalar<DataVector>*> pressure,
+      const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
+          lorentz_factor_times_spatial_velocity,
+      const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
+          magnetic_field,
+      const gsl::not_null<Scalar<DataVector>*> divergence_cleaning_field,
+
+      const Direction<3>& direction,
+
+      // interior temporary tags
+      const Mesh<3>& subcell_mesh,
+
+      // interior prim vars tags
+      const Scalar<DataVector>& interior_rest_mass_density,
+      const Scalar<DataVector>& interior_pressure,
+      const Scalar<DataVector>& interior_lorentz_factor,
+      const tnsr::I<DataVector, 3, Frame::Inertial>& interior_spatial_velocity,
+      const tnsr::I<DataVector, 3, Frame::Inertial>& interior_magnetic_field,
+
+      // gridless tags
+      const fd::Reconstructor& reconstructor);
 };
 }  // namespace grmhd::ValenciaDivClean::BoundaryConditions

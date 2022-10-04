@@ -78,6 +78,7 @@ struct component {
       evolution::dg::subcell::Tags::ActiveGrid,
       evolution::dg::subcell::Tags::DidRollback,
       evolution::dg::subcell::Tags::NeighborDataForReconstruction<Dim>,
+      evolution::dg::subcell::Tags::TciStatus,
       evolution::dg::subcell::Tags::DataForRdmpTci,
       evolution::dg::subcell::Tags::TciGridHistory,
       Tags::Variables<tmpl::list<Var1>>,
@@ -114,7 +115,7 @@ struct Metavariables {
                    evolution::dg::subcell::Tags::DataForRdmpTci,
                    evolution::dg::subcell::Tags::SubcellOptions>;
 
-    static std::tuple<bool, evolution::dg::subcell::RdmpTciData> apply(
+    static std::tuple<int, evolution::dg::subcell::RdmpTciData> apply(
         const Variables<tmpl::list<Var1>>& subcell_vars,
         const evolution::dg::subcell::RdmpTciData& past_rdmp_tci_data,
         const evolution::dg::subcell::SubcellOptions& subcell_options,
@@ -211,6 +212,10 @@ void test_impl(
                std::pair<Direction<Dim>, ElementId<Dim>>, std::vector<double>,
                boost::hash<std::pair<Direction<Dim>, ElementId<Dim>>>>
       neighbor_data{};
+
+  Scalar<DataVector> tci_status{dg_mesh.number_of_grid_points(),
+                                static_cast<double>(tci_fails)};
+
   evolution::dg::subcell::RdmpTciData rdmp_tci_data{};
   // max and min of +-2 at last time level means reconstructed vars will be in
   // limit
@@ -222,6 +227,7 @@ void test_impl(
   }
 
   using evolved_vars_tags = tmpl::list<Var1>;
+  using dt_evolved_vars_tags = db::wrap_tags_in<Tags::dt, evolved_vars_tags>;
   Variables<evolved_vars_tags> evolved_vars{
       subcell_mesh.number_of_grid_points()};
   // Set Var1 to the logical coords, since those are linear
@@ -229,10 +235,9 @@ void test_impl(
   if (rdmp_fails) {
     get(get<Var1>(evolved_vars))[0] = 100.0;
   }
-
-  TimeSteppers::History<Variables<evolved_vars_tags>> time_stepper_history{};
+  TimeSteppers::History<Variables<dt_evolved_vars_tags>> time_stepper_history{};
   for (size_t i = 0; i < time_stepper->order(); ++i) {
-    Variables<db::wrap_tags_in<Tags::dt, evolved_vars_tags>> dt_vars{
+    Variables<dt_evolved_vars_tags> dt_vars{
         subcell_mesh.number_of_grid_points()};
     get(get<Tags::dt<Var1>>(dt_vars)) =
         (i + 20.0) * get<0>(logical_coordinates(subcell_mesh));
@@ -243,12 +248,11 @@ void test_impl(
   Variables<evolved_vars_tags> vars{subcell_mesh.number_of_grid_points()};
   get(get<Var1>(vars)) =
       (time_stepper->order() + 1.0) * get<0>(logical_coordinates(subcell_mesh));
-  time_stepper_history.most_recent_value() = vars;
 
   ActionTesting::emplace_array_component_and_initialize<comp>(
       &runner, ActionTesting::NodeId{0}, ActionTesting::LocalCoreId{0}, 0,
       {time_step_id, dg_mesh, subcell_mesh, active_grid, did_rollback,
-       neighbor_data, rdmp_tci_data, tci_grid_history, evolved_vars,
+       neighbor_data, tci_status, rdmp_tci_data, tci_grid_history, evolved_vars,
        time_stepper_history, make_time_stepper(multistep_time_stepper)});
 
   // Invoke the TciAndSwitchToDg action on the runner
@@ -301,10 +305,6 @@ void test_impl(
   }
 
   if (active_grid_from_box == evolution::dg::subcell::ActiveGrid::Dg) {
-    CHECK(evolution::dg::subcell::fd::reconstruct(
-              time_stepper_history.most_recent_value(), dg_mesh,
-              subcell_mesh.extents(), recons_method) ==
-          time_stepper_history_from_box.most_recent_value());
     for (auto expected_it = time_stepper_history.derivatives_begin(),
               box_it = time_stepper_history_from_box.derivatives_begin();
          expected_it != time_stepper_history.derivatives_end();
@@ -317,8 +317,6 @@ void test_impl(
     CHECK(tci_grid_history_from_box.empty());
   } else {
     // TCI failed
-    CHECK(time_stepper_history.most_recent_value() ==
-          time_stepper_history_from_box.most_recent_value());
     for (auto expected_it = time_stepper_history.derivatives_begin(),
               box_it = time_stepper_history_from_box.derivatives_begin();
          expected_it != time_stepper_history.derivatives_end();

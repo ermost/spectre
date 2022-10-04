@@ -12,7 +12,6 @@
 #include "DataStructures/Tensor/EagerMath/DeterminantAndInverse.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Domain/CoordinateMaps/CylindricalEndcapHelpers.hpp"
-#include "NumericalAlgorithms/RootFinding/NewtonRaphson.hpp"
 #include "NumericalAlgorithms/RootFinding/TOMS748.hpp"
 #include "Parallel/PupStlCpp11.hpp"
 #include "Utilities/ConstantExpressions.hpp"
@@ -42,16 +41,24 @@ double this_function_is_zero_for_correct_rhobar(
                 lambda * radius_two * sin(rhobar * theta_max_two));
 }
 
-bool is_uniform_cylindrical_endcap_invertible_for_target_on_sphere_one(
+// min and max values of rhobar in the inverse function.
+std::array<double, 2> rhobar_min_max(
     const std::array<double, 3>& center_one,
     const std::array<double, 3>& center_two, const double radius_one,
     const double radius_two, const double theta_max_one,
     const double theta_max_two, const std::array<double, 3>& target_coords) {
+  // Choose the minimum value of rhobar so that lambda >=0, where
+  // lambda is the quantity inside function_to_zero.  Note that the
+  // denominator of lambda inside that function is always positive.
   const double rhobar_min =
       target_coords[2] - center_one[2] >= radius_one
           ? 0.0
           : acos((target_coords[2] - center_one[2]) / radius_one) /
                 theta_max_one;
+  // Likewise, choose the maximum value of rhobar so that lambda <=1.
+  // The second ternary is to account for roundoff so that the acos doesn't
+  // FPE; (other than roundoff, target_coords[2] - center_two[2] should be
+  // <= radius_two)
   const double rhobar_max =
       target_coords[2] - center_two[2] <= radius_two * cos(theta_max_two)
           ? 1.0
@@ -59,6 +66,17 @@ bool is_uniform_cylindrical_endcap_invertible_for_target_on_sphere_one(
                 ? 0.0
                 : acos((target_coords[2] - center_two[2]) / radius_two) /
                       theta_max_two;
+  return {rhobar_min, rhobar_max};
+}
+
+bool is_uniform_cylindrical_endcap_invertible_for_target_on_sphere_one(
+    const std::array<double, 3>& center_one,
+    const std::array<double, 3>& center_two, const double radius_one,
+    const double radius_two, const double theta_max_one,
+    const double theta_max_two, const std::array<double, 3>& target_coords) {
+  const auto [rhobar_min, rhobar_max] =
+      rhobar_min_max(center_one, center_two, radius_one, radius_two,
+                     theta_max_one, theta_max_two, target_coords);
   if (equal_within_roundoff(rhobar_min, rhobar_max)) {
     // Special case where rhobar_min == rhobar_max to roundoff.  This
     // case occurs when the target point (assumed to be on sphere_one)
@@ -162,20 +180,20 @@ UniformCylindricalEndcap::UniformCylindricalEndcap(
       }()) {
   // Assumptions made in the map.  Some of these can be relaxed,
   // as long as the unit test is changed to test them.
-  ASSERT(z_plane_two >= z_plane_one + 0.02 * radius_one,
-         "z_plane_two must be >= z_plane_one + 0.02 * radius_one, not "
+  ASSERT(z_plane_two >= z_plane_one + 0.04 * radius_two,
+         "z_plane_two must be >= z_plane_one + 0.04 * radius_two, not "
              << z_plane_two << " " << z_plane_one << " "
-             << z_plane_one + 0.02 * radius_one);
+             << z_plane_one + 0.04 * radius_two);
   ASSERT(theta_max_one_ < M_PI * 0.45,
          "z_plane_one is too close to the center of sphere_one: theta/pi = "
              << theta_max_one_ / M_PI);
-  ASSERT(theta_max_one_ > M_PI * 0.05,
+  ASSERT(theta_max_one_ > M_PI * 0.075,
          "z_plane_one is too far from the center of sphere_one: theta/pi = "
              << theta_max_one_ / M_PI);
   ASSERT(theta_max_two_ < M_PI * 0.45,
          "z_plane_two is too close to the center of sphere_two: theta/pi = "
              << theta_max_two_ / M_PI);
-  ASSERT(theta_max_two_ > M_PI * 0.05,
+  ASSERT(theta_max_two_ > M_PI * 0.075,
          "z_plane_two is too far from the center of sphere_two: theta/pi = "
              << theta_max_two_ / M_PI);
 
@@ -388,25 +406,10 @@ std::optional<std::array<double, 3>> UniformCylindricalEndcap::inverse(
         return std::make_pair(func_to_zero, deriv_of_func_to_zero);
       };
 
-  // Choose the minimum value of rhobar so that lambda >=0, where
-  // lambda is the quantity inside function_to_zero.  Note that the
-  // denominator of lambda inside that function is always positive.
-  const double rhobar_min =
-      target_coords[2] - center_one_[2] >= radius_one_
-          ? 0.0
-          : acos((target_coords[2] - center_one_[2]) / radius_one_) /
-                theta_max_one_;
-  // Likewise, choose the maximum value of rhobar so that lambda <=1.
-  // The second ternary is to account for roundoff so that the acos doesn't
-  // FPE; (other than roundoff, target_coords[2] - center_two_[2] should be
-  // <= radius_two_)
-  const double rhobar_max =
-      target_coords[2] - center_two_[2] <= radius_two_ * cos(theta_max_two_)
-          ? 1.0
-          : target_coords[2] - center_two_[2] >= radius_two_
-                ? 0.0
-                : acos((target_coords[2] - center_two_[2]) / radius_two_) /
-                      theta_max_two_;
+  // Non-const because might be changed below.
+  auto [rhobar_min, rhobar_max] =
+      rhobar_min_max(center_one_, center_two_, radius_one_, radius_two_,
+                     theta_max_one_, theta_max_two_, target_coords);
 
   // If rhobar is zero, then the root finding doesn't converge
   // well. This is because the function behaves like rhobar^2 for
@@ -559,89 +562,134 @@ std::optional<std::array<double, 3>> UniformCylindricalEndcap::inverse(
     // Root not bracketed.
     // If the bracketing failure is due to roundoff, then
     // slightly adjust the bounds to increase the range. Otherwise, error.
-    if (abs(function_at_rhobar_min) / abs(function_at_rhobar_max) < 1.e-10) {
+    //
+    // roundoff_ratio is the limiting ratio of the two function values
+    // for which we should attempt to adjust the bounds.  It is ok for
+    // roundoff_ratio to be much larger than actual roundoff, since it
+    // doesn't hurt to expand the interval and try again when
+    // otherwise we would just error.
+    constexpr double roundoff_ratio = 1.e-3;
+    if (abs(function_at_rhobar_min) / abs(function_at_rhobar_max) <
+        roundoff_ratio) {
       // Slightly decrease rhobar_min.  How far do we decrease it?
       // Figure that out by looking at the deriv of the function.
       const double deriv_function_at_rhobar_min =
           function_and_deriv_to_zero(rhobar_min).second;
-      // The formula below would be Newton-Raphson except for the
-      // factor of 2. The factor of 2 is there to over-compensate so that
-      // the new rhobar_min brackets the root.
-      const double new_rhobar_min =
-          rhobar_min -
-          2.0 * function_at_rhobar_min / deriv_function_at_rhobar_min;
-      try {
-        // We have a good guess, so use newton_raphson
-        const size_t digits = 14;
-        // use rhobar_min as maximum value, since that brackets the root.
-        rhobar =
-            RootFinder::newton_raphson(function_and_deriv_to_zero, rhobar_min,
-                                       new_rhobar_min, rhobar_min, digits);
-      } catch (std::exception&) {
-        const double function_at_new_rhobar_min =
-            function_to_zero(new_rhobar_min);
+      const double trial_rhobar_min_increment =
+          -2.0 * function_at_rhobar_min / deriv_function_at_rhobar_min;
+      // new_rhobar_min = rhobar_min + trial_rhobar_min_increment would be
+      // a Newton-Raphson step except for the factor of 2 in
+      // trial_rhobar_min_increment. The factor of 2 is there to
+      // over-compensate so that the new rhobar_min brackets the
+      // root.
+      //
+      // But sometimes the factor of 2 is not enough when
+      // trial_rhobar_min_increment is roundoff-small so that the
+      // change in new_rhobar_min is zero or only in the last one or
+      // two bits.  If this is the case, then we set
+      // rhobar_min_increment to some small roundoff value with the
+      // same sign as trial_rhobar_min_increment.
+      // Note that rhobar is always between zero and one, so it is
+      // ok to use an absolute epsilon.
+      const double rhobar_min_increment =
+          abs(trial_rhobar_min_increment) >
+                  100.0 * std::numeric_limits<double>::epsilon()
+              ? trial_rhobar_min_increment
+              : std::copysign(100.0 * std::numeric_limits<double>::epsilon(),
+                              trial_rhobar_min_increment);
+      const double new_rhobar_min = rhobar_min + rhobar_min_increment;
+      const double function_at_new_rhobar_min =
+          function_to_zero(new_rhobar_min);
+      if (function_at_new_rhobar_min * function_at_rhobar_min > 0.0) {
         ERROR(
-            "Cannot find root after trying to adjust bracketing rhobar_min due "
+            "Cannot find bracket after trying to adjust bracketing "
+            "rhobar_min due "
             "to roundoff : "
             << rhobar_min << " " << function_at_rhobar_min << " " << rhobar_max
             << " " << function_at_rhobar_max << " " << new_rhobar_min << " "
-            << function_at_new_rhobar_min);
+            << function_at_new_rhobar_min << " " << deriv_function_at_rhobar_min
+            << " " << new_rhobar_min - rhobar_min << "\n");
       }
+      // Now the root is bracketed between rhobar_min and new_rhobar_min,
+      // so replace rhobar_max and rhobar_min and then fall through to the
+      // root finder.
+      rhobar_max = rhobar_min;
+      function_at_rhobar_max = function_at_rhobar_min;
+      rhobar_min = new_rhobar_min;
+      function_at_rhobar_min = function_at_new_rhobar_min;
     } else if (abs(function_at_rhobar_max) / abs(function_at_rhobar_min) <
-               1.e-10) {
+               roundoff_ratio) {
       // Slightly increase rhobar_max.  How far do we increase it?
       // Figure that out by looking at the deriv of the function.
       const double deriv_function_at_rhobar_max =
           function_and_deriv_to_zero(rhobar_max).second;
-      // The formula below would be Newton-Raphson except for the
-      // factor of 2. The factor of 2 is there to over-compensate so that
-      // the new rhobar_max brackets the root.
-      const double new_rhobar_max =
-          rhobar_max -
-          2.0 * function_at_rhobar_max / deriv_function_at_rhobar_max;
-      try {
-        // We have a good guess, so use newton_raphson
-        const size_t digits = 14;
-        // use rhobar_max as minimum value, since that brackets the root.
-        rhobar =
-            RootFinder::newton_raphson(function_and_deriv_to_zero, rhobar_max,
-                                       rhobar_max, new_rhobar_max, digits);
-      } catch (std::exception&) {
-        const double function_at_new_rhobar_max =
-            function_to_zero(new_rhobar_max);
+      const double trial_rhobar_max_increment =
+          -2.0 * function_at_rhobar_max / deriv_function_at_rhobar_max;
+      // new_rhobar_max = rhobar_max + trial_rhobar_max_increment would be
+      // a Newton-Raphson step except for the factor of 2 in
+      // trial_rhobar_max_increment. The factor of 2 is there to
+      // over-compensate so that the new rhobar_max brackets the
+      // root.
+      //
+      // But sometimes the factor of 2 is not enough when
+      // trial_rhobar_max_increment is roundoff-small so that the
+      // change in new_rhobar_max is zero or only in the last one or
+      // two bits.  If this is the case, then we set
+      // rhobar_max_increment to some small roundoff value with the
+      // same sign as trial_rhobar_max_increment.
+      // Note that rhobar is always between zero and one, so it is
+      // ok to use an absolute epsilon.
+      const double rhobar_max_increment =
+          abs(trial_rhobar_max_increment) >
+                  100.0 * std::numeric_limits<double>::epsilon()
+              ? trial_rhobar_max_increment
+              : boost::math::copysign(
+                    100.0 * std::numeric_limits<double>::epsilon(),
+                    trial_rhobar_max_increment);
+      const double new_rhobar_max = rhobar_max + rhobar_max_increment;
+      const double function_at_new_rhobar_max =
+          function_to_zero(new_rhobar_max);
+      if (function_at_new_rhobar_max * function_at_rhobar_max > 0.0) {
         ERROR(
-            "Cannot find root after trying to adjust bracketing rhobar_max due "
+            "Cannot find bracket after trying to adjust bracketing "
+            "rhobar_max due "
             "to roundoff : "
-            << rhobar_min << " " << function_at_rhobar_min << " " << rhobar_max
+            << rhobar_max << " " << function_at_rhobar_max << " " << rhobar_max
             << " " << function_at_rhobar_max << " " << new_rhobar_max << " "
-            << function_at_new_rhobar_max);
+            << function_at_new_rhobar_max << " " << deriv_function_at_rhobar_max
+            << " " << new_rhobar_max - rhobar_max << "\n");
       }
+      // Now the root is bracketed between rhobar_max and new_rhobar_max,
+      // so replace rhobar_max and rhobar_min and then fall through to the
+      // root finder.
+      rhobar_min = rhobar_max;
+      function_at_rhobar_min = function_at_rhobar_max;
+      rhobar_max = new_rhobar_max;
+      function_at_rhobar_max = function_at_new_rhobar_max;
     } else {
       ERROR("Root is not bracketed: "
             << rhobar_min << " " << function_at_rhobar_min << " " << rhobar_max
             << " " << function_at_rhobar_max);
     }
-  } else {
-    // If we get here, root is bracketed. We don't really have a good
-    // guess, so use toms748, and use the function evaluations that we
-    // have already done.
+  }
+  // If we get here, root is bracketed. Use toms748, and use the
+  // function evaluations that we have already done.
 
-    // Rhobar is between zero and 1, so the scale is unity, so therefore
-    // abs and rel tolerance are equal.
-    constexpr double abs_tol = 1.e-15;
-    constexpr double rel_tol = 1.e-15;
+  // Rhobar is between zero and 1, so the scale is unity, so therefore
+  // abs and rel tolerance are equal.
+  constexpr double abs_tol = 1.e-15;
+  constexpr double rel_tol = 1.e-15;
 
-    try {
-      rhobar =
-          // NOLINTNEXTLINE(clang-analyzer-core)
-          RootFinder::toms748(function_to_zero, rhobar_min, rhobar_max,
-                              function_at_rhobar_min, function_at_rhobar_max,
-                              abs_tol, rel_tol);
-    } catch (std::exception&) {
-      ERROR("Cannot find root after bracketing: "
-            << rhobar_min << " " << function_at_rhobar_min << " " << rhobar_max
-            << " " << function_at_rhobar_max);
-    }
+  try {
+    rhobar =
+        // NOLINTNEXTLINE(clang-analyzer-core)
+        RootFinder::toms748(function_to_zero, rhobar_min, rhobar_max,
+                            function_at_rhobar_min, function_at_rhobar_max,
+                            abs_tol, rel_tol);
+  } catch (std::exception&) {
+    ERROR("Cannot find root after bracketing: "
+          << rhobar_min << " " << function_at_rhobar_min << " " << rhobar_max
+          << " " << function_at_rhobar_max);
   }
 
   // Now that we have rhobar, construct inverse.
@@ -658,9 +706,8 @@ std::optional<std::array<double, 3>> UniformCylindricalEndcap::inverse(
                (target_coords[0] - center_one_[0] -
                 lambda * (center_two_[0] - center_one_[0])) *
                denom,
-           rhobar *
-               (target_coords[1] - center_one_[1] -
-                lambda * (center_two_[1] - center_one_[1])) *
+           rhobar*(target_coords[1] - center_one_[1] -
+                   lambda * (center_two_[1] - center_one_[1])) *
                denom,
            2.0 * lambda - 1.0}};
 }

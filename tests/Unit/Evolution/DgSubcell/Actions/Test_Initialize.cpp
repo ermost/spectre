@@ -39,7 +39,6 @@
 #include "Evolution/DgSubcell/Tags/SubcellOptions.hpp"
 #include "Evolution/DgSubcell/Tags/TciGridHistory.hpp"
 #include "Evolution/DgSubcell/Tags/TciStatus.hpp"
-#include "Evolution/DgSubcell/TciStatus.hpp"
 #include "Evolution/Initialization/SetVariables.hpp"
 #include "Evolution/Initialization/Tags.hpp"
 #include "Framework/ActionTesting.hpp"
@@ -135,7 +134,7 @@ struct Metavariables {
         tmpl::list<domain::Tags::Mesh<volume_dim>,
                    evolution::dg::subcell::Tags::Mesh<volume_dim>>;
 
-    static std::tuple<bool, evolution::dg::subcell::RdmpTciData> apply(
+    static std::tuple<int, evolution::dg::subcell::RdmpTciData> apply(
         const Variables<tmpl::list<Var1>>& dg_vars, const double rdmp_delta0,
         const double rdmp_epsilon, const double persson_exponent,
         const Mesh<volume_dim>& dg_mesh, const Mesh<volume_dim>& subcell_mesh) {
@@ -159,7 +158,7 @@ struct Metavariables {
           std::vector<double>{min(min(get(get<Var1>(dg_vars))),
                                   min(get(get<Var1>(projected_dg_vars))))};
       invoked = true;
-      return {TciFails, std::move(rdmp_data)};
+      return {static_cast<int>(TciFails), std::move(rdmp_data)};
     }
   };
 };
