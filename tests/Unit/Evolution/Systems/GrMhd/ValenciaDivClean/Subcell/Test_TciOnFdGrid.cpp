@@ -18,11 +18,13 @@
 #include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Gsl.hpp"
 
 namespace {
 enum class TestThis {
   AllGood,
+  Atmosphere,
   NeededFixing,
   PerssonTildeD,
   PerssonTildeTau,
@@ -62,7 +64,7 @@ void test(const TestThis test_this, const int expected_tci_status) {
       grmhd::ValenciaDivClean::Tags::TildeD,
       grmhd::ValenciaDivClean::Tags::TildeYe,
       grmhd::ValenciaDivClean::Tags::TildeTau,
-      grmhd::ValenciaDivClean::Tags::TildeB<>,
+      grmhd::ValenciaDivClean::Tags::TildeB<>, gr::Tags::SqrtDetSpatialMetric<>,
       grmhd::ValenciaDivClean::Tags::VariablesNeededFixing,
       domain::Tags::Mesh<3>, ::evolution::dg::subcell::Tags::Mesh<3>,
       grmhd::ValenciaDivClean::subcell::Tags::TciOptions,
@@ -73,6 +75,7 @@ void test(const TestThis test_this, const int expected_tci_status) {
       Scalar<DataVector>(subcell_mesh.number_of_grid_points(), 1.0),
       tnsr::I<DataVector, 3, Frame::Inertial>(
           subcell_mesh.number_of_grid_points(), 1.0),
+      Scalar<DataVector>(subcell_mesh.number_of_grid_points(), 1.0),
       test_this == TestThis::NeededFixing, mesh, subcell_mesh, tci_options,
       subcell_options, evolution::dg::subcell::RdmpTciData{});
 
@@ -103,6 +106,16 @@ void test(const TestThis test_this, const int expected_tci_status) {
     db::mutate<grmhd::ValenciaDivClean::Tags::TildeTau>(
         make_not_null(&box), [point_to_change](const auto tilde_tau_ptr) {
           get(*tilde_tau_ptr)[point_to_change] = -1.0e-20;
+        });
+  } else if (test_this == TestThis::Atmosphere) {
+    db::mutate<grmhd::ValenciaDivClean::Tags::TildeD,
+               grmhd::ValenciaDivClean::Tags::VariablesNeededFixing>(
+        make_not_null(&box),
+        [](const auto tilde_d_ptr, const auto variables_needed_fixing_ptr) {
+          *variables_needed_fixing_ptr = true;
+          get(*tilde_d_ptr) =
+              5.0e-12;  // smaller than atmosphere density but
+                        // bigger than the Min(TildeD) TCI option
         });
   }
 
@@ -194,6 +207,7 @@ void test(const TestThis test_this, const int expected_tci_status) {
 SPECTRE_TEST_CASE("Unit.Evolution.Systems.ValenciaDivClean.Subcell.TciOnFdGrid",
                   "[Unit][Evolution]") {
   test(TestThis::AllGood, 0);
+  test(TestThis::Atmosphere, 0);
   test(TestThis::NeededFixing, 1);
   test(TestThis::NegativeTildeD, 2);
   test(TestThis::NegativeTildeTau, 2);

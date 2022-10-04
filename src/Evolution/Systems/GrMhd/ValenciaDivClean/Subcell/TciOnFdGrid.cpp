@@ -20,6 +20,7 @@ std::tuple<int, evolution::dg::subcell::RdmpTciData> TciOnFdGrid::apply(
     const Scalar<DataVector>& subcell_tilde_ye,
     const Scalar<DataVector>& subcell_tilde_tau,
     const tnsr::I<DataVector, 3, Frame::Inertial>& subcell_tilde_b,
+    const Scalar<DataVector>& sqrt_det_spatial_metric,
     const bool vars_needed_fixing, const Mesh<3>& dg_mesh,
     const Mesh<3>& subcell_mesh,
     const evolution::dg::subcell::RdmpTciData& past_rdmp_tci_data,
@@ -34,6 +35,8 @@ std::tuple<int, evolution::dg::subcell::RdmpTciData> TciOnFdGrid::apply(
       [&temp_buffer, &offset_into_temp_buffer](
           const gsl::not_null<Scalar<DataVector>*> to_assign,
           const size_t size) {
+        ASSERT(offset_into_temp_buffer + size <= temp_buffer.size(),
+               "Trying to assign data out of allocated memory size");
         get(*to_assign)
             .set_data_ref(temp_buffer.data() + offset_into_temp_buffer, size);
         offset_into_temp_buffer += size;
@@ -70,7 +73,18 @@ std::tuple<int, evolution::dg::subcell::RdmpTciData> TciOnFdGrid::apply(
       subcell_mesh.extents(),
       evolution::dg::subcell::fd::ReconstructionMethod::DimByDim);
 
-  if (vars_needed_fixing) {
+  Scalar<DataVector> dg_sqrt_det_spatial_metric{};
+  assign_data(make_not_null(&dg_sqrt_det_spatial_metric), num_dg_pts);
+  evolution::dg::subcell::fd::reconstruct(
+      make_not_null(&get(dg_sqrt_det_spatial_metric)),
+      get(sqrt_det_spatial_metric), dg_mesh, subcell_mesh.extents(),
+      evolution::dg::subcell::fd::ReconstructionMethod::DimByDim);
+
+  if (vars_needed_fixing and
+      (max(get(dg_tilde_d) / get(dg_sqrt_det_spatial_metric)) >
+       tci_options.atmosphere_density) and
+      (max(get(subcell_tilde_d) / get(sqrt_det_spatial_metric)) >
+       tci_options.atmosphere_density)) {
     return {+1, rdmp_tci_data};
   }
 
