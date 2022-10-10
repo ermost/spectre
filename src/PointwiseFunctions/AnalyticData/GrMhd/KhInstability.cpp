@@ -99,7 +99,7 @@ KhInstability::variables(
     tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
   // FIXME Add proper EoS call to get Ye
 
-  return {0.1};
+return {make_with_value<Scalar<DataType>>(x, 0.1)};
 }
 
 template <typename DataType>

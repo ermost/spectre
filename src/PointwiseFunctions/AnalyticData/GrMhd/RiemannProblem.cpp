@@ -83,7 +83,7 @@ RiemannProblem::variables(
   // FIXME Either add EoS call or make electron fraction independent
   // to test advection behavior
 
-  return {0.1};
+    return {make_with_value<Scalar<DataType>>(x, 0.1)};
 }
 
 template <typename DataType>

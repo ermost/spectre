@@ -17,7 +17,8 @@ void bind_tov(py::module& m) {  // NOLINT
       .value("Schwarzschild", TovCoordinates::Schwarzschild)
       .value("Isotropic", TovCoordinates::Isotropic);
   py::class_<TovSolution>(m, "Tov")
-      .def(py::init<const EquationsOfState::EquationOfState<true, 1>&, double,
+      .def(py::init<const EquationsOfState::EquationOfState<true, 1>&,
+      double,
                     TovCoordinates, double, double, double>(),
            py::arg("equation_of_state"), py::arg("central_mass_density"),
            py::arg("coordinate_system") = TovCoordinates::Schwarzschild,

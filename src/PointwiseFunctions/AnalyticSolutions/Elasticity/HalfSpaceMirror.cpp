@@ -56,13 +56,13 @@ void HalfSpaceMirrorVariables<DataType>::operator()(
     try {
       if (not equal_within_roundoff(r, 0.)) {
         get(*displacement_r)[i] =
-            prefactor * integration(
-                            [&r, &z, &modulus_term_r, this](const double k) {
-                              return displacement_r_integrand(
-                                  k, r, z, beam_width, modulus_term_r);
-                            },
-                            lower_boundary, absolute_tolerance,
-                            relative_tolerance);
+            prefactor *
+            integration(
+                [&r, &z, &modulus_term_r, this](const double k) {
+                  return displacement_r_integrand(k, r, z, beam_width,
+                                                  modulus_term_r);
+                },
+                lower_boundary, absolute_tolerance, relative_tolerance);
       }
     } catch (convergence_error& error) {
       ERROR("The numerical integral failed at r="
@@ -104,14 +104,14 @@ void HalfSpaceMirrorVariables<DataType>::operator()(
         get<1>(*displacement)[i] = 0.;
       }
       const double displacement_z =
-          prefactor * integration(
-                          [&r, &z, &modulus_term_z, this](const double k) {
-                            return gsl_sf_bessel_J0(k * r) *
-                                   exp(-k * z - square(0.5 * k * beam_width)) *
-                                   (modulus_term_z + k * z);
-                          },
-                          lower_boundary, absolute_tolerance,
-                          relative_tolerance);
+          prefactor *
+          integration(
+              [&r, &z, &modulus_term_z, this](const double k) {
+                return gsl_sf_bessel_J0(k * r) *
+                       exp(-k * z - square(0.5 * k * beam_width)) *
+                       (modulus_term_z + k * z);
+              },
+              lower_boundary, absolute_tolerance, relative_tolerance);
       get<2>(*displacement)[i] = displacement_z;
     } catch (convergence_error& error) {
       ERROR("The numerical integral failed at r="
@@ -147,24 +147,24 @@ void HalfSpaceMirrorVariables<DataType>::operator()(
     const double z = get<2>(x)[i];
     try {
       const double trace_term =
-          prefactor * integration(
-                          [&r, &z, &modulus_term_trace, this](const double k) {
-                            return k * gsl_sf_bessel_J0(k * r) *
-                                   exp(-k * z - square(0.5 * k * beam_width)) *
-                                   modulus_term_trace;
-                          },
-                          lower_boundary, absolute_tolerance,
-                          relative_tolerance);
+          prefactor *
+          integration(
+              [&r, &z, &modulus_term_trace, this](const double k) {
+                return k * gsl_sf_bessel_J0(k * r) *
+                       exp(-k * z - square(0.5 * k * beam_width)) *
+                       modulus_term_trace;
+              },
+              lower_boundary, absolute_tolerance, relative_tolerance);
 
       const double strain_zz =
-          -prefactor * integration(
-                           [&r, &z, &modulus_term_zz, this](const double k) {
-                             return k * gsl_sf_bessel_J0(k * r) *
-                                    exp(-k * z - square(0.5 * k * beam_width)) *
-                                    (modulus_term_zz + k * z);
-                           },
-                           lower_boundary, absolute_tolerance,
-                           relative_tolerance);
+          -prefactor *
+          integration(
+              [&r, &z, &modulus_term_zz, this](const double k) {
+                return k * gsl_sf_bessel_J0(k * r) *
+                       exp(-k * z - square(0.5 * k * beam_width)) *
+                       (modulus_term_zz + k * z);
+              },
+              lower_boundary, absolute_tolerance, relative_tolerance);
 
       if (not equal_within_roundoff(r, 0.)) {
         const double strain_rz =

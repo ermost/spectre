@@ -90,9 +90,7 @@ MagneticRotor::variables(
     tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
   // FIXME Add propoer EoS call to get Ye
 
-  auto ye = make_with_value<Scalar<DataType>>(x, 0.1);
-
-  return {std::move(ye)};
+  return {make_with_value<Scalar<DataType>>(x, 0.1)};
 }
 
 template <typename DataType>

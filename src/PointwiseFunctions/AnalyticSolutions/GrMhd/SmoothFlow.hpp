@@ -4,7 +4,6 @@
 #pragma once
 
 #include <pup.h>
-#include <array>
 
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Options/Options.hpp"

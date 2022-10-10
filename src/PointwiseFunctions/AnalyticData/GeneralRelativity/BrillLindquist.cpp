@@ -27,10 +27,12 @@ BrillLindquist::BrillLindquist(const double mass_a, const double mass_b,
       center_a_(center_a),
       center_b_(center_b) {
   if (mass_a_ <= 0.0) {
-    PARSE_ERROR(context, "Mass A must be positive. Given mass: " << mass_a_);
+    PARSE_ERROR(context,
+                "Mass A must be positive. Given mass: " << mass_a_);
   }
   if (mass_b_ <= 0.0) {
-    PARSE_ERROR(context, "Mass B must be positive. Given mass: " << mass_b_);
+    PARSE_ERROR(context,
+                "Mass B must be positive. Given mass: " << mass_b_);
   }
 }
 

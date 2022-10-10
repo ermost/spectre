@@ -40,7 +40,7 @@ OrszagTangVortex::variables(
     const tnsr::I<DataType, 3>& x,
     tmpl::list<hydro::Tags::ElectronFraction<DataType>> /*meta*/) const {
   // FIXME Need to add proper EoS call to Ye
-  return {0.1};
+  return {make_with_value<Scalar<DataType>>(x, 0.1)};
 }
 
 template <typename DataType>

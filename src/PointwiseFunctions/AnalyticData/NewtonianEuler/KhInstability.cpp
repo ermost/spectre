@@ -172,21 +172,21 @@ bool operator!=(const KhInstability<Dim>& lhs, const KhInstability<Dim>& rhs) {
 GENERATE_INSTANTIATIONS(INSTANTIATE_CLASS, (2, 3))
 
 #define INSTANTIATE_SCALARS(_, data)                                 \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data)>>             \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data)> >            \
       KhInstability<DIM(data)>::variables(                           \
           const tnsr::I<DTYPE(data), DIM(data), Frame::Inertial>& x, \
-          tmpl::list<TAG(data) < DTYPE(data)>>) const;
+          tmpl::list<TAG(data) < DTYPE(data)> >) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (2, 3), (double, DataVector),
                         (Tags::MassDensity, Tags::SpecificInternalEnergy,
                          Tags::Pressure))
 
-#define INSTANTIATE_VELOCITY(_, data)                                       \
-  template tuples::TaggedTuple<TAG(data) < DTYPE(data), DIM(data),          \
-                               Frame::Inertial>>                            \
-      KhInstability<DIM(data)>::variables(                                  \
-          const tnsr::I<DTYPE(data), DIM(data), Frame::Inertial>& x,        \
-          tmpl::list<TAG(data) < DTYPE(data), DIM(data), Frame::Inertial>>) \
+#define INSTANTIATE_VELOCITY(_, data)                                        \
+  template tuples::TaggedTuple<TAG(data) < DTYPE(data), DIM(data),           \
+                               Frame::Inertial> >                            \
+      KhInstability<DIM(data)>::variables(                                   \
+          const tnsr::I<DTYPE(data), DIM(data), Frame::Inertial>& x,         \
+          tmpl::list<TAG(data) < DTYPE(data), DIM(data), Frame::Inertial> >) \
           const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VELOCITY, (2, 3), (double, DataVector),

@@ -133,12 +133,12 @@ bool operator!=(const ConstantM1& lhs, const ConstantM1& rhs) {
 #define EBIN(data) BOOST_PP_TUPLE_ELEM(2, data)
 #define GENERATE_LIST(z, n, _) BOOST_PP_COMMA_IF(n) n
 
-#define INSTANTIATE_M1_FUNCTION_WITH_FRAME(_, data)                           \
-  template tuples::TaggedTuple<TAG(data) < Frame::Inertial,                   \
-                               NTYPE(data) < EBIN(data)>>>                    \
-      ConstantM1::variables(                                                  \
-          const tnsr::I<DataVector, 3>& x, double t,                          \
-          tmpl::list<TAG(data) < Frame::Inertial, NTYPE(data) < EBIN(data)>>> \
+#define INSTANTIATE_M1_FUNCTION_WITH_FRAME(_, data)                            \
+  template tuples::TaggedTuple<TAG(data) < Frame::Inertial,                    \
+                               NTYPE(data) < EBIN(data)> >>                    \
+      ConstantM1::variables(                                                   \
+          const tnsr::I<DataVector, 3>& x, double t,                           \
+          tmpl::list<TAG(data) < Frame::Inertial, NTYPE(data) < EBIN(data)> >> \
           /*meta*/) const;
 
 #define temp_list \
@@ -164,11 +164,12 @@ GENERATE_INSTANTIATIONS(INSTANTIATE_M1_FUNCTION_WITH_FRAME,
 #define EBIN(data) BOOST_PP_TUPLE_ELEM(2, data)
 #define GENERATE_LIST(z, n, _) BOOST_PP_COMMA_IF(n) n
 
-#define INSTANTIATE_M1_FUNCTION(_, data)                                       \
-  template tuples::TaggedTuple<TAG(data) < NTYPE(data) < EBIN(data)>>>         \
-      ConstantM1::variables(const tnsr::I<DataVector, 3>& x, double t,         \
-                            tmpl::list<TAG(data) < NTYPE(data) < EBIN(data)>>> \
-                            /*meta*/) const;
+#define INSTANTIATE_M1_FUNCTION(_, data)                                \
+  template tuples::TaggedTuple<TAG(data) < NTYPE(data) < EBIN(data)> >> \
+      ConstantM1::variables(                                            \
+          const tnsr::I<DataVector, 3>& x, double t,                    \
+          tmpl::list<TAG(data) < NTYPE(data) < EBIN(data)> >>           \
+          /*meta*/) const;
 
 #define temp_list \
   (BOOST_PP_REPEAT(MAX_NUMBER_OF_NEUTRINO_ENERGY_BINS, GENERATE_LIST, _))
