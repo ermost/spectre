@@ -217,6 +217,7 @@ bool operator!=(const PositivityPreservingAdaptiveOrderPrim& lhs,
   tmpl::list<Tags::TildeD, Tags::TildeTau, Tags::TildeS<Frame::Inertial>,    \
              Tags::TildeB<Frame::Inertial>, Tags::TildePhi,                  \
              hydro::Tags::RestMassDensity<DataVector>,                       \
+             hydro::Tags::ElectronFraction<DataVector>,                       \
              hydro::Tags::SpecificInternalEnergy<DataVector>,                \
              hydro::Tags::SpatialVelocity<DataVector, 3>,                    \
              hydro::Tags::MagneticField<DataVector, 3>,                      \
@@ -226,6 +227,7 @@ bool operator!=(const PositivityPreservingAdaptiveOrderPrim& lhs,
              hydro::Tags::SpecificEnthalpy<DataVector>,                      \
              hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>,  \
              ::Tags::Flux<Tags::TildeD, tmpl::size_t<3>, Frame::Inertial>,   \
+             ::Tags::Flux<Tags::TildeYe, tmpl::size_t<3>, Frame::Inertial>,   \
              ::Tags::Flux<Tags::TildeTau, tmpl::size_t<3>, Frame::Inertial>, \
              ::Tags::Flux<Tags::TildeS<Frame::Inertial>, tmpl::size_t<3>,    \
                           Frame::Inertial>,                                  \
