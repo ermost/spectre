@@ -174,8 +174,12 @@ void characteristic_speeds(
                 .kappa_times_p_over_rho_squared_from_density_and_energy(
                     rest_mass_density, specific_internal_energy));
   } else if constexpr (ThermodynamicDim == 3) {
+      ERROR("3d EOS not implemented");
   }
   get(sound_speed_squared) /= get(specific_enthalpy);
+utda:q
+:
+
 
   compute_characteristic_speeds(char_speeds, lapse, shift, spatial_velocity,
                                 spatial_velocity_squared, sound_speed_squared,
