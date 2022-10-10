@@ -60,7 +60,6 @@ std::tuple<int, evolution::dg::subcell::RdmpTciData> TciOnFdGrid::apply(
       make_not_null(&get(dg_tilde_d)), get(subcell_tilde_d), dg_mesh,
       subcell_mesh.extents(),
       evolution::dg::subcell::fd::ReconstructionMethod::DimByDim);
-
   Scalar<DataVector> dg_tilde_ye{};
   assign_data(make_not_null(&dg_tilde_ye), num_dg_pts);
   evolution::dg::subcell::fd::reconstruct(

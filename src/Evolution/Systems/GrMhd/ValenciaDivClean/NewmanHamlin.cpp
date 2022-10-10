@@ -114,17 +114,16 @@ std::optional<PrimitiveRecoveryData> NewmanHamlin::apply(
                                    rho_h_w_squared, electron_fraction};
     }
 
-    const double current_specific_enthalpy = [rho_h_w_squared,
-                                              current_rest_mass_density,
-                                              current_lorentz_factor]() {
-      const double specific_enthalpy =
-          rho_h_w_squared /
-          (current_rest_mass_density * square(current_lorentz_factor));
-      if (UNLIKELY(1.0 - 1.0e-12 > specific_enthalpy)) {
-        return specific_enthalpy;  // will fail returning std::nullopt
-      }
-      return std::max(1.0, specific_enthalpy);
-    }();
+    const double current_specific_enthalpy =
+        [rho_h_w_squared, current_rest_mass_density, current_lorentz_factor]() {
+          const double specific_enthalpy =
+              rho_h_w_squared /
+              (current_rest_mass_density * square(current_lorentz_factor));
+          if (UNLIKELY(1.0 - 1.0e-12 > specific_enthalpy)) {
+            return specific_enthalpy;  // will fail returning std::nullopt
+          }
+          return std::max(1.0, specific_enthalpy);
+        }();
     if (UNLIKELY(1.0 > current_specific_enthalpy)) {
       return std::nullopt;
     }
