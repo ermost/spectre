@@ -40,6 +40,7 @@ template <size_t ThermodynamicDim>
 bool PrimitiveFromConservative<OrderedListOfPrimitiveRecoverySchemes,
                                ErrorOnFailure>::
     apply(const gsl::not_null<Scalar<DataVector>*> rest_mass_density,
+          const gsl::not_null<Scalar<DataVector>*> electron_fraction,
           const gsl::not_null<Scalar<DataVector>*> specific_internal_energy,
           const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>
               spatial_velocity,
@@ -221,6 +222,7 @@ GENERATE_INSTANTIATIONS(
       RECOVERY(data), ERROR_ON_FAILURE(data)>::                               \
       apply<THERMODIM(data)>(                                                 \
           const gsl::not_null<Scalar<DataVector>*> rest_mass_density,         \
+          const gsl::not_null<Scalar<DataVector>*> electron_fraction,         \
           const gsl::not_null<Scalar<DataVector>*> specific_internal_energy,  \
           const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*>       \
               spatial_velocity,                                               \
@@ -231,6 +233,7 @@ GENERATE_INSTANTIATIONS(
           const gsl::not_null<Scalar<DataVector>*> pressure,                  \
           const gsl::not_null<Scalar<DataVector>*> specific_enthalpy,         \
           const Scalar<DataVector>& tilde_d,                                  \
+          const Scalar<DataVector>& tilde_ye,                                 \
           const Scalar<DataVector>& tilde_tau,                                \
           const tnsr::i<DataVector, 3, Frame::Inertial>& tilde_s,             \
           const tnsr::I<DataVector, 3, Frame::Inertial>& tilde_b,             \

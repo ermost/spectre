@@ -28,6 +28,7 @@ class FunctionOfX {
               const double momentum_density_dot_magnetic_field,
               const double magnetic_field_squared,
               const double rest_mass_density_times_lorentz_factor,
+              const double electron_fraction,
               const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
                   equation_of_state)
       : q_(total_energy_density / rest_mass_density_times_lorentz_factor - 1.0),

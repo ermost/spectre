@@ -114,6 +114,7 @@ class FunctionOfMu {
                const double momentum_density_dot_magnetic_field,
                const double magnetic_field_squared,
                const double rest_mass_density_times_lorentz_factor,
+               const double electron_fraction,
                const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
                    equation_of_state)
       : q_(total_energy_density / rest_mass_density_times_lorentz_factor - 1.0),
@@ -125,6 +126,7 @@ class FunctionOfMu {
                          cube(rest_mass_density_times_lorentz_factor)),
         rest_mass_density_times_lorentz_factor_(
             rest_mass_density_times_lorentz_factor),
+        electron_fraction_(electron_fraction),
         equation_of_state_(equation_of_state),
         h_0_(equation_of_state_.specific_enthalpy_lower_bound()),
         v_0_squared_(compute_v_0_squared(r_squared_, h_0_)) {}
@@ -143,6 +145,7 @@ class FunctionOfMu {
   const double b_squared_;
   const double r_dot_b_squared_;
   const double rest_mass_density_times_lorentz_factor_;
+  const double electron_fraction_;
   const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
       equation_of_state_;
   const double h_0_;
@@ -288,6 +291,7 @@ std::optional<PrimitiveRecoveryData> KastaunEtAl::apply(
     const double momentum_density_dot_magnetic_field,
     const double magnetic_field_squared,
     const double rest_mass_density_times_lorentz_factor,
+    const double electron_fraction,
     const EquationsOfState::EquationOfState<true, ThermodynamicDim>&
         equation_of_state) {
   // Master function see Equation (44)
@@ -297,6 +301,7 @@ std::optional<PrimitiveRecoveryData> KastaunEtAl::apply(
                                      momentum_density_dot_magnetic_field,
                                      magnetic_field_squared,
                                      rest_mass_density_times_lorentz_factor,
+                                     electron_fraction,
                                      equation_of_state};
 
   // mu is 1 / (h W) see Equation (26)
@@ -345,6 +350,7 @@ std::optional<PrimitiveRecoveryData> KastaunEtAl::apply(
       const double momentum_density_dot_magnetic_field,                       \
       const double magnetic_field_squared,                                    \
       const double rest_mass_density_times_lorentz_factor,                    \
+      const double electron_fraction,                                         \
       const EquationsOfState::EquationOfState<true, THERMODIM(data)>&         \
           equation_of_state);
 
