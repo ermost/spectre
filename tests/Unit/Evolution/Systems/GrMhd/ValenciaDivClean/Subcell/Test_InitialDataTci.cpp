@@ -1,6 +1,8 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
+#include "Framework/TestingFramework.hpp"
+
 #include <cstddef>
 
 #include "DataStructures/DataVector.hpp"
@@ -12,7 +14,6 @@
 #include "Evolution/DgSubcell/Projection.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/InitialDataTci.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
-#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 

@@ -1,6 +1,8 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
+#include "Framework/TestingFramework.hpp"
+
 #include <array>
 #include <cstddef>
 #include <memory>
@@ -42,7 +44,6 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TimeDerivative.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Tags.hpp"
-#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Parallel/Tags/Metavariables.hpp"

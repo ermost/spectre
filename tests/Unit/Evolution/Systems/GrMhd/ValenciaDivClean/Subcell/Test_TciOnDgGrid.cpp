@@ -1,6 +1,8 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
+#include "Framework/TestingFramework.hpp"
+
 #include <cstddef>
 #include <limits>
 #include <memory>
@@ -22,7 +24,6 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOnDgGrid.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOptions.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
-#include "Framework/TestingFramework.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"

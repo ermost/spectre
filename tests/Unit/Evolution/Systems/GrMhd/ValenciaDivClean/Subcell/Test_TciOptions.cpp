@@ -1,10 +1,11 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
+#include "Framework/TestingFramework.hpp"
+
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/TciOptions.hpp"
 #include "Framework/TestCreation.hpp"
 #include "Framework/TestHelpers.hpp"
-#include "Framework/TestingFramework.hpp"
 
 SPECTRE_TEST_CASE("Unit.GrMhd.ValenciaDivClean.Subcell.TciOptions",
                   "[Unit][GrMhd]") {

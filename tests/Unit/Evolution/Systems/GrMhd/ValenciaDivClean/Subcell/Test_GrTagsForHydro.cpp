@@ -1,6 +1,8 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
+#include "Framework/TestingFramework.hpp"
+
 #include <array>
 #include <memory>
 #include <string>
@@ -30,7 +32,6 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/Subcell/GrTagsForHydro.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/System.hpp"
 #include "Framework/TestHelpers.hpp"
-#include "Framework/TestingFramework.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/RelativisticEuler/TovStar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "Utilities/CloneUniquePtrs.hpp"

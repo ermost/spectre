@@ -16,8 +16,9 @@
 
 SPECTRE_TEST_CASE("Unit.GrMhd.GhValenciaDivClean.StressEnergy",
                   "[Unit][GrMhd]") {
+
   pypp::SetupLocalPythonEnvironment local_python_env{
-      "Evolution/Systems/GrMhd/GhValenciaDivClean"};
+    "Evolution/Systems/GrMhd/GhValenciaDivClean"};
 
   pypp::check_with_random_values<1>(
       &grmhd::GhValenciaDivClean::trace_reversed_stress_energy, "StressEnergy",
@@ -27,6 +28,8 @@ SPECTRE_TEST_CASE("Unit.GrMhd.GhValenciaDivClean.StressEnergy",
 
   pypp::check_with_random_values<1>(
       &grmhd::GhValenciaDivClean::add_stress_energy_term_to_dt_pi,
-      "StressEnergy", {"add_stress_energy_term_to_dt_pi"}, {{{1.0e-2, 0.5}}},
-      DataVector{5}, 1.0e-12, std::random_device{}(), 0.1234);
+      "StressEnergy",
+      {"add_stress_energy_term_to_dt_pi"},
+      {{{1.0e-2, 0.5}}}, DataVector{5}, 1.0e-12, std::random_device{}(),
+      0.1234);
 }

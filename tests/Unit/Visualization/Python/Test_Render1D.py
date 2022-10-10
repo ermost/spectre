@@ -10,7 +10,6 @@ import unittest
 import os
 import numpy as np
 import matplotlib as mpl
-
 mpl.use('agg')
 
 
