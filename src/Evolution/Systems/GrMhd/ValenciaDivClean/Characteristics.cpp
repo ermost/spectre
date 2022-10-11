@@ -177,9 +177,6 @@ void characteristic_speeds(
       ERROR("3d EOS not implemented");
   }
   get(sound_speed_squared) /= get(specific_enthalpy);
-utda:q
-:
-
 
   compute_characteristic_speeds(char_speeds, lapse, shift, spatial_velocity,
                                 spatial_velocity_squared, sound_speed_squared,
